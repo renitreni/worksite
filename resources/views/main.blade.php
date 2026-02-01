@@ -28,11 +28,12 @@
 
 <body class="font-['Roboto',sans-serif] bg-gray-50 text-gray-800">
     @include('mainpage.components.navbar')
-    @include('mainpage.herosection')
-    @include('mainpage.browsebyindustry')
-    @include('mainpage.featuredagency')
-    @include('mainpage.featuredjob')
-    @include('mainpage.howitworks')
+    @include('mainpage.hero-section')
+    @include('mainpage.browse-by-industry')
+    @include('mainpage.featured-agency')
+    @include('mainpage.featured-job')
+    @include('mainpage.how-it-works')
+    @include('mainpage.marketing')
     @include('mainpage.components.footer')
 
     <script src="https://unpkg.com/lucide@latest"></script>

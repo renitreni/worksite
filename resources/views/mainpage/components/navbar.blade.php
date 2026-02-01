@@ -4,10 +4,7 @@
 
             <!-- Logo -->
             <div class="flex items-center space-x-2 cursor-pointer">
-                <i data-lucide="briefcase" class="w-6 h-6 text-[#16A34A]"></i>
-                <span class="text-xl font-semibold tracking-tight text-gray-800">
-                    Work<span class="text-[#16A34A]">SITE</span>
-                </span>
+                <img src="{{ asset('images/logo.png') }}" alt="Worksite Logo" class="h-16 w-auto">
             </div>
 
             <!-- Desktop Navigation -->
@@ -66,11 +63,11 @@
 
             <!-- Auth Buttons -->
             <div class="hidden md:flex items-center space-x-3">
-                <a href="#" class="px-4 py-2 rounded-lg font-medium text-[#16A34A] border border-[#16A34A]
+                <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg font-medium text-[#16A34A] border border-[#16A34A]
                           transition hover:bg-[#16A34A] hover:text-white">
                     Login
                 </a>
-                <a href="#" class="px-4 py-2 rounded-lg font-semibold text-white bg-[#16A34A]
+                <a href="{{ route('register') }}" class="px-4 py-2 rounded-lg font-semibold text-white bg-[#16A34A]
                           transition hover:scale-105 hover:bg-green-600 shadow-sm">
                     Register
                 </a>
@@ -113,10 +110,10 @@
         <a href="#" class="block px-4 py-3 hover:bg-gray-100">Contact Us</a>
 
         <div class="px-4 py-3 flex flex-col gap-2">
-            <a href="#" class="w-full text-center border border-[#16A34A] text-[#16A34A] rounded-lg py-2">
+            <a href="{{ route('login') }}" class="w-full text-center border border-[#16A34A] text-[#16A34A] rounded-lg py-2">
                 Login
             </a>
-            <a href="#" class="w-full text-center bg-[#16A34A] text-white rounded-lg py-2">
+            <a href="{{ route('register') }}" class="w-full text-center bg-[#16A34A] text-white rounded-lg py-2">
                 Register
             </a>
         </div>

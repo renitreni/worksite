@@ -176,10 +176,4 @@
         }
     </script>
 
-
-    <!-- Lucide Icons -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
-    <script>
-        lucide.replace()
-    </script>
 </section>

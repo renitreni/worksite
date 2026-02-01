@@ -1,4 +1,3 @@
-{{-- Career CTA Section --}}
 <section class="relative py-20 bg-gradient-to-br from-[#0f5f2f] via-[#16A34A] to-[#22c55e] overflow-hidden">
     <div class="container max-w-7xl mx-auto px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
