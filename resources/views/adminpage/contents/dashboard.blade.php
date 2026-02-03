@@ -4,17 +4,11 @@
 
 @section('content')
 @php
-  // =========================
-  // SAMPLE DATA (frontend only)
-  // Replace later with DB queries.
-  // =========================
-
-  // Splits required by spec
   $users = [
-    'employees' => 1984,
+    'candidates' => 1984,
     'employers'  => 330,
   ];
-  $users['total'] = $users['employees'] + $users['employers'];
+  $users['total'] = $users['candidates'] + $users['employers'];
 
   $employers = [
     'free' => 92,
@@ -36,17 +30,15 @@
     'expired_subs' => 14,
   ];
 
-  // KPI cards (top row)
   $kpis = [
     ['label'=>'Total Users', 'value'=>number_format($users['total']), 'delta'=>'+6.2%', 'hint'=>'vs last 7 days'],
-    ['label'=>'Employees', 'value'=>number_format($users['employees']), 'delta'=>'+4.1%', 'hint'=>'active profiles'],
+    ['label'=>'Candidates', 'value'=>number_format($users['candidates']), 'delta'=>'+4.1%', 'hint'=>'active profiles'],
     ['label'=>'Employers', 'value'=>number_format($users['employers']), 'delta'=>'+2.1%', 'hint'=>'registered'],
     ['label'=>'Jobs Active', 'value'=>number_format($jobs['active']), 'delta'=>'+3.1%', 'hint'=>'active now'],
     ['label'=>'Jobs Pending', 'value'=>number_format($jobs['pending']), 'delta'=>'+9', 'hint'=>'needs review'],
     ['label'=>'Revenue', 'value'=>'₱ '.number_format($billing['revenue_month']), 'delta'=>'+12.4%', 'hint'=>'this month'],
   ];
 
-  // For breakdown bars
   $jobsBreakdown = [
     ['label'=>'Active',  'value'=>$jobs['active']],
     ['label'=>'Pending', 'value'=>$jobs['pending']],
@@ -55,9 +47,9 @@
   ];
 
   $actions = [
-    ['title'=>'Approve Employers', 'count'=>6, 'desc'=>'New employer registrations pending review', 'btn'=>'Review'],
-    ['title'=>'Review Job Posts', 'count'=>$jobs['pending'], 'desc'=>'Jobs waiting for approval/rejection', 'btn'=>'Open Queue'],
-    ['title'=>'Verify Payments', 'count'=>$billing['pending_payments'], 'desc'=>'Pending payments to activate subscriptions', 'btn'=>'Verify'],
+    ['title'=>'Approve Employers', 'count'=>6, 'desc'=>'New employer registrations pending review', 'btn'=>'Review', 'href'=>route('admin.users')],
+    ['title'=>'Review Job Posts', 'count'=>$jobs['pending'], 'desc'=>'Jobs waiting for approval/rejection', 'btn'=>'Open Queue', 'href'=>route('admin.jobs')],
+    ['title'=>'Verify Payments', 'count'=>$billing['pending_payments'], 'desc'=>'Pending payments to activate subscriptions', 'btn'=>'Verify', 'href'=>route('admin.billing')],
   ];
 
   $activity = [
@@ -67,13 +59,9 @@
     ['who'=>'TechTalent Hub', 'what'=>'job post approved', 'when'=>'3h ago', 'tag'=>'Jobs'],
   ];
 
-  // placeholder bars for revenue (0-60 range)
   $revenueBars = [18,22,15,28,30,24,40,35,46,39,52,48];
+  $jobTrend    = [12,18,16,22,30,28,34,26,24,29,35,38];
 
-  // chart-like job trend (placeholder)
-  $jobTrend = [12, 18, 16, 22, 30, 28, 34, 26, 24, 29, 35, 38];
-
-  // Helpers: no inline styles, no w-[%]
   $barHeight = function(int $b): string {
     return match(true) {
       $b >= 55 => 'h-36',
@@ -116,32 +104,51 @@
     };
   };
 
-  // pretend “last updated” label for realtime feel (frontend only)
-  $lastUpdated = 'Just now';
+  $months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  $revenueValues = array_map(fn($b) => 10000 + ($b * 1200), $revenueBars);
+  $jobValues     = array_map(fn($t) => (int)$t, $jobTrend);
 @endphp
 
-<div class="space-y-6">
+<div
+  class="space-y-6"
+  x-data="dashUI({
+    months: @js($months),
+    revenueBars: @js($revenueBars),
+    revenueValues: @js($revenueValues),
+    jobBars: @js($jobTrend),
+    jobValues: @js($jobValues),
+  })"
+  x-init="init()"
+>
 
-  {{-- Header controls (responsive) --}}
   <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
     <div class="min-w-0">
       <div class="text-sm font-semibold text-slate-900">Live Overview</div>
       <div class="mt-1 text-xs text-slate-500">
-        Last updated: <span class="font-semibold text-slate-700">{{ $lastUpdated }}</span>
+        Last updated: <span class="font-semibold text-slate-700" x-text="lastUpdated"></span>
         <span class="hidden sm:inline">•</span>
-        <span class="block sm:inline">All values are placeholders (frontend)</span>
+        <span class="block sm:inline">All values are placeholders</span>
       </div>
     </div>
 
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <select class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm sm:w-auto">
-        <option>Last 7 days</option>
-        <option>Last 30 days</option>
-        <option>This month</option>
-        <option>This year</option>
+      <select
+        x-model="range"
+        @change="applyRange()"
+        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm sm:w-auto"
+      >
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="month">This month</option>
+        <option value="year">This year</option>
       </select>
 
-      <button class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50 sm:w-auto">
+      <button
+        type="button"
+        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50 sm:w-auto"
+        @click="refresh()"
+      >
         Refresh
       </button>
 
@@ -152,7 +159,7 @@
     </div>
   </div>
 
-  {{-- KPI grid (mobile 1, tablet 2, desktop 3) --}}
+  {{-- KPI grid --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
     @foreach($kpis as $k)
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -168,7 +175,6 @@
             <div class="mt-1 text-[11px] text-slate-500">{{ $k['hint'] }}</div>
           </div>
         </div>
-
         <div class="mt-4 h-2 w-full rounded-full bg-slate-100">
           <div class="h-2 w-2/3 rounded-full bg-emerald-600"></div>
         </div>
@@ -176,36 +182,57 @@
     @endforeach
   </div>
 
-  {{-- Breakdown strip (Users + Employers split) --}}
+  {{-- Highlights + Users split + Risk --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-900">Highlights</div>
+      <div class="mt-1 text-xs text-slate-500">Quick signals from current charts</div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs text-slate-500">Top revenue month</div>
+          <div class="mt-1 text-lg font-bold text-slate-900" x-text="highlights.topRevenueLabel"></div>
+          <div class="mt-1 text-sm font-semibold text-slate-700" x-text="highlights.topRevenueValue"></div>
+          <div class="mt-2 text-xs text-slate-500" x-text="highlights.revChange"></div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs text-slate-500">Top jobs month</div>
+          <div class="mt-1 text-lg font-bold text-slate-900" x-text="highlights.topJobsLabel"></div>
+          <div class="mt-1 text-sm font-semibold text-slate-700" x-text="highlights.topJobsValue"></div>
+          <div class="mt-2 text-xs text-slate-500" x-text="highlights.jobsChange"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="text-sm font-semibold text-slate-900">Users Split</div>
-      <div class="mt-1 text-xs text-slate-500">Employees vs Employers</div>
+      <div class="mt-1 text-xs text-slate-500">Candidates vs Employers</div>
 
       @php
         $uTotal = max(1, $users['total']);
-        $empPct = (int) round(($users['employees'] / $uTotal) * 100);
-        $erPct  = 100 - $empPct;
+        $candPct = (int) round(($users['candidates'] / $uTotal) * 100);
+        $empPct  = 100 - $candPct;
       @endphp
 
       <div class="mt-4 space-y-3">
         <div>
           <div class="flex items-center justify-between text-sm">
-            <span class="font-semibold text-slate-800">Employees</span>
-            <span class="text-slate-600">{{ number_format($users['employees']) }} ({{ $empPct }}%)</span>
+            <span class="font-semibold text-slate-800">Candidates</span>
+            <span class="text-slate-600">{{ number_format($users['candidates']) }} ({{ $candPct }}%)</span>
           </div>
           <div class="mt-2 h-2 w-full rounded-full bg-slate-100">
-            <div class="h-2 rounded-full bg-emerald-600 {{ $barWidth($empPct) }}"></div>
+            <div class="h-2 rounded-full bg-emerald-600 {{ $barWidth($candPct) }}"></div>
           </div>
         </div>
 
         <div>
           <div class="flex items-center justify-between text-sm">
             <span class="font-semibold text-slate-800">Employers</span>
-            <span class="text-slate-600">{{ number_format($users['employers']) }} ({{ $erPct }}%)</span>
+            <span class="text-slate-600">{{ number_format($users['employers']) }} ({{ $empPct }}%)</span>
           </div>
           <div class="mt-2 h-2 w-full rounded-full bg-slate-100">
-            <div class="h-2 rounded-full bg-slate-700 {{ $barWidth($erPct) }}"></div>
+            <div class="h-2 rounded-full bg-slate-700 {{ $barWidth($empPct) }}"></div>
           </div>
         </div>
       </div>
@@ -217,105 +244,126 @@
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">Employer Plans</div>
-      <div class="mt-1 text-xs text-slate-500">Free vs Paid subscriptions</div>
-
-      @php
-        $eTotal = max(1, $employers['active']);
-        $freePct = (int) round(($employers['free'] / $eTotal) * 100);
-        $paidPct = 100 - $freePct;
-      @endphp
-
-      <div class="mt-4 space-y-3">
-        <div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-semibold text-slate-800">Free</span>
-            <span class="text-slate-600">{{ number_format($employers['free']) }} ({{ $freePct }}%)</span>
-          </div>
-          <div class="mt-2 h-2 w-full rounded-full bg-slate-100">
-            <div class="h-2 rounded-full bg-slate-700 {{ $barWidth($freePct) }}"></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-semibold text-slate-800">Paid</span>
-            <span class="text-slate-600">{{ number_format($employers['paid']) }} ({{ $paidPct }}%)</span>
-          </div>
-          <div class="mt-2 h-2 w-full rounded-full bg-slate-100">
-            <div class="h-2 rounded-full bg-emerald-600 {{ $barWidth($paidPct) }}"></div>
-          </div>
-        </div>
-      </div>
-
-      <a href="{{ route('admin.billing') }}"
-         class="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-        Subscription & Billing
-      </a>
-    </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="text-sm font-semibold text-slate-900">Payments & Risk</div>
       <div class="mt-1 text-xs text-slate-500">Operational alerts</div>
 
       <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div class="text-xs text-slate-500">Pending payments</div>
-          <div class="mt-1 text-2xl font-bold text-slate-900">{{ $billing['pending_payments'] }}</div>
-          <div class="mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 {{ $chip($billing['pending_payments'] ? 'warn' : 'good') }}">
-            {{ $billing['pending_payments'] ? 'Needs verification' : 'All clear' }}
+        <a href="{{ route('admin.billing') }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-xs text-slate-500">Pending payments</div>
+              <div class="mt-1 text-2xl font-bold text-slate-900">{{ $billing['pending_payments'] }}</div>
+            </div>
+            <div class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 {{ $chip($billing['pending_payments'] ? 'warn' : 'good') }}">
+              {{ $billing['pending_payments'] ? 'Needs verification' : 'All clear' }}
+            </div>
           </div>
-        </div>
+          <div class="mt-2 text-xs font-semibold text-emerald-700">Open Billing →</div>
+        </a>
 
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div class="text-xs text-slate-500">Expired subscriptions</div>
-          <div class="mt-1 text-2xl font-bold text-slate-900">{{ $billing['expired_subs'] }}</div>
-          <div class="mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 {{ $chip($billing['expired_subs'] >= 10 ? 'bad' : 'warn') }}">
-            Action recommended
+        <a href="{{ route('admin.billing') }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-xs text-slate-500">Expired subscriptions</div>
+              <div class="mt-1 text-2xl font-bold text-slate-900">{{ $billing['expired_subs'] }}</div>
+            </div>
+            <div class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 {{ $chip($billing['expired_subs'] >= 10 ? 'bad' : 'warn') }}">
+              Action recommended
+            </div>
           </div>
-        </div>
+          <div class="mt-2 text-xs font-semibold text-emerald-700">Review Expired →</div>
+        </a>
       </div>
     </div>
   </div>
 
-  {{-- Analytics row (responsive: stacks on mobile) --}}
+  {{-- Analytics row --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-5">
-
-    {{-- Revenue trend --}}
     <div class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div class="text-sm font-semibold text-slate-900">Revenue Trend</div>
-          <div class="mt-1 text-xs text-slate-500">Monthly revenue (placeholder visualization)</div>
+          <div class="mt-1 text-xs text-slate-500">Hover/tap bars to see values</div>
         </div>
         <div class="flex gap-2">
-          <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50">Last 12 mo</button>
-          <button class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">This year</button>
+          <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('revenue')">Revenue</button>
+          <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('jobs')">Jobs</button>
         </div>
       </div>
 
-      <div class="mt-5">
-        <div class="flex h-40 items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          @foreach($revenueBars as $b)
-            <div class="flex-1 rounded-lg bg-emerald-600/80 {{ $barHeight((int)$b) }}"></div>
-          @endforeach
+      <div x-show="mode==='revenue'" class="mt-5">
+        <div x-ref="revenueWrap" class="relative flex h-40 items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <template x-for="(b, i) in charts.revenueBars" :key="'r'+i">
+            <button
+              type="button"
+              class="group relative flex-1"
+              @mouseenter="showTipFromEl($event.currentTarget, 'Revenue: ' + charts.months[i], '₱ ' + numberWithCommas(charts.revenueValues[i]), 'revenueWrap')"
+              @mousemove="moveTipFromEl($event.currentTarget, 'revenueWrap')"
+              @mouseleave="hideTip()"
+              @click="toggleTipFromEl($event.currentTarget, 'Revenue: ' + charts.months[i], '₱ ' + numberWithCommas(charts.revenueValues[i]), 'revenueWrap')"
+            >
+              <div
+                class="w-full rounded-lg bg-emerald-600/80 group-hover:bg-emerald-700/90"
+                :class="heightClass(b)"
+              ></div>
+            </button>
+          </template>
+
+          <div
+            x-show="tip.show"
+            x-transition.opacity
+            class="pointer-events-none absolute z-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg"
+            :style="`left:${tip.x}px; top:${tip.y}px; transform: translate(-50%, -105%);`"
+          >
+            <div class="font-semibold text-slate-900" x-text="tip.title"></div>
+            <div class="text-slate-600" x-text="tip.value"></div>
+          </div>
         </div>
-        <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
-          <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Dec</span>
+
+        <div class="mt-3 grid grid-cols-12 gap-2 text-[11px] text-slate-500">
+          <template x-for="(m, i) in charts.months" :key="'rm'+i">
+            <div class="text-center" x-text="m"></div>
+          </template>
         </div>
       </div>
 
-      {{-- Job trend mini chart --}}
-      <div class="mt-5">
-        <div class="text-sm font-semibold text-slate-900">Jobs Posted Trend</div>
-        <div class="mt-1 text-xs text-slate-500">New jobs created per month (placeholder)</div>
+      <div x-show="mode==='jobs'" class="mt-5">
+        <div x-ref="jobsWrap" class="relative flex h-40 items-end gap-2 rounded-2xl border border-slate-200 bg-white p-4">
+          <template x-for="(b, i) in charts.jobBars" :key="'j'+i">
+            <button
+              type="button"
+              class="group relative flex-1"
+              @mouseenter="showTipFromEl($event.currentTarget, 'Jobs Posted: ' + charts.months[i], charts.jobValues[i] + ' jobs', 'jobsWrap')"
+              @mousemove="moveTipFromEl($event.currentTarget, 'jobsWrap')"
+              @mouseleave="hideTip()"
+              @click="toggleTipFromEl($event.currentTarget, 'Jobs Posted: ' + charts.months[i], charts.jobValues[i] + ' jobs', 'jobsWrap')"
+            >
+              <div
+                class="w-full rounded-lg bg-slate-800/80 group-hover:bg-slate-900/90"
+                :class="heightClass(b)"
+              ></div>
+            </button>
+          </template>
 
-        <div class="mt-4 flex h-24 items-end gap-2 rounded-2xl border border-slate-200 bg-white p-4">
-          @foreach($jobTrend as $t)
-            <div class="flex-1 rounded-md bg-slate-800/80 {{ $barHeight((int)$t) }}"></div>
-          @endforeach
+          <div
+            x-show="tip.show"
+            x-transition.opacity
+            class="pointer-events-none absolute z-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg"
+            :style="`left:${tip.x}px; top:${tip.y}px; transform: translate(-50%, -105%);`"
+          >
+            <div class="font-semibold text-slate-900" x-text="tip.title"></div>
+            <div class="text-slate-600" x-text="tip.value"></div>
+          </div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-12 gap-2 text-[11px] text-slate-500">
+          <template x-for="(m, i) in charts.months" :key="'jm'+i">
+            <div class="text-center" x-text="m"></div>
+          </template>
         </div>
       </div>
+
     </div>
 
     {{-- Jobs breakdown --}}
@@ -372,14 +420,14 @@
 
       <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         @foreach($actions as $a)
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <a href="{{ $a['href'] }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">
             <div class="text-xs text-slate-500">{{ $a['title'] }}</div>
             <div class="mt-2 text-3xl font-bold text-slate-900">{{ $a['count'] }}</div>
             <div class="mt-1 text-xs text-slate-600">{{ $a['desc'] }}</div>
-            <button class="mt-4 w-full rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
+            <div class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
               {{ $a['btn'] }}
-            </button>
-          </div>
+            </div>
+          </a>
         @endforeach
       </div>
     </div>
@@ -421,4 +469,167 @@
   </div>
 
 </div>
+
+<script>
+  function dashUI(charts){
+    return {
+      charts,
+      range: '7d',
+      mode: 'revenue',
+      lastUpdated: 'Just now',
+      tip: { show:false, x:0, y:0, title:'', value:'', locked:false },
+      highlights: {
+        topRevenueLabel: '',
+        topRevenueValue: '',
+        revChange: '',
+        topJobsLabel: '',
+        topJobsValue: '',
+        jobsChange: '',
+      },
+
+      init(){
+        this.computeHighlights();
+      },
+
+      setMode(m){
+        this.mode = m;
+        this.tip.show = false;
+        this.tip.locked = false;
+      },
+
+      refresh(){
+        this.lastUpdated = new Date().toLocaleTimeString();
+        this.tip.show = false;
+        this.tip.locked = false;
+        this.computeHighlights();
+      },
+
+      applyRange(){
+        if(this.range === '7d'){
+          this.charts.revenueBars = [18,22,15,28,30,24,40,35,46,39,52,48];
+          this.charts.revenueValues = this.charts.revenueBars.map(b => 10000 + (b * 1200));
+          this.charts.jobBars = [12,18,16,22,30,28,34,26,24,29,35,38];
+          this.charts.jobValues = [...this.charts.jobBars];
+        } else if(this.range === '30d'){
+          this.charts.revenueBars = [20,24,18,30,33,28,42,38,44,41,49,46];
+          this.charts.revenueValues = this.charts.revenueBars.map(b => 12000 + (b * 1100));
+          this.charts.jobBars = [10,14,15,20,25,27,29,23,26,28,31,33];
+          this.charts.jobValues = [...this.charts.jobBars];
+        } else if(this.range === 'month'){
+          this.charts.revenueBars = [0,0,0,0,0,0,0,0,0,0,0,48];
+          this.charts.revenueValues = this.charts.revenueBars.map(b => (b ? 86420 : 0));
+          this.charts.jobBars = [0,0,0,0,0,0,0,0,0,0,0,38];
+          this.charts.jobValues = [...this.charts.jobBars];
+        } else {
+          this.charts.revenueBars = [12,14,16,20,26,28,31,34,36,40,44,48];
+          this.charts.revenueValues = this.charts.revenueBars.map(b => 9000 + (b * 1400));
+          this.charts.jobBars = [8,10,12,15,18,21,20,23,24,26,28,30];
+          this.charts.jobValues = [...this.charts.jobBars];
+        }
+
+        this.computeHighlights();
+        this.refresh();
+      },
+
+      computeHighlights(){
+        let maxR = -1, maxRi = 0;
+        this.charts.revenueValues.forEach((v,i)=>{ if(v>maxR){ maxR=v; maxRi=i; }});
+        this.highlights.topRevenueLabel = this.charts.months[maxRi] + ' (peak)';
+        this.highlights.topRevenueValue = '₱ ' + this.numberWithCommas(maxR);
+
+        const prevRi = Math.max(0, maxRi - 1);
+        const prevR = this.charts.revenueValues[prevRi] || 0;
+        this.highlights.revChange = prevR ? ('vs prev: ' + this.pctChange(prevR, maxR)) : 'vs prev: —';
+
+        let maxJ = -1, maxJi = 0;
+        this.charts.jobValues.forEach((v,i)=>{ if(v>maxJ){ maxJ=v; maxJi=i; }});
+        this.highlights.topJobsLabel = this.charts.months[maxJi] + ' (peak)';
+        this.highlights.topJobsValue = this.numberWithCommas(maxJ) + ' jobs';
+
+        const prevJi = Math.max(0, maxJi - 1);
+        const prevJ = this.charts.jobValues[prevJi] || 0;
+        this.highlights.jobsChange = prevJ ? ('vs prev: ' + this.pctChange(prevJ, maxJ)) : 'vs prev: —';
+      },
+
+      pctChange(a,b){
+        const diff = b - a;
+        const pct = (diff / a) * 100;
+        const sign = pct >= 0 ? '+' : '';
+        return sign + pct.toFixed(1) + '%';
+      },
+
+      numberWithCommas(x){
+        const s = String(x ?? 0);
+        return s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      },
+
+      heightClass(b){
+        b = Number(b || 0);
+        if(b >= 55) return 'h-36';
+        if(b >= 50) return 'h-32';
+        if(b >= 45) return 'h-28';
+        if(b >= 40) return 'h-24';
+        if(b >= 35) return 'h-20';
+        if(b >= 30) return 'h-16';
+        if(b >= 25) return 'h-14';
+        if(b >= 20) return 'h-12';
+        if(b >= 15) return 'h-10';
+        return 'h-8';
+      },
+
+      placeTip(el, wrapRef){
+        const wrap = this.$refs[wrapRef];
+        if(!wrap || !el) return;
+
+        const wrapRect = wrap.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+
+        let x = (elRect.left + elRect.width / 2) - wrapRect.left;
+        let y = (elRect.top - wrapRect.top) - 6;
+
+        x = Math.max(16, Math.min(x, wrapRect.width - 16));
+        y = Math.max(10, y);
+
+        this.tip.x = x;
+        this.tip.y = y;
+      },
+
+      showTipFromEl(el, title, value, wrapRef){
+        if(this.tip.locked) return;
+        this.tip.title = title;
+        this.tip.value = value;
+        this.tip.show = true;
+        this.placeTip(el, wrapRef);
+      },
+
+      moveTipFromEl(el, wrapRef){
+        if(!this.tip.show || this.tip.locked) return;
+        this.placeTip(el, wrapRef);
+      },
+
+      hideTip(){
+        if(this.tip.locked) return;
+        this.tip.show = false;
+      },
+
+      toggleTipFromEl(el, title, value, wrapRef){
+        if(this.tip.locked && this.tip.title === title){
+          this.tip.locked = false;
+          this.tip.show = false;
+          return;
+        }
+        this.tip.locked = true;
+        this.tip.title = title;
+        this.tip.value = value;
+        this.tip.show = true;
+        this.placeTip(el, wrapRef);
+
+        setTimeout(() => {
+          this.tip.locked = false;
+          this.tip.show = false;
+        }, 1800);
+      },
+    }
+  }
+</script>
 @endsection

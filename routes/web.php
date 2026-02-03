@@ -16,7 +16,7 @@ Route::get('/register', function () {
 
 
 
-Route::view('/admin/login', 'adminpage.contents.login')->name('admin.login');
+Route::view('/admin/adminlogin', 'adminpage.contents.adminlogin')->name('admin.adminlogin');
 
 Route::view('/admin', 'adminpage.contents.dashboard')->name('admin.dashboard');
 Route::view('/admin/users', 'adminpage.contents.users')->name('admin.users');
