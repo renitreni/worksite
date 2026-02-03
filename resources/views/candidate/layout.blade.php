@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ config('app.name', 'WorkSITE') }} - Candidate</title>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900 antialiased">
+    <div x-data="{ mobileSidebarOpen: false }" class="min-h-screen">
+
+        {{-- Mobile overlay --}}
+        <div
+            x-show="mobileSidebarOpen"
+            x-transition.opacity
+            class="fixed inset-0 z-40 bg-black/40 lg:hidden"
+            @click="mobileSidebarOpen = false"
+        ></div>
+
+        {{-- Sidebar (Desktop + Mobile Drawer) --}}
+        @include('candidate.components.sidebar')
+
+        {{-- Main Area --}}
+        <div class="lg:pl-64 flex min-h-screen flex-col">
+            @include('candidate.components.navbar')
+
+            <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6">
+                @yield('content')
+            </main>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            if (window.lucide) window.lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
