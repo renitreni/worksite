@@ -26,7 +26,7 @@
 
 </head>
 
-<body class="font-['Roboto',sans-serif] bg-gray-50 text-gray-800">
+<body class="font-['Inter',sans-serif] bg-gray-50 text-gray-800">
     @include('mainpage.components.navbar')
     @include('mainpage.hero-section')
     @include('mainpage.browse-by-industry')
