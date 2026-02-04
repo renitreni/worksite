@@ -1,7 +1,11 @@
 @extends('candidate.layout')
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-6"
+     x-data="{
+        successOpen: false
+     }"
+>
     {{-- Title --}}
     <h1 class="text-xl sm:text-2xl font-semibold text-red-600">
         Delete Profile
@@ -39,6 +43,7 @@
                 To confirm, please enter your password
             </label>
             <input
+                id="deletePassword"
                 type="password"
                 placeholder="Enter your password"
                 class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-300"
@@ -56,11 +61,58 @@
 
             <button
                 type="button"
+                @click="successOpen = true"
                 class="inline-flex items-center gap-2 rounded-xl bg-red-500 px-5 py-3 text-sm font-semibold text-white hover:bg-red-600 transition"
             >
                 <i data-lucide="trash-2" class="h-4 w-4"></i>
                 Delete Account
             </button>
+        </div>
+    </div>
+
+    {{-- SUCCESS MODAL --}}
+    <div
+        x-show="successOpen"
+        x-transition.opacity
+        class="fixed inset-0 z-50 flex items-center justify-center px-4"
+        style="display: none;"
+    >
+        {{-- overlay --}}
+        <div
+            class="absolute inset-0 bg-black/40"
+            @click="successOpen = false"
+        ></div>
+
+        {{-- modal card --}}
+        <div
+            x-transition.scale
+            class="relative w-full max-w-md rounded-2xl bg-white shadow-xl border border-gray-200 p-6"
+            @click.away="successOpen = false"
+        >
+            <div class="flex items-start gap-4">
+                <div class="flex h-11 w-11 items-center justify-center rounded-full bg-green-100">
+                    <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                </div>
+
+                <div class="flex-1">
+                    <p class="text-base font-semibold text-gray-900">
+                        Success
+                    </p>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Your account is successfully deleted.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button
+                    type="button"
+                    class="rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700 transition"
+                    @click="successOpen = false"
+                >
+                    OK
+                </button>
+            </div>
         </div>
     </div>
 </div>

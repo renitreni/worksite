@@ -1,3 +1,4 @@
+
 Route::get('/candidate', function(){
     return view('candidate.layout');
 })->name('candidate');
@@ -45,3 +46,12 @@ Route::get('/candidate/change-password', function () {
 Route::get('/candidate/delete-profile', function () {
     return view('candidate.contents.delete-profile');
 })->name('candidate.delete-profile');
+
+
+Route::post('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect('/login');
+})->name('logout');

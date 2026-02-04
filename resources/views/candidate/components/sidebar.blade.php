@@ -17,7 +17,7 @@
     ];
 @endphp
 
-{{-- ================= DESKTOP SIDEBAR ================= --}}
+
 <aside class="hidden lg:flex lg:fixed lg:inset-y-0 lg:w-64 lg:flex-col bg-white border-r border-gray-200">
     <div class="h-16 flex items-center px-6 border-b border-gray-100">
         <div class="flex items-center gap-2">
@@ -50,15 +50,21 @@
             <div class="h-px bg-gray-100"></div>
         </div>
 
-        <a href="#"
-           class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50">
-            <i data-lucide="log-out" class="h-5 w-5 text-red-500"></i>
-            <span>Log Out</span>
-        </a>
+       
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button
+                type="submit"
+                class="w-full group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+            >
+                <i data-lucide="log-out" class="h-5 w-5 text-red-500"></i>
+                <span>Log Out</span>
+            </button>
+        </form>
     </nav>
 </aside>
 
-{{-- ================= MOBILE SIDEBAR ================= --}}
+
 <aside
     x-show="mobileSidebarOpen"
     class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-200 lg:hidden"
@@ -93,5 +99,21 @@
                 <span>{{ $item['label'] }}</span>
             </a>
         @endforeach
+
+        <div class="pt-4">
+            <div class="h-px bg-gray-100"></div>
+        </div>
+
+       
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button
+                type="submit"
+                class="w-full group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+            >
+                <i data-lucide="log-out" class="h-5 w-5 text-red-500"></i>
+                <span>Log Out</span>
+            </button>
+        </form>
     </nav>
 </aside>

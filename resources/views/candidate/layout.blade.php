@@ -7,6 +7,8 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <style>[x-cloak]{display:none!important}</style>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -20,6 +22,7 @@
             x-transition.opacity
             class="fixed inset-0 z-40 bg-black/40 lg:hidden"
             @click="mobileSidebarOpen = false"
+            x-cloak
         ></div>
 
         {{-- Sidebar (Desktop + Mobile Drawer) --}}
@@ -36,9 +39,15 @@
     </div>
 
     <script>
-        window.addEventListener('load', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) window.lucide.createIcons();
         });
     </script>
+
+    <style>
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear { display:none; }
+    </style>
+
 </body>
 </html>
