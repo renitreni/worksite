@@ -75,6 +75,42 @@ Route::post('/logout', function () {
 })->name('logout');
 
 
+#EMPLOYER ROUTES
+Route::view('/employer/dashboard', 'employer.contents.dashboard')
+    ->name('employer.dashboard');
+
+Route::get('/employer/company-profile', function () {
+    return view('employer.contents.profile');
+})->name('employer.company-profile');
+
+Route::get('/employer/analytics', function () {
+    return view('employer.contents.analytics');
+})->name('employer.analytics');
+
+Route::get('/employer/subscription', function () {
+    return view('employer.contents.subscription');
+})->name('employer.subscription');
+
+Route::get('/employer/job-postings/active', function () {
+    return view('employer.contents.job-postings.active');
+})->name('employer.job-postings.active');
+
+Route::get('/employer/job-postings/closed', function () {
+    return view('employer.contents.job-postings.closed');
+})->name('employer.job-postings.closed');
+
+Route::get('/employer/applicants/all', function () {
+    return view('employer.contents.applicants.all');
+})->name('employer.applicants.all');
+
+Route::get('/employer/applicants/shortlisted', function () {
+    return view('employer.contents.applicants.shortlisted');
+})->name('employer.applicants.shortlisted');
+
+Route::get('/employer/applicants/rejected', function () {
+    return view('employer.contents.applicants.rejected');
+})->name('employer.applicants.rejected');
+
 
 #ADMIN ROUTESSS
 Route::view('/admin/adminlogin', 'adminpage.contents.adminlogin')->name('admin.adminlogin');
