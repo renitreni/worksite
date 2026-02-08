@@ -4,11 +4,6 @@
 
 @section('content')
 @php
-  // =========================
-  // FRONTEND-ONLY SAMPLE DATA
-  // Replace later with DB queries.
-  // =========================
-
   $plans = [
     [
       'id'=>1, 'name'=>'Starter', 'interval'=>'monthly', 'price'=>499, 'currency'=>'PHP',
@@ -77,7 +72,6 @@
   x-init="init()"
 >
 
-  {{-- Header + Search --}}
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div class="min-w-0">
@@ -103,7 +97,6 @@
       </div>
     </div>
 
-    {{-- Tabs --}}
     <div class="mt-4 flex flex-wrap gap-2">
       <button type="button" @click="tab='plans'"
         class="rounded-xl px-4 py-2 text-sm font-semibold ring-1"
@@ -131,7 +124,6 @@
     </div>
   </div>
 
-  {{-- KPI Row --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="text-xs text-slate-500">Active plans</div>
@@ -155,7 +147,7 @@
     </div>
   </div>
 
-  {{-- PLANS --}}
+  {{-- Plans --}}
   <div x-show="tab==='plans'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="flex items-start justify-between gap-3">
@@ -228,7 +220,7 @@
     </div>
   </div>
 
-  {{-- PAYMENTS --}}
+  {{-- Payments --}}
   <div x-show="tab==='payments'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="text-sm font-semibold text-slate-900">Employer Payments</div>
@@ -295,7 +287,7 @@
     </div>
   </div>
 
-  {{-- SUBSCRIPTIONS --}}
+  {{-- Subscriptions --}}
   <div x-show="tab==='subs'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="text-sm font-semibold text-slate-900">Employer Subscriptions</div>
@@ -364,11 +356,11 @@
     </div>
   </div>
 
-  {{-- REMINDERS --}}
+  {{-- Reminders --}}
   <div x-show="tab==='reminders'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="text-sm font-semibold text-slate-900">Expired Plan Reminders</div>
-      <div class="mt-1 text-xs text-slate-500">Send reminders to employers with expired subscriptions (frontend simulation)</div>
+      <div class="mt-1 text-xs text-slate-500">Send reminders to employers with expired subscriptions</div>
     </div>
 
     <div class="p-5 space-y-3">
@@ -407,9 +399,7 @@
     </div>
   </div>
 
-  {{-- =====================
-      MODAL: CREATE/EDIT PLAN
-     ===================== --}}
+  {{-- Plan modal --}}
   <div x-show="modal.plan" x-transition.opacity class="fixed inset-0 z-50">
     <div class="absolute inset-0 bg-black/40" @click="closePlanModal()"></div>
 
@@ -480,9 +470,7 @@
     </div>
   </div>
 
-  {{-- =====================
-      DRAWER: PAYMENT VIEW
-     ===================== --}}
+  {{-- Drawer: payment --}}
   <div x-show="drawer.payment" x-transition.opacity class="fixed inset-0 z-40">
     <div class="absolute inset-0 bg-black/40" @click="closePaymentDrawer()"></div>
     <div class="absolute right-0 top-0 h-full w-[92%] max-w-md bg-white p-5 shadow-xl">
@@ -546,9 +534,7 @@
     </div>
   </div>
 
-  {{-- =====================
-      DRAWER: SUBSCRIPTION VIEW
-     ===================== --}}
+  {{-- Drawer: subscription --}}
   <div x-show="drawer.sub" x-transition.opacity class="fixed inset-0 z-40">
     <div class="absolute inset-0 bg-black/40" @click="closeSubDrawer()"></div>
     <div class="absolute right-0 top-0 h-full w-[92%] max-w-md bg-white p-5 shadow-xl">
@@ -641,7 +627,6 @@
         this.computeKpi();
       },
 
-      // ---------- filtering ----------
       matchQ(text){
         const q = (this.q || '').toLowerCase();
         if(!q) return true;
@@ -672,7 +657,6 @@
         );
       },
 
-      // ---------- UI helpers ----------
       chip(tone){
         if(tone === 'good') return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
         if(tone === 'warn') return 'bg-amber-50 text-amber-700 ring-amber-200';
@@ -713,7 +697,6 @@
         this.kpi.riskSubs = this.subs.filter(s => s.status === 'expired' || s.status === 'suspended').length;
       },
 
-      // ---------- Plans CRUD (frontend) ----------
       openPlanModal(plan=null){
         if(plan){
           this.form.plan = {
@@ -794,7 +777,6 @@
         this.computeKpi();
       },
 
-      // ---------- Payments ----------
       openPaymentDrawer(pay){
         this.selectedPayment = {...pay};
         this.drawer.payment = true;
@@ -813,16 +795,13 @@
           return;
         }
 
-        // 1) mark payment completed
         this.payments[pIdx].status = 'completed';
 
-        // 2) find subscription waiting verification for this employer (demo logic)
         const employer = this.payments[pIdx].employer;
         const plan = this.payments[pIdx].plan;
 
         const sIdx = this.subs.findIndex(s => s.employer === employer && s.status === 'pending_verification');
         if(sIdx !== -1){
-          // Activate for 30 days (demo)
           const start = this.todayISO();
           const end = this.addDaysISO(30);
           this.subs[sIdx].status = 'active';
@@ -832,16 +811,14 @@
           this.subs[sIdx].last_payment = paymentId;
         }
 
-        // update drawer copy too
         if(this.selectedPayment && this.selectedPayment.id === paymentId){
           this.selectedPayment.status = 'completed';
         }
 
         this.computeKpi();
-        alert('Payment verified (frontend demo). Subscription activated if matched.');
+        alert('Payment verified. Subscription activated if matched.');
       },
 
-      // ---------- Subscriptions ----------
       openSubDrawer(sub){
         this.selectedSub = {...sub};
         this.drawer.sub = true;
@@ -855,7 +832,6 @@
         const idx = this.subs.findIndex(s => s.id === subId);
         if(idx === -1) return;
 
-        // demo: activate for 30 days starting today
         this.subs[idx].status = 'active';
         this.subs[idx].start = this.todayISO();
         this.subs[idx].end = this.addDaysISO(30);
@@ -867,7 +843,7 @@
         }
 
         this.computeKpi();
-        alert('Subscription activated (frontend demo).');
+        alert('Subscription activated.');
       },
 
       suspendSub(subId){
@@ -881,13 +857,11 @@
         }
 
         this.computeKpi();
-        alert('Subscription suspended (frontend demo).');
+        alert('Subscription suspended.');
       },
 
-      // ---------- Reminders ----------
       sendReminder(remId){
-        alert('Reminder sent (frontend demo).');
-        // keep item but you can also mark as sent if you want
+        alert('Reminder sent.');
       },
 
       dismissReminder(remId){
@@ -895,7 +869,6 @@
         this.reminders = this.reminders.filter(r => r.id !== remId);
       },
 
-      // ---------- date helpers (frontend) ----------
       todayISO(){
         const d = new Date();
         const y = d.getFullYear();

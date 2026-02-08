@@ -10,34 +10,29 @@
 <body class="min-h-screen text-slate-900">
   <div class="relative min-h-screen overflow-hidden">
 
-    {{-- Background image (FIXED) --}}
+    {{-- Background --}}
     <div
       class="absolute inset-0 bg-cover bg-center"
       style="background-image: url('{{ asset('images/background.png') }}');"
       aria-hidden="true"
     ></div>
 
-    {{-- Dark overlay for readability --}}
     <div class="absolute inset-0 bg-slate-950/55" aria-hidden="true"></div>
 
-    {{-- Vignette (focus eyes to center) --}}
     <div
       class="absolute inset-0"
       style="background: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 70%, rgba(0,0,0,0.80) 100%);"
       aria-hidden="true"
     ></div>
 
-    {{-- Subtle spotlight glow behind the card --}}
     <div class="absolute inset-0 flex items-center justify-center" aria-hidden="true">
       <div class="h-[420px] w-[420px] rounded-full bg-emerald-400/15 blur-3xl"></div>
     </div>
 
-    {{-- Optional subtle “noise” --}}
     <div class="absolute inset-0 opacity-[0.06]" aria-hidden="true">
       <div class="h-full w-full bg-[radial-gradient(circle_at_1px_1px,_#fff_1px,_transparent_0)] [background-size:18px_18px]"></div>
     </div>
 
-    {{-- Page content --}}
     <div class="relative z-10 flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8">
       <div class="w-full max-w-md">
 
@@ -47,14 +42,8 @@
           </span>
         </div>
 
-        {{-- GLASS CARD --}}
-        <div
-          x-data="{ showPass:false }"
-          class="rounded-3xl border border-white/20 bg-white/15 p-7 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-8"
-        >
-          {{-- Header --}}
+        <div class="rounded-3xl border border-white/20 bg-white/15 p-7 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-8">
           <div class="flex flex-col items-center text-center">
-            {{-- Logo wrapper keeps card size stable --}}
             <div class="h-20 flex items-center justify-center">
               <img
                 src="{{ asset('images/logo.png') }}"
@@ -63,19 +52,13 @@
               />
             </div>
 
-            {{-- OPTIONAL POLISH: divider --}}
             <div class="mt-4 h-px w-20 bg-white/25"></div>
 
-            <h1 class="mt-4 text-xl font-bold tracking-tight text-white">
-              Admin Login
-            </h1>
-            <p class="mt-1 text-sm text-white/80">
-              Please sign in to manage the system.
-            </p>
+            <h1 class="mt-4 text-xl font-bold tracking-tight text-white">Admin Login</h1>
+            <p class="mt-1 text-sm text-white/80">Please sign in to manage the system.</p>
           </div>
 
-          {{-- Form --}}
-          <form class="mt-6 space-y-4" action="{{ route('admin.dashboard') }}" method="get">
+          <form id="loginForm" class="mt-6 space-y-4" action="{{ route('admin.dashboard') }}" method="get">
 
             <div>
               <label class="text-sm font-semibold text-white/90">Email / Username</label>
@@ -97,18 +80,19 @@
                 <span class="text-white/70">🔒</span>
 
                 <input
-                  :type="showPass ? 'text' : 'password'"
+                  id="passwordInput"
+                  type="password"
                   class="w-full bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none"
                   placeholder="••••••••"
                   autocomplete="current-password"
                 />
 
                 <button
+                  id="togglePassBtn"
                   type="button"
                   class="rounded-lg px-2 py-1 text-xs font-semibold text-white/80 hover:bg-white/10"
-                  @click="showPass = !showPass"
                 >
-                  <span x-text="showPass ? 'Hide' : 'Show'"></span>
+                  Show
                 </button>
               </div>
 
@@ -118,7 +102,13 @@
                   Remember me
                 </label>
 
-                <a href="#" class="text-xs font-semibold text-emerald-200 hover:underline">
+                <a
+                  href="#"
+                  class="text-xs font-semibold text-emerald-200 hover:underline"
+                  data-toast="Password reset is not available yet (frontend only)."
+                  data-toast-type="warning"
+                  data-toast-title="Forgot password"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -128,24 +118,41 @@
               type="submit"
               class="mt-2 w-full rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm
                      hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-300/30"
+              data-toast="Logging you in..."
+              data-toast-type="success"
+              data-toast-title="Login"
             >
               Login
             </button>
 
-            <p class="pt-2 text-center text-xs text-white/70">
-              Authorized personnel only.
-            </p>
+            <p class="pt-2 text-center text-xs text-white/70">Authorized personnel only.</p>
           </form>
         </div>
 
-        <p class="mt-5 text-center text-xs text-white/70">
-          WorkSITE • Admin Panel
-        </p>
+        <p class="mt-5 text-center text-xs text-white/70">WorkSITE • Admin Panel</p>
       </div>
     </div>
   </div>
 
-  {{-- Alpine (if not already bundled in app.js) --}}
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script>
+  const form = document.getElementById('loginForm');
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault(); // stop instant redirect so toast can be seen
+
+    if (window.notify) {
+      window.notify('success', 'Login successful (demo). Redirecting...', 'Login');
+    } else {
+      alert('notify() not found. app.js not running.');
+      return;
+    }
+
+    // redirect after a short delay so toast is visible
+    setTimeout(() => {
+      window.location.href = form.action;
+    }, 800);
+  });
+</script>
+
 </body>
 </html>

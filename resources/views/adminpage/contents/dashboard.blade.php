@@ -432,6 +432,7 @@
       </div>
     </div>
 
+
     <div class="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="flex items-start justify-between gap-3">
         <div>
@@ -462,9 +463,13 @@
         @endforeach
       </div>
 
-      <button class="mt-5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">
-        Load more
-      </button>
+      <button
+  type="button"
+  class="mt-5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+  @click="window.notyf && window.notyf.open({ type: 'info', message: 'No more items (demo UI)' })"
+>
+  Load more
+</button>
     </div>
   </div>
 
@@ -502,6 +507,10 @@
         this.tip.show = false;
         this.tip.locked = false;
         this.computeHighlights();
+
+        if (window.notyf) {
+          window.notyf.success('Dashboard refreshed');
+        }
       },
 
       applyRange(){

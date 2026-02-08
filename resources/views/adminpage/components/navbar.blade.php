@@ -1,10 +1,10 @@
 <header class="sticky top-0 z-30 border-b border-slate-200 bg-white">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
 
-    {{-- LEFT: Mobile menu + title --}}
+    {{-- Left section --}}
     <div class="flex items-center gap-3 min-w-0">
 
-      {{-- Mobile sidebar toggle (ONLY ONE) --}}
+      {{-- Mobile menu --}}
       <button
         type="button"
         class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 lg:hidden"
@@ -22,10 +22,10 @@
       </div>
     </div>
 
-    {{-- RIGHT: Actions --}}
+    {{-- Right section --}}
     <div class="flex items-center gap-3">
 
-      {{-- Search (md+ only) --}}
+      {{-- Search bar --}}
       <div class="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 md:flex w-72">
         <span class="text-slate-400">⌕</span>
         <input
@@ -42,9 +42,9 @@
         🔔
       </button>
 
-      {{-- Logout (desktop only) --}}
+      {{-- Logout --}}
       <a
-      href="{{ route('admin.adminlogin') }}"
+        href="{{ route('admin.adminlogin') }}"
         class="hidden lg:inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
       >
         Logout
