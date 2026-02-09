@@ -77,7 +77,7 @@
       </div>
 
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <button type="button" @click="resetDraft()"
+        <button type="button" @click="resetDraft(true)"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">
           Reset
         </button>
@@ -146,7 +146,7 @@
           <label class="text-xs font-semibold text-slate-700">Maintenance mode</label>
           <div class="mt-1 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
             <div class="text-sm font-semibold text-slate-800">Enable</div>
-            <button type="button" @click="draft.sys.maintenance_mode = !draft.sys.maintenance_mode"
+            <button type="button" @click="draft.sys.maintenance_mode = !draft.sys.maintenance_mode; toast('info', draft.sys.maintenance_mode ? 'Maintenance mode ON (demo)' : 'Maintenance mode OFF (demo)')"
               class="rounded-full px-3 py-2 text-xs font-semibold ring-1"
               :class="draft.sys.maintenance_mode ? 'bg-rose-600 text-white ring-rose-600' : 'bg-white text-slate-700 ring-slate-200'">
               <span x-text="draft.sys.maintenance_mode ? 'ON' : 'OFF'"></span>
@@ -169,7 +169,7 @@
               <div class="mt-0.5 text-xs text-slate-500" x-text="n.hint"></div>
             </div>
             <button type="button"
-              @click="draft.sys[n.key] = !draft.sys[n.key]"
+              @click="draft.sys[n.key] = !draft.sys[n.key]; toast('info', (draft.sys[n.key] ? 'Enabled: ' : 'Disabled: ') + n.label)"
               class="rounded-full px-3 py-2 text-xs font-semibold ring-1"
               :class="draft.sys[n.key] ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-200'">
               <span x-text="draft.sys[n.key] ? 'ON' : 'OFF'"></span>
@@ -206,7 +206,7 @@
           <div class="text-sm font-semibold text-slate-900">Template Editor</div>
           <div class="mt-1 text-xs text-slate-500">Edit subject and message body.</div>
         </div>
-        <button type="button" @click="previewOpen=true"
+        <button type="button" @click="previewOpen=true; toast('info','Preview opened')"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold hover:bg-slate-50">
           Preview
         </button>
@@ -325,7 +325,7 @@
         <div class="space-y-2">
           <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
             <div class="text-sm font-semibold text-slate-800">Require uppercase</div>
-            <button type="button" @click="draft.sys.password_require_upper = !draft.sys.password_require_upper"
+            <button type="button" @click="draft.sys.password_require_upper = !draft.sys.password_require_upper; toast('info', draft.sys.password_require_upper ? 'Uppercase required (demo)' : 'Uppercase not required (demo)')"
               class="rounded-full px-3 py-2 text-xs font-semibold ring-1"
               :class="draft.sys.password_require_upper ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-200'">
               <span x-text="draft.sys.password_require_upper ? 'ON' : 'OFF'"></span>
@@ -334,7 +334,7 @@
 
           <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
             <div class="text-sm font-semibold text-slate-800">Require number</div>
-            <button type="button" @click="draft.sys.password_require_number = !draft.sys.password_require_number"
+            <button type="button" @click="draft.sys.password_require_number = !draft.sys.password_require_number; toast('info', draft.sys.password_require_number ? 'Number required (demo)' : 'Number not required (demo)')"
               class="rounded-full px-3 py-2 text-xs font-semibold ring-1"
               :class="draft.sys.password_require_number ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-200'">
               <span x-text="draft.sys.password_require_number ? 'ON' : 'OFF'"></span>
@@ -343,7 +343,7 @@
 
           <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
             <div class="text-sm font-semibold text-slate-800">Require symbol</div>
-            <button type="button" @click="draft.sys.password_require_symbol = !draft.sys.password_require_symbol"
+            <button type="button" @click="draft.sys.password_require_symbol = !draft.sys.password_require_symbol; toast('info', draft.sys.password_require_symbol ? 'Symbol required (demo)' : 'Symbol not required (demo)')"
               class="rounded-full px-3 py-2 text-xs font-semibold ring-1"
               :class="draft.sys.password_require_symbol ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-200'">
               <span x-text="draft.sys.password_require_symbol ? 'ON' : 'OFF'"></span>
@@ -356,7 +356,7 @@
             <div class="text-sm font-semibold text-slate-800">Enforce 2FA for admins</div>
             <div class="mt-0.5 text-xs text-slate-500">Requires auth integration</div>
           </div>
-          <button type="button" @click="draft.sys.enforce_2fa_admin = !draft.sys.enforce_2fa_admin"
+          <button type="button" @click="draft.sys.enforce_2fa_admin = !draft.sys.enforce_2fa_admin; toast('info', draft.sys.enforce_2fa_admin ? '2FA enforced (demo)' : '2FA not enforced (demo)')"
             class="rounded-full px-3 py-2 text-xs font-semibold ring-1"
             :class="draft.sys.enforce_2fa_admin ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-200'">
             <span x-text="draft.sys.enforce_2fa_admin ? 'ON' : 'OFF'"></span>
@@ -414,7 +414,7 @@
           <div class="text-sm font-semibold text-slate-900">Email Preview</div>
           <div class="mt-1 text-xs text-slate-500">Shows sample variable replacements</div>
         </div>
-        <button type="button" @click="previewOpen=false"
+        <button type="button" @click="previewOpen=false; toast('info','Preview closed')"
           class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50">
           Close
         </button>
@@ -449,6 +449,14 @@
 
       selectedTemplateKey: null,
 
+      // ✅ UPDATED: use layout toast (window.notify)
+      toast(type, msg, title = ''){
+        if (!window.notify) return;
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+        window.notify(safeType, String(msg || ''), String(title || ''));
+      },
+
       notifRows: [
         { key:'notify_admin_new_employer', label:'Admin: new employer registrations', hint:'Notify admins when a new employer signs up' },
         { key:'notify_admin_pending_payment', label:'Admin: pending payments', hint:'Notify admins when a payment needs verification' },
@@ -460,7 +468,7 @@
         this.original.sys = {...(seed.sys || {})};
         this.original.templates = (seed.templates || []).map(t => ({...t}));
 
-        this.resetDraft();
+        this.resetDraft(false);
 
         this.roles = seed.roles || [];
         this.modules = seed.modules || [];
@@ -479,26 +487,37 @@
         if(this.draft.templates.length){
           this.selectedTemplateKey = this.draft.templates[0].key;
         }
+
+        this.toast('info', 'Settings ready');
       },
 
-      resetDraft(){
+      resetDraft(withToast=true){
         this.draft.sys = {...this.original.sys};
         this.draft.templates = this.original.templates.map(t => ({...t}));
+        if(withToast) this.toast('info', 'Draft reset');
       },
 
       saveAll(){
-        alert('Saved (frontend demo). In backend, persist sys + templates + permissions.');
+        const site = String(this.draft.sys.site_name || '').trim();
+        if(!site){
+          this.toast('error', 'Site name is required.');
+          return;
+        }
 
         this.original.sys = {...this.draft.sys};
         this.original.templates = this.draft.templates.map(t => ({...t}));
+
+        this.toast('success', 'Saved changes (frontend demo).');
       },
 
       fakeAction(msg){
-        alert(msg);
+        this.toast('info', msg);
       },
 
       selectTemplate(key){
         this.selectedTemplateKey = key;
+        const t = this.draft.templates.find(x => x.key === key);
+        this.toast('info', 'Selected: ' + (t?.name || key));
       },
 
       get activeTemplate(){
@@ -507,18 +526,28 @@
 
       revertTemplate(){
         const key = this.selectedTemplateKey;
-        if(!key) return;
+        if(!key){
+          this.toast('warning', 'No template selected.');
+          return;
+        }
+
         const orig = this.original.templates.find(t => t.key === key);
         const idx = this.draft.templates.findIndex(t => t.key === key);
+
         if(orig && idx !== -1){
           this.draft.templates[idx] = {...orig};
-          alert('Template reverted (frontend demo).');
+          this.toast('success', 'Template reverted (frontend demo).');
+        } else {
+          this.toast('error', 'Template not found.');
         }
       },
 
       saveTemplate(){
-        if(!this.activeTemplate) return;
-        alert('Template saved (frontend demo).');
+        if(!this.activeTemplate){
+          this.toast('warning', 'No template selected.');
+          return;
+        }
+        this.toast('success', 'Template saved (frontend demo).');
       },
 
       get preview(){
@@ -548,8 +577,13 @@
       toggleAccess(moduleKey, role){
         if(!this.access[moduleKey]) this.access[moduleKey] = {};
         this.access[moduleKey][role] = !this.access[moduleKey][role];
+
+        const modName = this.modules.find(m => m.key === moduleKey)?.name || moduleKey;
+        const state = this.access[moduleKey][role] ? 'Allowed' : 'Denied';
+        this.toast('info', `${state}: ${role} → ${modName}`);
       },
     }
   }
 </script>
+
 @endsection
