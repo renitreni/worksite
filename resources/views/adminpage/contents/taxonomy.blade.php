@@ -420,6 +420,14 @@
 
       openCities: {},
 
+      // ✅ UPDATED: use layout toast (window.notify) only
+      toast(type, msg, title = ''){
+        if (!window.notify) return;
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+        window.notify(safeType, String(msg || ''), String(title || ''));
+      },
+
       init(){
         this.categories = [...(seed.categories || [])];
         this.skills = [...(seed.skills || [])];
@@ -430,6 +438,8 @@
         this.suggestions = [...(seed.suggestions || [])];
 
         if(this.locations.length) this.openCities[0] = true;
+
+        this.toast('info', 'Taxonomy ready');
       },
 
       get catFiltered(){
@@ -480,73 +490,85 @@
           const v = prompt('Add city:');
           if(v) { this.newCity = v; this.addCity(); }
         } else {
-          alert('Suggestions are user-generated in this demo.');
+          this.toast('info', 'Suggestions are user-generated in this demo.');
         }
       },
 
       addCategory(){
         const v = this.norm(this.newCategory);
-        if(!v) return;
-        if(this.existsIn(this.categories, v)) { alert('Category already exists.'); return; }
+        if(!v) { this.toast('warning', 'Please enter a category.'); return; }
+        if(this.existsIn(this.categories, v)) { this.toast('warning', 'Category already exists.'); return; }
         this.categories.push(v);
         this.newCategory = '';
+        this.toast('success', 'Category added (demo).');
       },
       removeCategory(idx){
         if(!confirm('Delete this category?')) return;
+        const removed = this.categories[idx];
         this.categories.splice(idx, 1);
         if(this.editKey === ('cat'+idx)) this.cancelEdit();
+        this.toast('success', `Deleted category: ${removed || ''}`);
       },
 
       addSkill(){
         const v = this.norm(this.newSkill);
-        if(!v) return;
-        if(this.existsIn(this.skills, v)) { alert('Skill already exists.'); return; }
+        if(!v) { this.toast('warning', 'Please enter a skill.'); return; }
+        if(this.existsIn(this.skills, v)) { this.toast('warning', 'Skill already exists.'); return; }
         this.skills.push(v);
         this.newSkill = '';
+        this.toast('success', 'Skill added (demo).');
       },
       removeSkill(idx){
         if(!confirm('Delete this skill?')) return;
+        const removed = this.skills[idx];
         this.skills.splice(idx, 1);
         if(this.editKey === ('skill'+idx)) this.cancelEdit();
+        this.toast('success', `Deleted skill: ${removed || ''}`);
       },
 
       addCity(){
         const v = this.norm(this.newCity);
-        if(!v) return;
+        if(!v) { this.toast('warning', 'Please enter a city.'); return; }
         if(this.locations.some(l => this.norm(l.city).toLowerCase() === v.toLowerCase())){
-          alert('City already exists.');
+          this.toast('warning', 'City already exists.');
           return;
         }
         this.locations.push({ city: v, barangays: [] });
         const newIndex = this.locations.length - 1;
         this.openCities[newIndex] = true;
         this.newCity = '';
+        this.toast('success', 'City added (demo).');
       },
       removeCity(idx){
         if(!confirm('Delete this city and its barangays?')) return;
+        const removed = this.locations[idx]?.city || '';
         this.locations.splice(idx, 1);
         delete this.openCities[idx];
         delete this.barangayDraft[idx];
         this.cancelEdit();
+        this.toast('success', `Deleted city: ${removed}`);
       },
       toggleCity(idx){
         this.openCities[idx] = !this.openCities[idx];
       },
       addBarangay(cityIdx){
         const v = this.norm(this.barangayDraft[cityIdx]);
-        if(!v) return;
+        if(!v) { this.toast('warning', 'Please enter a barangay.'); return; }
         const brgys = this.locations[cityIdx].barangays || [];
         if(brgys.some(b => this.norm(b).toLowerCase() === v.toLowerCase())){
-          alert('Barangay already exists in this city.');
+          this.toast('warning', 'Barangay already exists in this city.');
           return;
         }
         brgys.push(v);
         this.locations[cityIdx].barangays = brgys;
         this.barangayDraft[cityIdx] = '';
+        this.toast('success', 'Barangay added (demo).');
       },
       removeBarangay(cityIdx, bIdx){
         if(!confirm('Remove this barangay?')) return;
+        const removed = this.locations[cityIdx]?.barangays?.[bIdx] || '';
         this.locations[cityIdx].barangays.splice(bIdx, 1);
+        this.toast('success', `Removed barangay: ${removed}`);
       },
 
       approveSuggestion(idx){
@@ -570,11 +592,12 @@
         }
 
         this.suggestions.splice(idx, 1);
-        alert('Approved (frontend demo). Added to Locations list.');
+        this.toast('success', 'Approved (demo). Added to Locations list.');
       },
       ignoreSuggestion(idx){
         if(!confirm('Ignore this suggestion?')) return;
         this.suggestions.splice(idx, 1);
+        this.toast('info', 'Suggestion ignored (demo).');
       },
 
       startEdit(type, idx, current){
@@ -589,24 +612,27 @@
       },
       saveEdit(type, idx){
         const v = this.norm(this.editValue);
-        if(!v) { alert('Value cannot be empty.'); return; }
+        if(!v) { this.toast('error', 'Value cannot be empty.'); return; }
 
         if(type === 'category'){
           const other = this.categories.filter((_,i)=>i!==idx);
-          if(this.existsIn(other, v)) { alert('Duplicate category.'); return; }
+          if(this.existsIn(other, v)) { this.toast('warning', 'Duplicate category.'); return; }
           this.categories[idx] = v;
+          this.toast('success', 'Category updated (demo).');
         }
 
         if(type === 'skill'){
           const other = this.skills.filter((_,i)=>i!==idx);
-          if(this.existsIn(other, v)) { alert('Duplicate skill.'); return; }
+          if(this.existsIn(other, v)) { this.toast('warning', 'Duplicate skill.'); return; }
           this.skills[idx] = v;
+          this.toast('success', 'Skill updated (demo).');
         }
 
         if(type === 'city'){
           const other = this.locations.filter((_,i)=>i!==idx).map(x=>x.city);
-          if(this.existsIn(other, v)) { alert('Duplicate city.'); return; }
+          if(this.existsIn(other, v)) { this.toast('warning', 'Duplicate city.'); return; }
           this.locations[idx].city = v;
+          this.toast('success', 'City updated (demo).');
         }
 
         this.cancelEdit();
@@ -614,4 +640,5 @@
     }
   }
 </script>
+
 @endsection
