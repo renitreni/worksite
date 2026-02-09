@@ -342,7 +342,7 @@
       selected: null,
       filters: { q: '', role: 'All', status: 'All', payment: 'All' },
 
-      // ✅ UPDATED: use layout toast (window.notify) only
+      
       toast(type, msg, title = ''){
         if (!window.notify) return;
         const allowed = ['success','info','warning','error'];
