@@ -74,18 +74,33 @@
             </p>
           </div>
 
+          {{-- Errors --}}
+          @if ($errors->any())
+            <div class="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-100">
+              <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+            </div>
+          @endif
+
           {{-- Form --}}
-          <form class="mt-6 space-y-4" action="{{ route('admin.dashboard') }}" method="get">
+          <form class="mt-6 space-y-4" method="POST" action="{{ route('admin.login.submit') }}">
+            @csrf
 
             <div>
-              <label class="text-sm font-semibold text-white/90">Email / Username</label>
+              <label class="text-sm font-semibold text-white/90">Email</label>
               <div class="mt-1 flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2 focus-within:ring-4 focus-within:ring-emerald-300/20">
                 <span class="text-white/70">👤</span>
                 <input
-                  type="text"
+                  type="email"
+                  name="email"
+                  value="{{ old('email') }}"
                   class="w-full bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none"
                   placeholder="admin@worksite.com"
                   autocomplete="username"
+                  required
                 />
               </div>
             </div>
@@ -98,9 +113,11 @@
 
                 <input
                   :type="showPass ? 'text' : 'password'"
+                  name="password"
                   class="w-full bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none"
                   placeholder="••••••••"
                   autocomplete="current-password"
+                  required
                 />
 
                 <button
@@ -114,7 +131,12 @@
 
               <div class="mt-2 flex items-center justify-between">
                 <label class="inline-flex items-center gap-2 text-xs font-semibold text-white/80">
-                  <input type="checkbox" class="h-4 w-4 rounded border-white/30 bg-transparent text-emerald-500 focus:ring-emerald-300/30" />
+                  <input
+                    type="checkbox"
+                    name="remember"
+                    class="h-4 w-4 rounded border-white/30 bg-transparent text-emerald-500 focus:ring-emerald-300/30"
+                    {{ old('remember') ? 'checked' : '' }}
+                  />
                   Remember me
                 </label>
 

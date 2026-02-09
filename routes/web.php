@@ -113,13 +113,22 @@ Route::get('/employer/applicants/rejected', function () {
 
 
 #ADMIN ROUTESSS
-Route::view('/admin/adminlogin', 'adminpage.contents.adminlogin')->name('admin.adminlogin');
+use App\Http\Controllers\Admin\AdminAuthController;
 
-Route::view('/admin', 'adminpage.contents.dashboard')->name('admin.dashboard');
-Route::view('/admin/users', 'adminpage.contents.users')->name('admin.users');
-Route::view('/admin/jobs', 'adminpage.contents.jobs')->name('admin.jobs');
-Route::view('/admin/billing', 'adminpage.contents.billing')->name('admin.billing');
-Route::view('/admin/reports', 'adminpage.contents.reports')->name('admin.reports');
-Route::view('/admin/settings', 'adminpage.contents.settings')->name('admin.settings');
-Route::view('/admin/taxonomy', 'adminpage.contents.taxonomy')->name('admin.taxonomy');
+Route::prefix('admin')->name('admin.')->group(function () {
 
+    // Auth
+    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+
+
+    // Pages
+    Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
+    Route::view('/users', 'adminpage.contents.users')->name('users');
+    Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
+    Route::view('/billing', 'adminpage.contents.billing')->name('billing');
+    Route::view('/reports', 'adminpage.contents.reports')->name('reports');
+    Route::view('/settings', 'adminpage.contents.settings')->name('settings');
+    Route::view('/taxonomy', 'adminpage.contents.taxonomy')->name('taxonomy');
+});
