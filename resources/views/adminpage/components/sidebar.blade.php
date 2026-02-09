@@ -107,7 +107,7 @@
       <div class="my-5 border-t border-slate-200"></div>
 
       <a
-        href="{{ route('admin.adminlogin') }}"
+        {{ route('admin.login') }}
         class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
       >
         Logout

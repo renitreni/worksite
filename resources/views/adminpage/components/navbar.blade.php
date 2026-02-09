@@ -45,13 +45,17 @@
         🔔
       </button>
 
-      {{-- Logout --}}
-      <a
-        href="{{ route('admin.adminlogin') }}"
-        class="hidden lg:inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-      >
-        Logout
-      </a>
+      {{-- Logout (desktop only) --}}
+      <form method="POST" action="{{ route('admin.logout') }}" class="inline">
+        @csrf
+        <button
+          type="submit"
+          class="hidden lg:inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+        >
+          Logout
+        </button>
+      </form>
+
     </div>
   </div>
 </header>
