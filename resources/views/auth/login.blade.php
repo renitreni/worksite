@@ -7,7 +7,6 @@
     <title>{{ config('app.name', 'Worksite') }} | Login</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <script src="https://unpkg.com/lucide@latest"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -21,14 +20,9 @@
         <x-back-button />
     </div>
 
-
-
-
-    {{-- Full page wrapper (NO page scroll) --}}
     <main class="min-h-screen flex items-center justify-center px-4 py-6">
-        <div x-data="{ role: 'candidate', showPass: false }" class="w-full max-w-sm md:max-w-md rounded-3xl border border-gray-200 bg-white shadow-lg overflow-hidden
-                   max-h-[calc(100vh-4rem)]">
-            {{-- Internal scroll only if needed (page stays fixed) --}}
+        <div x-data="{ role: 'employer', showPass: false }"
+             class="w-full max-w-sm md:max-w-md rounded-3xl border border-gray-200 bg-white shadow-lg overflow-hidden">
             <div class="overflow-auto max-h-[calc(100vh-4rem)]">
                 {{-- Header --}}
                 <div class="px-6 pt-6 pb-4 text-center">
@@ -43,17 +37,19 @@
                     <div class="mt-5 text-left">
                         <p class="text-xs font-semibold text-gray-500 mb-2">I am a</p>
                         <div class="grid grid-cols-2 gap-2">
-                            <button type="button" @click="role='candidate'" :class="role==='candidate'
-                                    ? 'bg-[#16A34A] text-white border-[#16A34A]'
-                                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'"
-                                class="rounded-xl border px-3 py-2.5 text-sm font-semibold transition">
+                            <button type="button" @click="role='candidate'" 
+                                    :class="role==='candidate'
+                                        ? 'bg-[#16A34A] text-white border-[#16A34A]'
+                                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'"
+                                    class="rounded-xl border px-3 py-2.5 text-sm font-semibold transition">
                                 Candidate
                             </button>
 
-                            <button type="button" @click="role='employer'" :class="role==='employer'
-                                    ? 'bg-[#16A34A] text-white border-[#16A34A]'
-                                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'"
-                                class="rounded-xl border px-3 py-2.5 text-sm font-semibold transition">
+                            <button type="button" @click="role='employer'" 
+                                    :class="role==='employer'
+                                        ? 'bg-[#16A34A] text-white border-[#16A34A]'
+                                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'"
+                                    class="rounded-xl border px-3 py-2.5 text-sm font-semibold transition">
                                 Employer
                             </button>
                         </div>
@@ -67,7 +63,9 @@
 
                 {{-- Form --}}
                 <div class="px-6 pb-6">
-                    <form method="POST" action="#" class="space-y-3.5">
+                    <form method="POST"
+                          :action="role === 'employer' ? '{{ route('employer.login') }}' : '#'"
+                          class="space-y-3.5">
                         @csrf
 
                         {{-- Email --}}
@@ -77,9 +75,9 @@
                                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                     <i data-lucide="mail" class="w-5 h-5"></i>
                                 </span>
-                                <input type="email" name="email" placeholder="you@example.com"
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
-                                           focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]" required>
+                                <input type="email" name="email" placeholder="you@example.com" required
+                                       class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                              focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
 
@@ -96,42 +94,47 @@
                                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                     <i data-lucide="lock" class="w-5 h-5"></i>
                                 </span>
-
-                                <input :type="showPass ? 'text' : 'password'" name="password" placeholder="••••••••"
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
-                                           focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]"
-                                    required>
-
+                                <input :type="showPass ? 'text' : 'password'" name="password" placeholder="••••••••" required
+                                       class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
+                                              focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                                 <button type="button" @click="showPass = !showPass"
-                                    class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                                        class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition">
                                     <i data-lucide="eye" class="w-5 h-5" x-show="!showPass"></i>
                                     <i data-lucide="eye-off" class="w-5 h-5" x-show="showPass"></i>
                                 </button>
                             </div>
                         </div>
 
-                        {{-- Remember --}}
+                        {{-- Remember me --}}
                         <label class="inline-flex items-center gap-2 text-sm text-gray-600">
                             <input type="checkbox"
-                                class="rounded border-gray-300 text-[#16A34A] focus:ring-[#16A34A]/30">
+                                   class="rounded border-gray-300 text-[#16A34A] focus:ring-[#16A34A]/30">
                             Remember me
                         </label>
 
+                        {{-- Hidden role --}}
+                        <input type="hidden" name="role" :value="role">
+
+                        {{-- Notice for candidate login --}}
+                        <p x-show="role === 'candidate'" class="text-xs text-red-500 mt-1">
+                            Candidate login is not available yet.
+                        </p>
+
                         {{-- Submit --}}
-                        <button type="submit" class="w-full rounded-xl bg-[#16A34A] py-2.5 text-sm font-semibold text-white
-                                   hover:bg-green-700 transition shadow-sm">
+                        <button type="submit"
+                                :disabled="role === 'candidate'"
+                                class="w-full rounded-xl bg-[#16A34A] py-2.5 text-sm font-semibold text-white
+                                       hover:bg-green-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                             Sign In
                         </button>
 
-                        {{-- Register --}}
+                        {{-- Register link --}}
                         <p class="text-center text-sm text-gray-600 pt-1">
                             Don’t have an account?
                             <a href="{{ route('register') }}" class="font-semibold text-[#16A34A] hover:underline">
                                 Register here
                             </a>
                         </p>
-
-                        <input type="hidden" name="role" :value="role">
                     </form>
                 </div>
 
@@ -152,5 +155,4 @@
         lucide.createIcons();
     </script>
 </body>
-
 </html>

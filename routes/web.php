@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
+use App\Http\Controllers\EmployerAuthController;
+
 Route::get('/', function () {
     return view('main');
 });
@@ -76,6 +78,25 @@ Route::post('/logout', function () {
 
 
 #EMPLOYER ROUTES
+
+Route::prefix('employer')->name('employer.')->group(function () {
+    Route::get('register', [EmployerAuthController::class, 'showRegister'])->name('register');
+    Route::post('register', [EmployerAuthController::class, 'register']);
+
+    Route::get('login', [EmployerAuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [EmployerAuthController::class, 'login']);
+
+    Route::post('logout', [EmployerAuthController::class, 'logout'])->name('logout');
+
+    Route::get('dashboard', function () {
+        // Only for logged-in employers
+        if (Auth::check() && Auth::user()->role === 'employer') {
+            return view('employer.contents.dashboard');
+        }
+        abort(403);
+    })->name('dashboard');
+});
+
 Route::view('/employer/dashboard', 'employer.contents.dashboard')
     ->name('employer.dashboard');
 
