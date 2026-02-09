@@ -470,12 +470,18 @@
         jobsChange: '',
       },
 
-      // ✅ UPDATED: use layout toast (window.notify)
+      // ✅ UPDATED: use global Notyf helper (window.toast)
       toast(type, message, title = ''){
-        if (!window.notify) return;
+        if (!window.toast) return;
+
         const allowed = ['success','info','warning','error'];
         const safeType = allowed.includes(type) ? type : 'info';
-        window.notify(safeType, String(message || ''), String(title || ''));
+
+        const msg = String(message || '');
+        const ttl = String(title || '');
+        const text = ttl ? `${ttl}: ${msg}` : msg;
+
+        window.toast(safeType, text);
       },
 
       init(){
@@ -624,4 +630,5 @@
     }
   }
 </script>
+
 @endsection

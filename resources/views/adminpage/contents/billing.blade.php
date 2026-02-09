@@ -619,13 +619,18 @@
         plan: { id: null, name:'', interval:'monthly', price:0, currency:'PHP', featuresText:'', is_active:true, badge:'' }
       },
 
-      // ✅ uses your layout toast (window.notify) instead of window.notyf
       toast(type, msg, title = ''){
-        if (!window.notify) return;
-        const allowed = ['success','info','warning','error'];
-        const safeType = allowed.includes(type) ? type : 'info';
-        window.notify(safeType, String(msg || ''), String(title || ''));
-      },
+  if (!window.toast) return;
+
+  const allowed = ['success','info','warning','error'];
+  const safeType = allowed.includes(type) ? type : 'info';
+
+  const message = String(msg || '');
+  const ttl = String(title || '');
+  const text = ttl ? `${ttl}: ${message}` : message;
+
+  window.toast(safeType, text);
+},
 
       init(){
         this.plans = (seed.plans || []).map(p => ({...p}));
