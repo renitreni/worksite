@@ -31,6 +31,7 @@
         <input
           class="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
           placeholder="Search users, jobs, payments…"
+          @keydown.enter.prevent="window.toast?.('info','Search is demo only')"
         />
       </div>
 
@@ -38,6 +39,8 @@
       <button
         class="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
         title="Notifications"
+        type="button"
+        @click="window.toast?.('info','No new notifications (demo)')"
       >
         🔔
       </button>

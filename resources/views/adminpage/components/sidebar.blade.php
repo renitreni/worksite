@@ -114,8 +114,6 @@
       </a>
     </nav>
 
-   
-
   </div>
 </aside>
 
@@ -147,3 +145,71 @@
     </div>
   </nav>
 </aside>
+
+{{-- Global toast helper (available on ALL pages) --}}
+<script>
+  (function () {
+    if (window.toast) return;
+
+    function fallbackToast(type, message) {
+      const id = 'app-toast-root';
+      let root = document.getElementById(id);
+
+      if (!root) {
+        root = document.createElement('div');
+        root.id = id;
+        root.style.position = 'fixed';
+        root.style.top = '16px';
+        root.style.right = '16px';
+        root.style.zIndex = '99999';
+        root.style.display = 'flex';
+        root.style.flexDirection = 'column';
+        root.style.gap = '10px';
+        document.body.appendChild(root);
+      }
+
+      const el = document.createElement('div');
+      el.textContent = message;
+
+      el.style.padding = '10px 12px';
+      el.style.borderRadius = '12px';
+      el.style.fontSize = '13px';
+      el.style.fontWeight = '600';
+      el.style.color = '#fff';
+      el.style.boxShadow = '0 10px 25px rgba(0,0,0,.2)';
+      el.style.maxWidth = '320px';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-6px)';
+      el.style.transition = 'opacity .15s ease, transform .15s ease';
+
+      // simple color mapping
+      let bg = '#0f172a'; // slate-900 default
+      if (type === 'success') bg = '#059669'; // emerald-600
+      if (type === 'warning') bg = '#d97706'; // amber-600
+      if (type === 'error') bg = '#e11d48'; // rose-600
+      el.style.background = bg;
+
+      root.appendChild(el);
+
+      requestAnimationFrame(() => {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
+
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-6px)';
+        setTimeout(() => el.remove(), 180);
+      }, 1800);
+    }
+
+    window.toast = function (type, message) {
+      // Preferred: Notyf (if you load it in admin layout)
+      if (window.notyf && typeof window.notyf.open === 'function') {
+        window.notyf.open({ type: type || 'info', message: String(message || '') });
+        return;
+      }
+      fallbackToast(type || 'info', String(message || ''));
+    };
+  })();
+</script>

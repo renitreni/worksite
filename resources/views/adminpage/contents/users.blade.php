@@ -51,14 +51,6 @@
   x-init="init()"
   class="space-y-6"
 >
-  {{-- Toast --}}
-  <div
-    x-show="toast.show"
-    x-transition
-    class="fixed right-5 top-5 z-50 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg"
-  >
-    <span x-text="toast.message"></span>
-  </div>
 
   {{-- Top quick stats --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -123,7 +115,7 @@
         <button
           type="button"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-          @click="notify('Export (UI only)')"
+          @click="toast('info','Export (UI only)')"
         >
           Export
         </button>
@@ -131,7 +123,7 @@
         <button
           type="button"
           class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-          @click="notify('Add user (UI only)')"
+          @click="toast('info','Add user (UI only)')"
         >
           Add user
         </button>
@@ -210,8 +202,8 @@
       <div class="flex flex-col gap-2 border-t border-slate-200 p-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
         <span>Showing <span x-text="Math.min(filteredUsers().length, 10)"></span> of <span x-text="filteredUsers().length"></span></span>
         <div class="flex gap-2">
-          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="notify('Prev (UI only)')">Prev</button>
-          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="notify('Next (UI only)')">Next</button>
+          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="toast('info','Prev (UI only)')">Prev</button>
+          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="toast('info','Next (UI only)')">Next</button>
         </div>
       </div>
     </div>
@@ -330,7 +322,7 @@
           <button
             class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
             type="button"
-            @click="notify('Notes saved (UI only)')"
+            @click="toast('success','Notes saved (UI only)')"
           >
             Save notes
           </button>
@@ -348,22 +340,21 @@
     return {
       users: initialUsers,
       selected: null,
-      toast: { show: false, message: '' },
       filters: { q: '', role: 'All', status: 'All', payment: 'All' },
 
-      init(){
-        // Optional auto-select first item:
-        // this.selected = this.users[0] ?? null;
+      // ✅ UPDATED: use layout toast (window.notify) only
+      toast(type, msg, title = ''){
+        if (!window.notify) return;
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+        window.notify(safeType, String(msg || ''), String(title || ''));
       },
 
-      notify(msg){
-        this.toast.message = msg;
-        this.toast.show = true;
-        setTimeout(() => this.toast.show = false, 1800);
-      },
+      
 
       select(u){
         this.selected = JSON.parse(JSON.stringify(u));
+        this.toast('info', 'Selected: ' + (this.selected?.name || 'User'));
       },
 
       statusPill(s){
@@ -402,33 +393,48 @@
 
       approveEmployer(){
         if(!this.selected) return;
+
+        // UI demo update
         this.selected.status = 'Active';
         this.selected.payment = this.selected.payment ?? 'Completed';
-        this.notify('Employer approved');
         this.syncSelectedToTable();
+
+        this.toast('success', 'Employer approved (UI only)');
       },
 
       activateUser(){
         if(!this.selected) return;
+
         this.selected.status = 'Active';
-        this.notify('User set to active');
         this.syncSelectedToTable();
+
+        this.toast('success', 'User set to active (UI only)');
       },
 
       suspendUser(){
         if(!this.selected) return;
+
         this.selected.status = 'Suspended';
-        this.notify('User suspended');
         this.syncSelectedToTable();
+
+        this.toast('warning', 'User suspended (UI only)');
       },
 
       deactivateUser(){
         if(!this.selected) return;
+
+        if(!confirm('Deactivate this user?')) {
+          this.toast('info', 'Cancelled');
+          return;
+        }
+
         this.selected.status = 'Inactive';
-        this.notify('User deactivated');
         this.syncSelectedToTable();
+
+        this.toast('error', 'User deactivated (UI only)');
       },
     }
   }
 </script>
+
 @endsection

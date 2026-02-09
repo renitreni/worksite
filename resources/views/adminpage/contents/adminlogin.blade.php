@@ -105,9 +105,7 @@
                 <a
                   href="#"
                   class="text-xs font-semibold text-emerald-200 hover:underline"
-                  data-toast="Password reset is not available yet (frontend only)."
-                  data-toast-type="warning"
-                  data-toast-title="Forgot password"
+                  
                 >
                   Forgot password?
                 </a>
@@ -118,9 +116,7 @@
               type="submit"
               class="mt-2 w-full rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm
                      hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-300/30"
-              data-toast="Logging you in..."
-              data-toast-type="success"
-              data-toast-title="Login"
+              
             >
               Login
             </button>
@@ -138,21 +134,25 @@
   const form = document.getElementById('loginForm');
 
   form?.addEventListener('submit', (e) => {
-    e.preventDefault(); // stop instant redirect so toast can be seen
+    e.preventDefault();
 
-    if (window.notify) {
-      window.notify('success', 'Login successful (demo). Redirecting...', 'Login');
-    } else {
-      alert('notify() not found. app.js not running.');
-      return;
-    }
+    window.notify('success', 'Login successful (demo). Redirecting...');
 
-    // redirect after a short delay so toast is visible
     setTimeout(() => {
       window.location.href = form.action;
     }, 800);
   });
+
+  const passInput = document.getElementById('passwordInput');
+  const toggleBtn = document.getElementById('togglePassBtn');
+
+  toggleBtn?.addEventListener('click', () => {
+    const show = passInput.type === 'password';
+    passInput.type = show ? 'text' : 'password';
+    toggleBtn.textContent = show ? 'Hide' : 'Show';
+  });
 </script>
+
 
 </body>
 </html>

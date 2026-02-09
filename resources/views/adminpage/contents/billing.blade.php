@@ -90,7 +90,7 @@
         </div>
 
         <button type="button"
-          @click="openPlanModal()"
+          @click="openPlanModal(); toast('info','Create a new plan')"
           class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
           + New Plan
         </button>
@@ -155,7 +155,7 @@
           <div class="text-sm font-semibold text-slate-900">Subscription Plans</div>
           <div class="mt-1 text-xs text-slate-500">Create, edit, delete plans and control visibility</div>
         </div>
-        <button type="button" @click="openPlanModal()"
+        <button type="button" @click="openPlanModal(); toast('info','Create a new plan')"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold hover:bg-slate-50">
           Add Plan
         </button>
@@ -619,6 +619,14 @@
         plan: { id: null, name:'', interval:'monthly', price:0, currency:'PHP', featuresText:'', is_active:true, badge:'' }
       },
 
+      // ✅ uses your layout toast (window.notify) instead of window.notyf
+      toast(type, msg, title = ''){
+        if (!window.notify) return;
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+        window.notify(safeType, String(msg || ''), String(title || ''));
+      },
+
       init(){
         this.plans = (seed.plans || []).map(p => ({...p}));
         this.payments = (seed.payments || []).map(p => ({...p}));
@@ -709,8 +717,10 @@
             badge: plan.badge || '',
             featuresText: (plan.features || []).join(', '),
           };
+          this.toast('info', 'Editing plan: ' + plan.name);
         } else {
           this.form.plan = { id:null, name:'', interval:'monthly', price:0, currency:'PHP', featuresText:'', is_active:true, badge:'' };
+          this.toast('info', 'Create a new plan');
         }
         this.modal.plan = true;
       },
@@ -721,10 +731,20 @@
 
       savePlan(){
         const name = String(this.form.plan.name || '').trim();
-        if(!name){ alert('Plan name is required.'); return; }
+        if(!name){
+          this.toast('error', 'Plan name is required');
+          return;
+        }
 
         const price = Number(this.form.plan.price || 0);
-        if(price < 0){ alert('Price cannot be negative.'); return; }
+        if(Number.isNaN(price)){
+          this.toast('error', 'Price must be a number');
+          return;
+        }
+        if(price < 0){
+          this.toast('error', 'Price cannot be negative');
+          return;
+        }
 
         const features = String(this.form.plan.featuresText || '')
           .split(',')
@@ -745,6 +765,7 @@
               badge: String(this.form.plan.badge || '').trim(),
             };
           }
+          this.toast('success', 'Plan updated');
         } else {
           const nextId = Math.max(0, ...this.plans.map(p => Number(p.id || 0))) + 1;
           this.plans.unshift({
@@ -757,6 +778,7 @@
             is_active: !!this.form.plan.is_active,
             badge: String(this.form.plan.badge || '').trim(),
           });
+          this.toast('success', 'Plan created');
         }
 
         this.modal.plan = false;
@@ -766,20 +788,25 @@
       togglePlan(id){
         const idx = this.plans.findIndex(p => p.id === id);
         if(idx === -1) return;
+
         this.plans[idx].is_active = !this.plans[idx].is_active;
         this.plans[idx].badge = this.plans[idx].is_active ? (this.plans[idx].badge || '') : 'Hidden';
+
         this.computeKpi();
+        this.toast('success', this.plans[idx].is_active ? 'Plan activated' : 'Plan hidden');
       },
 
       deletePlan(id){
         if(!confirm('Delete this plan?')) return;
         this.plans = this.plans.filter(p => p.id !== id);
         this.computeKpi();
+        this.toast('warning', 'Plan deleted');
       },
 
       openPaymentDrawer(pay){
         this.selectedPayment = {...pay};
         this.drawer.payment = true;
+        this.toast('info', 'Viewing payment: ' + pay.id);
       },
       closePaymentDrawer(){
         this.drawer.payment = false;
@@ -791,7 +818,7 @@
         if(pIdx === -1) return;
 
         if(this.payments[pIdx].status !== 'pending'){
-          alert('Only pending payments can be verified.');
+          this.toast('warning', 'Only pending payments can be verified');
           return;
         }
 
@@ -809,6 +836,8 @@
           this.subs[sIdx].start = start;
           this.subs[sIdx].end = end;
           this.subs[sIdx].last_payment = paymentId;
+
+          this.toast('success', 'Subscription activated for ' + employer);
         }
 
         if(this.selectedPayment && this.selectedPayment.id === paymentId){
@@ -816,12 +845,13 @@
         }
 
         this.computeKpi();
-        alert('Payment verified. Subscription activated if matched.');
+        this.toast('success', 'Payment verified');
       },
 
       openSubDrawer(sub){
         this.selectedSub = {...sub};
         this.drawer.sub = true;
+        this.toast('info', 'Viewing subscription: ' + sub.id);
       },
       closeSubDrawer(){
         this.drawer.sub = false;
@@ -831,6 +861,12 @@
       activateSub(subId){
         const idx = this.subs.findIndex(s => s.id === subId);
         if(idx === -1) return;
+
+        const curStatus = this.subs[idx].status;
+        if(!(curStatus === 'pending_verification' || curStatus === 'expired')){
+          this.toast('warning', 'Only pending/expired subscriptions can be activated');
+          return;
+        }
 
         this.subs[idx].status = 'active';
         this.subs[idx].start = this.todayISO();
@@ -843,12 +879,17 @@
         }
 
         this.computeKpi();
-        alert('Subscription activated.');
+        this.toast('success', 'Subscription activated');
       },
 
       suspendSub(subId){
         const idx = this.subs.findIndex(s => s.id === subId);
         if(idx === -1) return;
+
+        if(this.subs[idx].status === 'suspended'){
+          this.toast('info', 'Already suspended');
+          return;
+        }
 
         this.subs[idx].status = 'suspended';
 
@@ -857,16 +898,18 @@
         }
 
         this.computeKpi();
-        alert('Subscription suspended.');
+        this.toast('warning', 'Subscription suspended');
       },
 
       sendReminder(remId){
-        alert('Reminder sent.');
+        const r = this.reminders.find(x => x.id === remId);
+        this.toast('success', r ? ('Reminder sent to ' + r.employer) : 'Reminder sent');
       },
 
       dismissReminder(remId){
         if(!confirm('Dismiss this reminder?')) return;
         this.reminders = this.reminders.filter(r => r.id !== remId);
+        this.toast('info', 'Reminder dismissed');
       },
 
       todayISO(){
@@ -888,4 +931,5 @@
     }
   }
 </script>
+
 @endsection

@@ -3,37 +3,34 @@ import 'notyf/notyf.min.css'
 import { Notyf } from 'notyf'
 
 window.notyf = new Notyf({
-  duration: 2500,
-  dismissible: true,
+  duration: 2200,
   position: { x: 'right', y: 'top' },
-
+  dismissible: true,
+  ripple: false,
   types: [
     {
-      type: 'info',
-      background: '#10B981', // emerald-500
-      textColor: '#ffffff',
+      type: 'success',
+      background: '#059669', 
       icon: false,
     },
     {
-      type: 'success',
-      background: '#10B981',
-      textColor: '#ffffff',
+      type: 'info',
+      background: '#0f766e', 
       icon: false,
     },
     {
       type: 'warning',
-      background: '#F59E0B',
-      textColor: '#111827',
+      background: '#d97706',
       icon: false,
     },
     {
       type: 'error',
-      background: '#EF4444',
-      textColor: '#ffffff',
+      background: '#e11d48', 
       icon: false,
     },
   ],
 })
+
 
 
 

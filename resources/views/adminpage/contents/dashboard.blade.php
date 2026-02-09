@@ -62,21 +62,6 @@
   $revenueBars = [18,22,15,28,30,24,40,35,46,39,52,48];
   $jobTrend    = [12,18,16,22,30,28,34,26,24,29,35,38];
 
-  $barHeight = function(int $b): string {
-    return match(true) {
-      $b >= 55 => 'h-36',
-      $b >= 50 => 'h-32',
-      $b >= 45 => 'h-28',
-      $b >= 40 => 'h-24',
-      $b >= 35 => 'h-20',
-      $b >= 30 => 'h-16',
-      $b >= 25 => 'h-14',
-      $b >= 20 => 'h-12',
-      $b >= 15 => 'h-10',
-      default  => 'h-8',
-    };
-  };
-
   $barWidth = function(int $pct): string {
     return match(true) {
       $pct >= 95 => 'w-full',
@@ -303,10 +288,7 @@
               @mouseleave="hideTip()"
               @click="toggleTipFromEl($event.currentTarget, 'Revenue: ' + charts.months[i], '₱ ' + numberWithCommas(charts.revenueValues[i]), 'revenueWrap')"
             >
-              <div
-                class="w-full rounded-lg bg-emerald-600/80 group-hover:bg-emerald-700/90"
-                :class="heightClass(b)"
-              ></div>
+              <div class="w-full rounded-lg bg-emerald-600/80 group-hover:bg-emerald-700/90" :class="heightClass(b)"></div>
             </button>
           </template>
 
@@ -339,10 +321,7 @@
               @mouseleave="hideTip()"
               @click="toggleTipFromEl($event.currentTarget, 'Jobs Posted: ' + charts.months[i], charts.jobValues[i] + ' jobs', 'jobsWrap')"
             >
-              <div
-                class="w-full rounded-lg bg-slate-800/80 group-hover:bg-slate-900/90"
-                :class="heightClass(b)"
-              ></div>
+              <div class="w-full rounded-lg bg-slate-800/80 group-hover:bg-slate-900/90" :class="heightClass(b)"></div>
             </button>
           </template>
 
@@ -432,7 +411,6 @@
       </div>
     </div>
 
-
     <div class="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="flex items-start justify-between gap-3">
         <div>
@@ -464,12 +442,12 @@
       </div>
 
       <button
-  type="button"
-  class="mt-5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-  @click="window.notyf && window.notyf.open({ type: 'info', message: 'No more items (demo UI)' })"
->
-  Load more
-</button>
+        type="button"
+        class="mt-5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+        @click="toast('info','No more items (demo UI)')"
+      >
+        Load more
+      </button>
     </div>
   </div>
 
@@ -492,6 +470,14 @@
         jobsChange: '',
       },
 
+      // ✅ UPDATED: use layout toast (window.notify)
+      toast(type, message, title = ''){
+        if (!window.notify) return;
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+        window.notify(safeType, String(message || ''), String(title || ''));
+      },
+
       init(){
         this.computeHighlights();
       },
@@ -507,10 +493,7 @@
         this.tip.show = false;
         this.tip.locked = false;
         this.computeHighlights();
-
-        if (window.notyf) {
-          window.notyf.success('Dashboard refreshed');
-        }
+        this.toast('success', 'Dashboard refreshed');
       },
 
       applyRange(){
