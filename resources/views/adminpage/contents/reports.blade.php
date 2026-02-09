@@ -53,7 +53,7 @@
       <div class="min-w-0">
         <div class="text-sm font-semibold text-slate-900">Reports Overview</div>
         <div class="mt-1 text-xs text-slate-500">
-          All reports are shown by default. Use filters to update the range.
+          Demo UI only. Filters update the preview rows (date-based).
         </div>
       </div>
 
@@ -168,13 +168,16 @@
               <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div class="text-sm font-semibold text-slate-900">Results</div>
-                  <div class="mt-1 text-xs text-slate-500">Demo rows</div>
+                  <div class="mt-1 text-xs text-slate-500">
+                    <span x-text="panels[t.key].tableMeta.label"></span>
+                  </div>
                 </div>
 
                 <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
                   <span class="text-slate-400">⌕</span>
                   <input
                     x-model.trim="panels[t.key].tableSearch"
+                    @input="onSearch(t.key)"
                     class="w-56 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
                     placeholder="Search in table…" />
                 </div>
@@ -198,13 +201,20 @@
                         </template>
                       </tr>
                     </template>
+
+                    <tr x-show="filteredRows(t.key).length === 0">
+                      <td :colspan="panels[t.key].table.headers.length"
+                          class="py-8 text-center text-sm text-slate-500">
+                        No rows match your filters/search.
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
 
               <div class="mt-4 flex items-center justify-between text-xs text-slate-500">
                 <div x-text="`${filteredRows(t.key).length} row(s)`"></div>
-                <div>Table preview</div>
+                <div>Preview only</div>
               </div>
             </div>
           </div>
@@ -226,22 +236,34 @@
 
       panels: {},
       open: {},
+      _lastSearchToastAt: {},
+
+      // ✅ UPDATED: use layout toast (window.notify)
+      toast(type, msg, title = ''){
+        if (!window.notify) return;
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+        window.notify(safeType, String(msg || ''), String(title || ''));
+      },
 
       init(){
-        this.quickThisMonth();
+        this.quickThisMonth(true);
 
         this.types.forEach(t => {
           this.open[t.key] = true;
           this.panels[t.key] = {
             tableSearch: '',
+            tableMeta: { label: 'Demo rows' },
             summary: { subtitle: '', cards: [] },
             table: { headers: [], rows: [] },
           };
 
-          const rows = this.demoRows[t.key] || [];
+          const rows = this.getRowsForRange(t.key);
           this.buildTable(t.key, rows);
           this.buildSummary(t.key, rows);
         });
+
+        this.toast('info', 'Reports ready');
       },
 
       get typeDesc(){
@@ -255,55 +277,116 @@
         return `${f} → ${t}`;
       },
 
-      quickThisMonth(){
+      quickThisMonth(silent=false){
         const d = new Date();
         const y = d.getFullYear();
         const m = String(d.getMonth()+1).padStart(2,'0');
 
         this.filters.from = `${y}-${m}-01`;
-        this.filters.to = `${y}-${m}-28`;
+        this.filters.to = `${y}-${m}-28`; // demo
+
+        if(!silent) this.toast('info', 'Set range to this month');
       },
 
       reset(){
         this.filters.type = 'user_activity';
-        this.quickThisMonth();
+        this.quickThisMonth(true);
 
         this.types.forEach(t => {
           this.panels[t.key].tableSearch = '';
           this.open[t.key] = true;
 
-          const rows = this.demoRows[t.key] || [];
+          const rows = this.getRowsForRange(t.key);
           this.buildTable(t.key, rows);
           this.buildSummary(t.key, rows);
         });
+
+        this.toast('info', 'Filters reset');
+        this.jumpTo(this.filters.type);
       },
 
       generate(){
+        const v = this.validateRange();
+        if(!v.ok){
+          this.toast('error', v.msg);
+          return;
+        }
+
         this.types.forEach(t => {
-          const rows = this.demoRows[t.key] || [];
+          const rows = this.getRowsForRange(t.key);
           this.buildTable(t.key, rows);
           this.buildSummary(t.key, rows);
         });
 
+        this.toast('success', 'Filters applied');
         this.jumpTo(this.filters.type);
+      },
+
+      validateRange(){
+        const f = this.filters.from;
+        const t = this.filters.to;
+
+        if(!f || !t) return { ok:false, msg:'Please select both From and To dates.' };
+
+        const fd = new Date(f);
+        const td = new Date(t);
+        if(Number.isNaN(fd.getTime()) || Number.isNaN(td.getTime())) return { ok:false, msg:'Invalid date range.' };
+        if(fd > td) return { ok:false, msg:'From date cannot be later than To date.' };
+
+        return { ok:true, msg:'' };
+      },
+
+      getRowsForRange(key){
+        const rows = (this.demoRows[key] || []).map(r => ({...r}));
+
+        const f = this.filters.from ? new Date(this.filters.from) : null;
+        const t = this.filters.to ? new Date(this.filters.to) : null;
+
+        const filtered = rows.filter(r => {
+          if(!r.date) return true;
+          const d = new Date(r.date);
+          if(f && d < f) return false;
+          if(t && d > t) return false;
+          return true;
+        });
+
+        this.panels[key].tableMeta.label = `Demo rows • ${filtered.length} match(es)`;
+        return filtered;
       },
 
       jumpTo(key){
         const el = document.getElementById(`report-${key}`);
         if(!el) return;
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        this.toast('info', 'Jumped to ' + (this.types.find(t => t.key === key)?.name || key));
       },
 
       toggleOpen(key){
         this.open[key] = !this.open[key];
+        this.toast('info', this.open[key] ? 'Expanded section' : 'Collapsed section');
       },
 
       exportPDF(key){
-        alert(`Export PDF for "${key}" (demo).`);
+        const name = this.types.find(t => t.key === key)?.name || key;
+        this.toast('info', `Export PDF: ${name} (demo)`);
       },
 
       exportExcel(key){
-        alert(`Export Excel for "${key}" (demo).`);
+        const name = this.types.find(t => t.key === key)?.name || key;
+        this.toast('info', `Export Excel: ${name} (demo)`);
+      },
+
+      onSearch(key){
+        const now = Date.now();
+        const last = this._lastSearchToastAt[key] || 0;
+        if(now - last < 900) return;
+
+        const count = this.filteredRows(key).length;
+        const q = (this.panels[key].tableSearch || '').trim();
+        if(q && count === 0){
+          this._lastSearchToastAt[key] = now;
+          this.toast('warning', 'No matching rows');
+        }
       },
 
       filteredRows(key){
@@ -324,6 +407,16 @@
         const fmt = (n) => String(n ?? 0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         this.panels[key].summary.subtitle = `${name} • ${from} to ${to}`;
+
+        if(!rows.length){
+          this.panels[key].summary.cards = [
+            { label:'No data', value:'—', hint:'No rows in range' },
+            { label:'No data', value:'—', hint:'No rows in range' },
+            { label:'No data', value:'—', hint:'No rows in range' },
+            { label:'No data', value:'—', hint:'No rows in range' },
+          ];
+          return;
+        }
 
         if(key === 'user_activity'){
           const reg = rows.reduce((a,r)=>a + (Number(r.registered_users)||0), 0);
@@ -355,12 +448,23 @@
           const completed = rows.reduce((a,r)=>a + (Number(r.payments_completed)||0), 0);
           const failed = rows.reduce((a,r)=>a + (Number(r.payments_failed)||0), 0);
           const revenue = rows.reduce((a,r)=>a + (Number(r.revenue)||0), 0);
-          const topPlan = (rows[0] && rows[0].plan_top) ? rows[0].plan_top : '—';
+
+          const counts = {};
+          rows.forEach(r => {
+            const p = String(r.plan_top || '').trim();
+            if(!p) return;
+            counts[p] = (counts[p] || 0) + 1;
+          });
+          let topPlan = '—', topCount = -1;
+          Object.keys(counts).forEach(k => {
+            if(counts[k] > topCount){ topCount = counts[k]; topPlan = k; }
+          });
+
           this.panels[key].summary.cards = [
             { label:'Payments completed', value: fmt(completed), hint:'Sum of rows' },
             { label:'Payments failed', value: fmt(failed), hint:'Sum of rows' },
             { label:'Revenue (₱)', value: '₱ ' + fmt(revenue), hint:'Sum of rows' },
-            { label:'Top plan', value: topPlan, hint:'From rows' },
+            { label:'Top plan', value: topPlan, hint:'Most frequent' },
           ];
           return;
         }

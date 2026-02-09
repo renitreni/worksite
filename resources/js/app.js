@@ -1,4 +1,3 @@
-// resources/js/app.js
 import './bootstrap'
 
 import 'notyf/notyf.min.css'
@@ -19,26 +18,22 @@ window.notyf = new Notyf({
 })
 
 /**
- * Global helper you can call anywhere:
+ * Global helper:
  * toast('success', 'Saved!')
  * toast('error', 'Something went wrong')
  */
 window.toast = (type = 'info', message = '') => {
-  const t = String(type || 'info')
-  const msg = String(message || '')
-
   if (!window.notyf) return
 
-  if (t === 'success') return window.notyf.success(msg)
-  if (t === 'error') return window.notyf.error(msg)
+  if (type === 'success') return window.notyf.success(message)
+  if (type === 'error') return window.notyf.error(message)
 
-  // for info/warning/custom types
-  return window.notyf.open({ type: t, message: msg })
+  return window.notyf.open({ type, message })
 }
 
 /**
- * OPTIONAL: click-to-toast using HTML attributes:
- * <button data-toast="Saved!" data-toast-type="success">Test</button>
+ * Optional: HTML click toast
+ * <button data-toast="Saved!" data-toast-type="success"></button>
  */
 document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-toast]')
@@ -46,16 +41,6 @@ document.addEventListener('click', (e) => {
 
   const msg = el.getAttribute('data-toast') || ''
   const type = el.getAttribute('data-toast-type') || 'success'
+
   window.toast(type, msg)
-
-window.toast = (type = 'success', message = '', title = '') => {
-  const text = title ? `${title}: ${message}` : message
-
-  if (type === 'error') return notyf.error(text)
-  if (type === 'warning') return notyf.open({ type: 'warning', message: text })
-  if (type === 'info') return notyf.open({ type: 'info', message: text })
-
-  return notyf.success(text)
-}
-
 })

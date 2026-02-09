@@ -8,15 +8,15 @@
     ['label'=>'Reports','href'=>route('admin.reports')],
     ['label'=>'System Settings','href'=>route('admin.settings')],
   ];
+
   $current = url()->current();
 
-  // FRONTEND-ONLY demo alerts (replace later with real DB counts)
   $alerts = [
     [
       'label' => 'Jobs pending review',
       'value' => 28,
       'href'  => route('admin.jobs'),
-      'tone'  => 'warn', // warn | bad | good
+      'tone'  => 'warn',
     ],
     [
       'label' => 'Employer approvals',
@@ -48,7 +48,7 @@
   };
 @endphp
 
-{{-- MOBILE: Backdrop --}}
+{{-- Mobile sidebar --}}
 <div
   x-show="sidebarOpen"
   x-transition.opacity
@@ -57,7 +57,6 @@
   aria-hidden="true"
 ></div>
 
-{{-- MOBILE: Drawer --}}
 <aside
   x-show="sidebarOpen"
   x-transition:enter="transition ease-out duration-200"
@@ -73,7 +72,6 @@
 >
   <div class="flex h-full flex-col">
 
-    {{-- Drawer header --}}
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
       <img
         src="{{ asset('images/logo.png') }}"
@@ -89,7 +87,6 @@
       </button>
     </div>
 
-    {{-- Drawer nav --}}
     <nav class="flex-1 overflow-y-auto px-3 py-4">
       <div class="space-y-1">
         @foreach($items as $it)
@@ -109,7 +106,6 @@
 
       <div class="my-5 border-t border-slate-200"></div>
 
-      {{-- Logout (mobile only, INSIDE drawer) --}}
       <a
         href="{{ route('admin.adminlogin') }}"
         class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
@@ -118,40 +114,11 @@
       </a>
     </nav>
 
-    {{-- Drawer footer: ADMIN ALERTS (replaces System Status) --}}
-    <div class="px-5 py-4">
-      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <div class="flex items-center justify-between">
-          <p class="text-xs font-semibold text-slate-700">Admin Alerts</p>
-          <a href="{{ route('admin.reports') }}" class="text-[11px] font-semibold text-emerald-700 hover:underline">
-            View
-          </a>
-        </div>
-
-        <div class="mt-3 space-y-2">
-          @foreach($alerts as $a)
-            <a href="{{ $a['href'] }}" class="flex items-center justify-between rounded-xl bg-white px-3 py-2 hover:bg-slate-50">
-              <span class="text-xs font-semibold text-slate-700">{{ $a['label'] }}</span>
-              <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 {{ $badge($a['tone']) }}">
-                {{ $a['value'] }}
-              </span>
-            </a>
-          @endforeach
-        </div>
-
-        <div class="mt-3 text-[11px] text-slate-500">
-          Demo counts (frontend). Backend later.
-        </div>
-      </div>
-    </div>
-
   </div>
 </aside>
 
-{{-- DESKTOP SIDEBAR --}}
+{{-- Desktop sidebar --}}
 <aside class="sticky top-0 hidden h-screen w-72 border-r border-slate-200 bg-white lg:flex lg:flex-col">
-
-  {{-- LOGO --}}
   <div class="px-6 py-6">
     <img
       src="{{ asset('images/logo.png') }}"
@@ -160,7 +127,6 @@
     />
   </div>
 
-  {{-- NAVIGATION --}}
   <nav class="px-3 flex-1 overflow-y-auto">
     <div class="space-y-1">
       @foreach($items as $it)
@@ -178,5 +144,72 @@
       @endforeach
     </div>
   </nav>
-
 </aside>
+
+{{-- Global toast helper (available on ALL pages) --}}
+<script>
+  (function () {
+    if (window.toast) return;
+
+    function fallbackToast(type, message) {
+      const id = 'app-toast-root';
+      let root = document.getElementById(id);
+
+      if (!root) {
+        root = document.createElement('div');
+        root.id = id;
+        root.style.position = 'fixed';
+        root.style.top = '16px';
+        root.style.right = '16px';
+        root.style.zIndex = '99999';
+        root.style.display = 'flex';
+        root.style.flexDirection = 'column';
+        root.style.gap = '10px';
+        document.body.appendChild(root);
+      }
+
+      const el = document.createElement('div');
+      el.textContent = message;
+
+      el.style.padding = '10px 12px';
+      el.style.borderRadius = '12px';
+      el.style.fontSize = '13px';
+      el.style.fontWeight = '600';
+      el.style.color = '#fff';
+      el.style.boxShadow = '0 10px 25px rgba(0,0,0,.2)';
+      el.style.maxWidth = '320px';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-6px)';
+      el.style.transition = 'opacity .15s ease, transform .15s ease';
+
+      // simple color mapping
+      let bg = '#0f172a'; // slate-900 default
+      if (type === 'success') bg = '#059669'; // emerald-600
+      if (type === 'warning') bg = '#d97706'; // amber-600
+      if (type === 'error') bg = '#e11d48'; // rose-600
+      el.style.background = bg;
+
+      root.appendChild(el);
+
+      requestAnimationFrame(() => {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
+
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-6px)';
+        setTimeout(() => el.remove(), 180);
+      }, 1800);
+    }
+
+    window.toast = function (type, message) {
+      // Preferred: Notyf (if you load it in admin layout)
+      if (window.notyf && typeof window.notyf.open === 'function') {
+        window.notyf.open({ type: type || 'info', message: String(message || '') });
+        return;
+      }
+      fallbackToast(type || 'info', String(message || ''));
+    };
+  })();
+</script>

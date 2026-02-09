@@ -4,11 +4,6 @@
 
 @section('content')
 @php
-  // =========================
-  // FRONTEND-ONLY SAMPLE DATA
-  // Replace later with DB queries.
-  // =========================
-
   $plans = [
     [
       'id'=>1, 'name'=>'Starter', 'interval'=>'monthly', 'price'=>499, 'currency'=>'PHP',
@@ -77,7 +72,6 @@
   x-init="init()"
 >
 
-  {{-- Header + Search --}}
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div class="min-w-0">
@@ -96,14 +90,13 @@
         </div>
 
         <button type="button"
-          @click="openPlanModal()"
+          @click="openPlanModal(); toast('info','Create a new plan')"
           class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
           + New Plan
         </button>
       </div>
     </div>
 
-    {{-- Tabs --}}
     <div class="mt-4 flex flex-wrap gap-2">
       <button type="button" @click="tab='plans'"
         class="rounded-xl px-4 py-2 text-sm font-semibold ring-1"
@@ -131,7 +124,6 @@
     </div>
   </div>
 
-  {{-- KPI Row --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="text-xs text-slate-500">Active plans</div>
@@ -155,7 +147,7 @@
     </div>
   </div>
 
-  {{-- PLANS --}}
+  {{-- Plans --}}
   <div x-show="tab==='plans'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="flex items-start justify-between gap-3">
@@ -163,7 +155,7 @@
           <div class="text-sm font-semibold text-slate-900">Subscription Plans</div>
           <div class="mt-1 text-xs text-slate-500">Create, edit, delete plans and control visibility</div>
         </div>
-        <button type="button" @click="openPlanModal()"
+        <button type="button" @click="openPlanModal(); toast('info','Create a new plan')"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold hover:bg-slate-50">
           Add Plan
         </button>
@@ -228,7 +220,7 @@
     </div>
   </div>
 
-  {{-- PAYMENTS --}}
+  {{-- Payments --}}
   <div x-show="tab==='payments'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="text-sm font-semibold text-slate-900">Employer Payments</div>
@@ -295,7 +287,7 @@
     </div>
   </div>
 
-  {{-- SUBSCRIPTIONS --}}
+  {{-- Subscriptions --}}
   <div x-show="tab==='subs'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="text-sm font-semibold text-slate-900">Employer Subscriptions</div>
@@ -364,11 +356,11 @@
     </div>
   </div>
 
-  {{-- REMINDERS --}}
+  {{-- Reminders --}}
   <div x-show="tab==='reminders'" x-transition class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 p-5">
       <div class="text-sm font-semibold text-slate-900">Expired Plan Reminders</div>
-      <div class="mt-1 text-xs text-slate-500">Send reminders to employers with expired subscriptions (frontend simulation)</div>
+      <div class="mt-1 text-xs text-slate-500">Send reminders to employers with expired subscriptions</div>
     </div>
 
     <div class="p-5 space-y-3">
@@ -407,9 +399,7 @@
     </div>
   </div>
 
-  {{-- =====================
-      MODAL: CREATE/EDIT PLAN
-     ===================== --}}
+  {{-- Plan modal --}}
   <div x-show="modal.plan" x-transition.opacity class="fixed inset-0 z-50">
     <div class="absolute inset-0 bg-black/40" @click="closePlanModal()"></div>
 
@@ -480,9 +470,7 @@
     </div>
   </div>
 
-  {{-- =====================
-      DRAWER: PAYMENT VIEW
-     ===================== --}}
+  {{-- Drawer: payment --}}
   <div x-show="drawer.payment" x-transition.opacity class="fixed inset-0 z-40">
     <div class="absolute inset-0 bg-black/40" @click="closePaymentDrawer()"></div>
     <div class="absolute right-0 top-0 h-full w-[92%] max-w-md bg-white p-5 shadow-xl">
@@ -546,9 +534,7 @@
     </div>
   </div>
 
-  {{-- =====================
-      DRAWER: SUBSCRIPTION VIEW
-     ===================== --}}
+  {{-- Drawer: subscription --}}
   <div x-show="drawer.sub" x-transition.opacity class="fixed inset-0 z-40">
     <div class="absolute inset-0 bg-black/40" @click="closeSubDrawer()"></div>
     <div class="absolute right-0 top-0 h-full w-[92%] max-w-md bg-white p-5 shadow-xl">
@@ -633,6 +619,14 @@
         plan: { id: null, name:'', interval:'monthly', price:0, currency:'PHP', featuresText:'', is_active:true, badge:'' }
       },
 
+      // ✅ uses your layout toast (window.notify) instead of window.notyf
+      toast(type, msg, title = ''){
+        if (!window.notify) return;
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+        window.notify(safeType, String(msg || ''), String(title || ''));
+      },
+
       init(){
         this.plans = (seed.plans || []).map(p => ({...p}));
         this.payments = (seed.payments || []).map(p => ({...p}));
@@ -641,7 +635,6 @@
         this.computeKpi();
       },
 
-      // ---------- filtering ----------
       matchQ(text){
         const q = (this.q || '').toLowerCase();
         if(!q) return true;
@@ -672,7 +665,6 @@
         );
       },
 
-      // ---------- UI helpers ----------
       chip(tone){
         if(tone === 'good') return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
         if(tone === 'warn') return 'bg-amber-50 text-amber-700 ring-amber-200';
@@ -713,7 +705,6 @@
         this.kpi.riskSubs = this.subs.filter(s => s.status === 'expired' || s.status === 'suspended').length;
       },
 
-      // ---------- Plans CRUD (frontend) ----------
       openPlanModal(plan=null){
         if(plan){
           this.form.plan = {
@@ -726,8 +717,10 @@
             badge: plan.badge || '',
             featuresText: (plan.features || []).join(', '),
           };
+          this.toast('info', 'Editing plan: ' + plan.name);
         } else {
           this.form.plan = { id:null, name:'', interval:'monthly', price:0, currency:'PHP', featuresText:'', is_active:true, badge:'' };
+          this.toast('info', 'Create a new plan');
         }
         this.modal.plan = true;
       },
@@ -738,10 +731,20 @@
 
       savePlan(){
         const name = String(this.form.plan.name || '').trim();
-        if(!name){ alert('Plan name is required.'); return; }
+        if(!name){
+          this.toast('error', 'Plan name is required');
+          return;
+        }
 
         const price = Number(this.form.plan.price || 0);
-        if(price < 0){ alert('Price cannot be negative.'); return; }
+        if(Number.isNaN(price)){
+          this.toast('error', 'Price must be a number');
+          return;
+        }
+        if(price < 0){
+          this.toast('error', 'Price cannot be negative');
+          return;
+        }
 
         const features = String(this.form.plan.featuresText || '')
           .split(',')
@@ -762,6 +765,7 @@
               badge: String(this.form.plan.badge || '').trim(),
             };
           }
+          this.toast('success', 'Plan updated');
         } else {
           const nextId = Math.max(0, ...this.plans.map(p => Number(p.id || 0))) + 1;
           this.plans.unshift({
@@ -774,6 +778,7 @@
             is_active: !!this.form.plan.is_active,
             badge: String(this.form.plan.badge || '').trim(),
           });
+          this.toast('success', 'Plan created');
         }
 
         this.modal.plan = false;
@@ -783,21 +788,25 @@
       togglePlan(id){
         const idx = this.plans.findIndex(p => p.id === id);
         if(idx === -1) return;
+
         this.plans[idx].is_active = !this.plans[idx].is_active;
         this.plans[idx].badge = this.plans[idx].is_active ? (this.plans[idx].badge || '') : 'Hidden';
+
         this.computeKpi();
+        this.toast('success', this.plans[idx].is_active ? 'Plan activated' : 'Plan hidden');
       },
 
       deletePlan(id){
         if(!confirm('Delete this plan?')) return;
         this.plans = this.plans.filter(p => p.id !== id);
         this.computeKpi();
+        this.toast('warning', 'Plan deleted');
       },
 
-      // ---------- Payments ----------
       openPaymentDrawer(pay){
         this.selectedPayment = {...pay};
         this.drawer.payment = true;
+        this.toast('info', 'Viewing payment: ' + pay.id);
       },
       closePaymentDrawer(){
         this.drawer.payment = false;
@@ -809,20 +818,17 @@
         if(pIdx === -1) return;
 
         if(this.payments[pIdx].status !== 'pending'){
-          alert('Only pending payments can be verified.');
+          this.toast('warning', 'Only pending payments can be verified');
           return;
         }
 
-        // 1) mark payment completed
         this.payments[pIdx].status = 'completed';
 
-        // 2) find subscription waiting verification for this employer (demo logic)
         const employer = this.payments[pIdx].employer;
         const plan = this.payments[pIdx].plan;
 
         const sIdx = this.subs.findIndex(s => s.employer === employer && s.status === 'pending_verification');
         if(sIdx !== -1){
-          // Activate for 30 days (demo)
           const start = this.todayISO();
           const end = this.addDaysISO(30);
           this.subs[sIdx].status = 'active';
@@ -830,21 +836,22 @@
           this.subs[sIdx].start = start;
           this.subs[sIdx].end = end;
           this.subs[sIdx].last_payment = paymentId;
+
+          this.toast('success', 'Subscription activated for ' + employer);
         }
 
-        // update drawer copy too
         if(this.selectedPayment && this.selectedPayment.id === paymentId){
           this.selectedPayment.status = 'completed';
         }
 
         this.computeKpi();
-        alert('Payment verified (frontend demo). Subscription activated if matched.');
+        this.toast('success', 'Payment verified');
       },
 
-      // ---------- Subscriptions ----------
       openSubDrawer(sub){
         this.selectedSub = {...sub};
         this.drawer.sub = true;
+        this.toast('info', 'Viewing subscription: ' + sub.id);
       },
       closeSubDrawer(){
         this.drawer.sub = false;
@@ -855,7 +862,12 @@
         const idx = this.subs.findIndex(s => s.id === subId);
         if(idx === -1) return;
 
-        // demo: activate for 30 days starting today
+        const curStatus = this.subs[idx].status;
+        if(!(curStatus === 'pending_verification' || curStatus === 'expired')){
+          this.toast('warning', 'Only pending/expired subscriptions can be activated');
+          return;
+        }
+
         this.subs[idx].status = 'active';
         this.subs[idx].start = this.todayISO();
         this.subs[idx].end = this.addDaysISO(30);
@@ -867,12 +879,17 @@
         }
 
         this.computeKpi();
-        alert('Subscription activated (frontend demo).');
+        this.toast('success', 'Subscription activated');
       },
 
       suspendSub(subId){
         const idx = this.subs.findIndex(s => s.id === subId);
         if(idx === -1) return;
+
+        if(this.subs[idx].status === 'suspended'){
+          this.toast('info', 'Already suspended');
+          return;
+        }
 
         this.subs[idx].status = 'suspended';
 
@@ -881,21 +898,20 @@
         }
 
         this.computeKpi();
-        alert('Subscription suspended (frontend demo).');
+        this.toast('warning', 'Subscription suspended');
       },
 
-      // ---------- Reminders ----------
       sendReminder(remId){
-        alert('Reminder sent (frontend demo).');
-        // keep item but you can also mark as sent if you want
+        const r = this.reminders.find(x => x.id === remId);
+        this.toast('success', r ? ('Reminder sent to ' + r.employer) : 'Reminder sent');
       },
 
       dismissReminder(remId){
         if(!confirm('Dismiss this reminder?')) return;
         this.reminders = this.reminders.filter(r => r.id !== remId);
+        this.toast('info', 'Reminder dismissed');
       },
 
-      // ---------- date helpers (frontend) ----------
       todayISO(){
         const d = new Date();
         const y = d.getFullYear();
@@ -915,4 +931,5 @@
     }
   }
 </script>
+
 @endsection
