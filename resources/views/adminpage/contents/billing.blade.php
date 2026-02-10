@@ -90,7 +90,7 @@
         </div>
 
         <button type="button"
-          @click="openPlanModal(); toast('info','Create a new plan')"
+          @click="openPlanModal()"
           class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
           + New Plan
         </button>
@@ -155,7 +155,7 @@
           <div class="text-sm font-semibold text-slate-900">Subscription Plans</div>
           <div class="mt-1 text-xs text-slate-500">Create, edit, delete plans and control visibility</div>
         </div>
-        <button type="button" @click="openPlanModal(); toast('info','Create a new plan')"
+        <button type="button" @click="openPlanModal()"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold hover:bg-slate-50">
           Add Plan
         </button>
@@ -619,14 +619,6 @@
         plan: { id: null, name:'', interval:'monthly', price:0, currency:'PHP', featuresText:'', is_active:true, badge:'' }
       },
 
-      // ✅ uses your layout toast (window.notify) instead of window.notyf
-      toast(type, msg, title = ''){
-        if (!window.notify) return;
-        const allowed = ['success','info','warning','error'];
-        const safeType = allowed.includes(type) ? type : 'info';
-        window.notify(safeType, String(msg || ''), String(title || ''));
-      },
-
       init(){
         this.plans = (seed.plans || []).map(p => ({...p}));
         this.payments = (seed.payments || []).map(p => ({...p}));
@@ -717,10 +709,8 @@
             badge: plan.badge || '',
             featuresText: (plan.features || []).join(', '),
           };
-          this.toast('info', 'Editing plan: ' + plan.name);
         } else {
           this.form.plan = { id:null, name:'', interval:'monthly', price:0, currency:'PHP', featuresText:'', is_active:true, badge:'' };
-          this.toast('info', 'Create a new plan');
         }
         this.modal.plan = true;
       },
@@ -731,20 +721,10 @@
 
       savePlan(){
         const name = String(this.form.plan.name || '').trim();
-        if(!name){
-          this.toast('error', 'Plan name is required');
-          return;
-        }
+        if(!name) return;
 
         const price = Number(this.form.plan.price || 0);
-        if(Number.isNaN(price)){
-          this.toast('error', 'Price must be a number');
-          return;
-        }
-        if(price < 0){
-          this.toast('error', 'Price cannot be negative');
-          return;
-        }
+        if(Number.isNaN(price) || price < 0) return;
 
         const features = String(this.form.plan.featuresText || '')
           .split(',')
@@ -765,7 +745,6 @@
               badge: String(this.form.plan.badge || '').trim(),
             };
           }
-          this.toast('success', 'Plan updated');
         } else {
           const nextId = Math.max(0, ...this.plans.map(p => Number(p.id || 0))) + 1;
           this.plans.unshift({
@@ -778,7 +757,6 @@
             is_active: !!this.form.plan.is_active,
             badge: String(this.form.plan.badge || '').trim(),
           });
-          this.toast('success', 'Plan created');
         }
 
         this.modal.plan = false;
@@ -793,20 +771,17 @@
         this.plans[idx].badge = this.plans[idx].is_active ? (this.plans[idx].badge || '') : 'Hidden';
 
         this.computeKpi();
-        this.toast('success', this.plans[idx].is_active ? 'Plan activated' : 'Plan hidden');
       },
 
       deletePlan(id){
         if(!confirm('Delete this plan?')) return;
         this.plans = this.plans.filter(p => p.id !== id);
         this.computeKpi();
-        this.toast('warning', 'Plan deleted');
       },
 
       openPaymentDrawer(pay){
         this.selectedPayment = {...pay};
         this.drawer.payment = true;
-        this.toast('info', 'Viewing payment: ' + pay.id);
       },
       closePaymentDrawer(){
         this.drawer.payment = false;
@@ -817,10 +792,7 @@
         const pIdx = this.payments.findIndex(p => p.id === paymentId);
         if(pIdx === -1) return;
 
-        if(this.payments[pIdx].status !== 'pending'){
-          this.toast('warning', 'Only pending payments can be verified');
-          return;
-        }
+        if(this.payments[pIdx].status !== 'pending') return;
 
         this.payments[pIdx].status = 'completed';
 
@@ -830,14 +802,13 @@
         const sIdx = this.subs.findIndex(s => s.employer === employer && s.status === 'pending_verification');
         if(sIdx !== -1){
           const start = this.todayISO();
-          const end = this.addDaysISO(30);
+          const end = this.addDaysISO(start, 30);
+
           this.subs[sIdx].status = 'active';
           this.subs[sIdx].plan = plan;
           this.subs[sIdx].start = start;
           this.subs[sIdx].end = end;
           this.subs[sIdx].last_payment = paymentId;
-
-          this.toast('success', 'Subscription activated for ' + employer);
         }
 
         if(this.selectedPayment && this.selectedPayment.id === paymentId){
@@ -845,13 +816,11 @@
         }
 
         this.computeKpi();
-        this.toast('success', 'Payment verified');
       },
 
       openSubDrawer(sub){
         this.selectedSub = {...sub};
         this.drawer.sub = true;
-        this.toast('info', 'Viewing subscription: ' + sub.id);
       },
       closeSubDrawer(){
         this.drawer.sub = false;
@@ -863,33 +832,29 @@
         if(idx === -1) return;
 
         const curStatus = this.subs[idx].status;
-        if(!(curStatus === 'pending_verification' || curStatus === 'expired')){
-          this.toast('warning', 'Only pending/expired subscriptions can be activated');
-          return;
-        }
+        if(!(curStatus === 'pending_verification' || curStatus === 'expired')) return;
+
+        const start = this.todayISO();
+        const end = this.addDaysISO(start, 30);
 
         this.subs[idx].status = 'active';
-        this.subs[idx].start = this.todayISO();
-        this.subs[idx].end = this.addDaysISO(30);
+        this.subs[idx].start = start;
+        this.subs[idx].end = end;
 
         if(this.selectedSub && this.selectedSub.id === subId){
           this.selectedSub.status = 'active';
-          this.selectedSub.start = this.subs[idx].start;
-          this.selectedSub.end = this.subs[idx].end;
+          this.selectedSub.start = start;
+          this.selectedSub.end = end;
         }
 
         this.computeKpi();
-        this.toast('success', 'Subscription activated');
       },
 
       suspendSub(subId){
         const idx = this.subs.findIndex(s => s.id === subId);
         if(idx === -1) return;
 
-        if(this.subs[idx].status === 'suspended'){
-          this.toast('info', 'Already suspended');
-          return;
-        }
+        if(this.subs[idx].status === 'suspended') return;
 
         this.subs[idx].status = 'suspended';
 
@@ -898,18 +863,15 @@
         }
 
         this.computeKpi();
-        this.toast('warning', 'Subscription suspended');
       },
 
       sendReminder(remId){
-        const r = this.reminders.find(x => x.id === remId);
-        this.toast('success', r ? ('Reminder sent to ' + r.employer) : 'Reminder sent');
+        // demo-only: no side effects except UI list changes if you want later
       },
 
       dismissReminder(remId){
         if(!confirm('Dismiss this reminder?')) return;
         this.reminders = this.reminders.filter(r => r.id !== remId);
-        this.toast('info', 'Reminder dismissed');
       },
 
       todayISO(){
@@ -920,8 +882,9 @@
         return `${y}-${m}-${day}`;
       },
 
-      addDaysISO(days){
-        const d = new Date();
+      // ✅ FIX: add days based on a base date, not always from "today"
+      addDaysISO(baseISO, days){
+        const d = baseISO ? new Date(baseISO) : new Date();
         d.setDate(d.getDate() + Number(days || 0));
         const y = d.getFullYear();
         const m = String(d.getMonth()+1).padStart(2,'0');

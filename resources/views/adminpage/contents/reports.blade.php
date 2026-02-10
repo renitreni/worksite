@@ -236,15 +236,6 @@
 
       panels: {},
       open: {},
-      _lastSearchToastAt: {},
-
-      // ✅ UPDATED: use layout toast (window.notify)
-      toast(type, msg, title = ''){
-        if (!window.notify) return;
-        const allowed = ['success','info','warning','error'];
-        const safeType = allowed.includes(type) ? type : 'info';
-        window.notify(safeType, String(msg || ''), String(title || ''));
-      },
 
       init(){
         this.quickThisMonth(true);
@@ -262,8 +253,6 @@
           this.buildTable(t.key, rows);
           this.buildSummary(t.key, rows);
         });
-
-        this.toast('info', 'Reports ready');
       },
 
       get typeDesc(){
@@ -284,8 +273,6 @@
 
         this.filters.from = `${y}-${m}-01`;
         this.filters.to = `${y}-${m}-28`; // demo
-
-        if(!silent) this.toast('info', 'Set range to this month');
       },
 
       reset(){
@@ -293,7 +280,7 @@
         this.quickThisMonth(true);
 
         this.types.forEach(t => {
-          this.panels[t.key].tableSearch = '';
+          if (this.panels[t.key]) this.panels[t.key].tableSearch = '';
           this.open[t.key] = true;
 
           const rows = this.getRowsForRange(t.key);
@@ -301,14 +288,13 @@
           this.buildSummary(t.key, rows);
         });
 
-        this.toast('info', 'Filters reset');
         this.jumpTo(this.filters.type);
       },
 
       generate(){
         const v = this.validateRange();
         if(!v.ok){
-          this.toast('error', v.msg);
+          alert(v.msg);
           return;
         }
 
@@ -318,7 +304,6 @@
           this.buildSummary(t.key, rows);
         });
 
-        this.toast('success', 'Filters applied');
         this.jumpTo(this.filters.type);
       },
 
@@ -350,7 +335,11 @@
           return true;
         });
 
-        this.panels[key].tableMeta.label = `Demo rows • ${filtered.length} match(es)`;
+        // ✅ guard: panel may not exist yet during init
+        if (this.panels[key]) {
+          this.panels[key].tableMeta.label = `Demo rows • ${filtered.length} match(es)`;
+        }
+
         return filtered;
       },
 
@@ -358,35 +347,22 @@
         const el = document.getElementById(`report-${key}`);
         if(!el) return;
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        this.toast('info', 'Jumped to ' + (this.types.find(t => t.key === key)?.name || key));
       },
 
       toggleOpen(key){
         this.open[key] = !this.open[key];
-        this.toast('info', this.open[key] ? 'Expanded section' : 'Collapsed section');
       },
 
       exportPDF(key){
-        const name = this.types.find(t => t.key === key)?.name || key;
-        this.toast('info', `Export PDF: ${name} (demo)`);
+        // demo only (no toast)
       },
 
       exportExcel(key){
-        const name = this.types.find(t => t.key === key)?.name || key;
-        this.toast('info', `Export Excel: ${name} (demo)`);
+        // demo only (no toast)
       },
 
       onSearch(key){
-        const now = Date.now();
-        const last = this._lastSearchToastAt[key] || 0;
-        if(now - last < 900) return;
-
-        const count = this.filteredRows(key).length;
-        const q = (this.panels[key].tableSearch || '').trim();
-        if(q && count === 0){
-          this._lastSearchToastAt[key] = now;
-          this.toast('warning', 'No matching rows');
-        }
+        // no toast
       },
 
       filteredRows(key){
@@ -511,4 +487,5 @@
     }
   }
 </script>
+
 @endsection

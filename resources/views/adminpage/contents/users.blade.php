@@ -11,48 +11,37 @@
     ['label'=>'Suspended (billing)','value'=>'14'],
   ];
 
-  // Sample data (replace later with DB)
   $users = [
     [
       'id'=>1,'name'=>'John Doe','email'=>'john@example.com',
       'role'=>'Candidate','status'=>'Active','plan'=>null,'payment'=>null,'joined'=>'2026-01-20',
-      'jobs_posted'=>0,
-      'applications_count'=>7,
+      'jobs_posted'=>0,'applications_count'=>7,
     ],
     [
       'id'=>2,'name'=>'ACME Corp','email'=>'hr@acme.com',
       'role'=>'Employer','status'=>'Pending','plan'=>'Free','payment'=>'Pending','joined'=>'2026-02-01',
-      'jobs_posted'=>3,
-      'applications_count'=>0,
+      'jobs_posted'=>3,'applications_count'=>0,
     ],
     [
       'id'=>3,'name'=>'QuickShip PH','email'=>'admin@quickship.ph',
       'role'=>'Employer','status'=>'Active','plan'=>'Pro','payment'=>'Completed','joined'=>'2026-01-05',
-      'jobs_posted'=>12,
-      'applications_count'=>0,
+      'jobs_posted'=>12,'applications_count'=>0,
     ],
     [
       'id'=>4,'name'=>'Maria Santos','email'=>'maria@gmail.com',
       'role'=>'Candidate','status'=>'Active','plan'=>null,'payment'=>null,'joined'=>'2026-01-11',
-      'jobs_posted'=>0,
-      'applications_count'=>2,
+      'jobs_posted'=>0,'applications_count'=>2,
     ],
     [
       'id'=>5,'name'=>'TechTalent Hub','email'=>'ops@techtalent.io',
       'role'=>'Employer','status'=>'Expired','plan'=>'Pro','payment'=>'Failed','joined'=>'2025-12-29',
-      'jobs_posted'=>21,
-      'applications_count'=>0,
+      'jobs_posted'=>21,'applications_count'=>0,
     ],
   ];
 @endphp
 
-<div
-  x-data="manageUsers(@js($users))"
-  x-init="init()"
-  class="space-y-6"
->
+<div x-data="manageUsers(@js($users))" x-init="init()" class="space-y-6">
 
-  {{-- Top quick stats --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
     @foreach($stats as $s)
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -65,7 +54,6 @@
     @endforeach
   </div>
 
-  {{-- Controls --}}
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -115,7 +103,7 @@
         <button
           type="button"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-          @click="toast('info','Export (UI only)')"
+          disabled
         >
           Export
         </button>
@@ -123,7 +111,7 @@
         <button
           type="button"
           class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-          @click="toast('info','Add user (UI only)')"
+          disabled
         >
           Add user
         </button>
@@ -131,14 +119,12 @@
     </div>
   </div>
 
-  {{-- Table + details panel --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-5">
 
-    {{-- Users table --}}
     <div class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="border-b border-slate-200 p-5">
         <div class="text-sm font-semibold">Users</div>
-        <div class="mt-1 text-xs text-slate-500">Click a row to view details and take action</div>
+        <div class="mt-1 text-xs text-slate-500">Click a row to view details</div>
       </div>
 
       <div class="overflow-x-auto">
@@ -202,18 +188,17 @@
       <div class="flex flex-col gap-2 border-t border-slate-200 p-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
         <span>Showing <span x-text="Math.min(filteredUsers().length, 10)"></span> of <span x-text="filteredUsers().length"></span></span>
         <div class="flex gap-2">
-          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="toast('info','Prev (UI only)')">Prev</button>
-          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="toast('info','Next (UI only)')">Next</button>
+          <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" disabled>Prev</button>
+          <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" disabled>Next</button>
         </div>
       </div>
     </div>
 
-    {{-- Details panel --}}
     <div class="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="flex items-start justify-between">
         <div>
           <div class="text-sm font-semibold">User details</div>
-          <div class="mt-1 text-xs text-slate-500">Preview and actions (UI only)</div>
+          <div class="mt-1 text-xs text-slate-500">Preview and actions</div>
         </div>
 
         <template x-if="selected">
@@ -224,13 +209,11 @@
         </template>
       </div>
 
-      {{-- Placeholder when none selected --}}
       <div x-show="!selected" class="mt-10 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
         <div class="text-sm font-semibold text-slate-800">Select a user</div>
         <div class="mt-1 text-xs text-slate-500">Pick a row from the table to see more.</div>
       </div>
 
-      {{-- Selected content --}}
       <div x-show="selected" x-transition class="mt-5">
         <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div class="text-sm font-semibold text-slate-900" x-text="selected?.name"></div>
@@ -247,7 +230,6 @@
               <div class="mt-1 font-semibold" x-text="selected?.joined"></div>
             </div>
 
-            {{-- Employer-only --}}
             <div x-show="selected?.role === 'Employer'" class="rounded-xl bg-white p-3 ring-1 ring-slate-200">
               <div class="text-xs text-slate-500">Jobs posted</div>
               <div class="mt-1 font-semibold" x-text="selected?.jobs_posted ?? 0"></div>
@@ -263,7 +245,6 @@
               <div class="mt-1 font-semibold" x-text="selected?.payment ?? '—'"></div>
             </div>
 
-            {{-- Candidate-only --}}
             <div x-show="selected?.role === 'Candidate'" class="rounded-xl bg-white p-3 ring-1 ring-slate-200">
               <div class="text-xs text-slate-500">Applications</div>
               <div class="mt-1 font-semibold" x-text="selected?.applications_count ?? 0"></div>
@@ -271,10 +252,7 @@
           </div>
         </div>
 
-        {{-- Actions --}}
         <div class="mt-5 space-y-2">
-
-          {{-- Approve employer only when Pending employer --}}
           <button
             x-show="selected?.role==='Employer' && selected?.status==='Pending'"
             @click="approveEmployer()"
@@ -284,7 +262,6 @@
             Approve employer
           </button>
 
-          {{-- Activate --}}
           <button
             x-show="selected?.status!=='Active' && !(selected?.role==='Employer' && selected?.status==='Pending')"
             @click="activateUser()"
@@ -312,7 +289,6 @@
           </button>
         </div>
 
-        {{-- Notes --}}
         <div class="mt-5 rounded-2xl border border-slate-200 p-4">
           <div class="text-sm font-semibold">Notes</div>
           <textarea
@@ -322,7 +298,7 @@
           <button
             class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
             type="button"
-            @click="toast('success','Notes saved (UI only)')"
+            disabled
           >
             Save notes
           </button>
@@ -334,7 +310,6 @@
 
 </div>
 
-{{-- Alpine component --}}
 <script>
   function manageUsers(initialUsers){
     return {
@@ -342,27 +317,18 @@
       selected: null,
       filters: { q: '', role: 'All', status: 'All', payment: 'All' },
 
-      
-      toast(type, msg, title = ''){
-        if (!window.notify) return;
-        const allowed = ['success','info','warning','error'];
-        const safeType = allowed.includes(type) ? type : 'info';
-        window.notify(safeType, String(msg || ''), String(title || ''));
+      init(){
+        // Keep this for future (server fetch / pagination / etc)
       },
-
-      
 
       select(u){
         this.selected = JSON.parse(JSON.stringify(u));
-        this.toast('info', 'Selected: ' + (this.selected?.name || 'User'));
       },
 
       statusPill(s){
         if(s === 'Active') return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
         if(s === 'Pending') return 'bg-amber-50 text-amber-700 ring-amber-200';
         if(s === 'Suspended') return 'bg-rose-50 text-rose-700 ring-rose-200';
-        if(s === 'Expired') return 'bg-slate-100 text-slate-700 ring-slate-200';
-        if(s === 'Inactive') return 'bg-slate-100 text-slate-700 ring-slate-200';
         return 'bg-slate-100 text-slate-700 ring-slate-200';
       },
 
@@ -393,48 +359,30 @@
 
       approveEmployer(){
         if(!this.selected) return;
-
-        // UI demo update
         this.selected.status = 'Active';
         this.selected.payment = this.selected.payment ?? 'Completed';
         this.syncSelectedToTable();
-
-        this.toast('success', 'Employer approved (UI only)');
       },
 
       activateUser(){
         if(!this.selected) return;
-
         this.selected.status = 'Active';
         this.syncSelectedToTable();
-
-        this.toast('success', 'User set to active (UI only)');
       },
 
       suspendUser(){
         if(!this.selected) return;
-
         this.selected.status = 'Suspended';
         this.syncSelectedToTable();
-
-        this.toast('warning', 'User suspended (UI only)');
       },
 
       deactivateUser(){
         if(!this.selected) return;
-
-        if(!confirm('Deactivate this user?')) {
-          this.toast('info', 'Cancelled');
-          return;
-        }
-
+        if(!confirm('Deactivate this user?')) return;
         this.selected.status = 'Inactive';
         this.syncSelectedToTable();
-
-        this.toast('error', 'User deactivated (UI only)');
       },
     }
   }
 </script>
-
 @endsection
