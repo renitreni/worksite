@@ -29,6 +29,12 @@ Route::middleware('guest')->prefix('candidate')->name('candidate.')->group(funct
 
     Route::get('/login', [CandidateAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [CandidateAuthController::class, 'login'])->name('login.store');
+
+    Route::post('/verify-email', [CandidateAuthController::class, 'verifyEmailCode'])
+        ->name('verify.email');
+
+    Route::post('/resend-verification', [CandidateAuthController::class, 'resendEmailCode'])
+        ->name('verify.resend');
 });
 
 Route::post('/candidate/logout', [CandidateAuthController::class, 'logout'])
