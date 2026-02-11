@@ -102,14 +102,6 @@
 
 <div x-data="jobModeration(@js($jobs))" x-init="init()" class="space-y-6">
 
-  <div
-    x-show="toast.show"
-    x-transition
-    class="fixed right-5 top-5 z-50 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg"
-  >
-    <span x-text="toast.message"></span>
-  </div>
-
   {{-- Stats --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
     @foreach($stats as $s)
@@ -163,22 +155,33 @@
           <input type="date" x-model="filters.to"
             class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
         </div>
+
+        <button type="button"
+          class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+          @click="resetFilters()"
+        >
+          Reset
+        </button>
       </div>
 
       <div class="flex flex-wrap gap-2">
         <button type="button"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-          @click="notify('Export')"
+          @click="exportList()"
         >
           Export
         </button>
         <button type="button"
           class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-          @click="notify('Bulk actions')"
+          @click="bulkActions()"
         >
           Bulk Actions
         </button>
       </div>
+    </div>
+
+    <div class="mt-3 text-xs text-slate-500">
+      Showing <span class="font-semibold text-slate-700" x-text="filteredJobs().length"></span> job(s) in this view.
     </div>
   </div>
 
@@ -204,7 +207,7 @@
           </thead>
 
           <tbody class="divide-y divide-slate-200">
-            <template x-for="j in filteredJobs()" :key="j.id">
+            <template x-for="j in pagedJobs()" :key="j.id">
               <tr
                 class="cursor-pointer hover:bg-slate-50"
                 :class="selected?.id === j.id ? 'bg-emerald-50/40' : ''"
@@ -248,10 +251,31 @@
       </div>
 
       <div class="flex flex-col gap-2 border-t border-slate-200 p-4 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-        <span>Showing <span x-text="Math.min(filteredJobs().length, 10)"></span> of <span x-text="filteredJobs().length"></span></span>
+        <span>
+          Page <span class="font-semibold text-slate-700" x-text="page"></span>
+          of <span class="font-semibold text-slate-700" x-text="totalPages()"></span>
+          <span class="text-slate-400">•</span>
+          Showing <span class="font-semibold text-slate-700" x-text="pagedJobs().length"></span>
+          of <span class="font-semibold text-slate-700" x-text="filteredJobs().length"></span>
+        </span>
+
         <div class="flex gap-2">
-          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="notify('Prev')">Prev</button>
-          <button class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50" @click="notify('Next')">Next</button>
+          <button
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50"
+            @click="prevPage()"
+            :disabled="page<=1"
+            :class="page<=1 ? 'opacity-50 cursor-not-allowed' : ''"
+          >
+            Prev
+          </button>
+          <button
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50"
+            @click="nextPage()"
+            :disabled="page>=totalPages()"
+            :class="page>=totalPages() ? 'opacity-50 cursor-not-allowed' : ''"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
@@ -348,6 +372,11 @@
               <span>Category and skills match the job</span>
             </label>
           </div>
+
+          <div class="mt-3 text-xs text-slate-500">
+            Completed:
+            <span class="font-semibold text-slate-700" x-text="checksCount()"></span>/4
+          </div>
         </div>
 
         {{-- Notes --}}
@@ -361,6 +390,8 @@
           <button type="button"
             class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
             @click="saveNotes()"
+            :disabled="!selected"
+            :class="!selected ? 'opacity-50 cursor-not-allowed' : ''"
           >
             Save Notes
           </button>
@@ -373,6 +404,7 @@
             class="w-full rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
             @click="approve()"
             :disabled="!selected || selected.status === 'Approved'"
+            :class="(!selected || selected.status === 'Approved') ? 'opacity-50 cursor-not-allowed' : ''"
           >
             Approve Job
           </button>
@@ -382,6 +414,7 @@
             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
             @click="reject()"
             :disabled="!selected || selected.status === 'Rejected'"
+            :class="(!selected || selected.status === 'Rejected') ? 'opacity-50 cursor-not-allowed' : ''"
           >
             Reject Job
           </button>
@@ -391,6 +424,7 @@
             class="w-full rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
             @click="remove()"
             :disabled="!selected || selected.status === 'Removed'"
+            :class="(!selected || selected.status === 'Removed') ? 'opacity-50 cursor-not-allowed' : ''"
           >
             Remove (Fake/Invalid/Expired)
           </button>
@@ -399,6 +433,8 @@
             type="button"
             class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
             @click="notifyEmployer()"
+            :disabled="!selected"
+            :class="!selected ? 'opacity-50 cursor-not-allowed' : ''"
           >
             Notify Employer
           </button>
@@ -413,10 +449,9 @@
 <script>
   function jobModeration(initialJobs){
     return {
-      jobs: initialJobs,
+      jobs: (initialJobs || []).map(x => ({...x})),
       selected: null,
       selectedNotes: '',
-      toast: { show:false, message:'' },
 
       checks: {
         hasClearTitle: false,
@@ -427,15 +462,27 @@
 
       filters: { q:'', status:'All', flag:'All', from:'', to:'' },
 
+      // pagination (frontend demo)
+      page: 1,
+      perPage: 10,
+
       init(){
+        // Optional: auto select first item
         // this.select(this.jobs[0] ?? null);
       },
 
-      notify(msg){
-        this.toast.message = msg;
-        this.toast.show = true;
-        setTimeout(() => this.toast.show = false, 1800);
-      },
+      toast(type, msg, title = ''){
+  if (!window.toast) return;
+
+  const allowed = ['success','info','warning','error'];
+  const safeType = allowed.includes(type) ? type : 'info';
+
+  const message = String(msg || '');
+  const ttl = String(title || '');
+  const text = ttl ? `${ttl}: ${message}` : message;
+
+  window.toast(safeType, text);
+},
 
       statusPill(s){
         if(s === 'Pending') return 'bg-amber-50 text-amber-700 ring-amber-200';
@@ -446,11 +493,13 @@
         return 'bg-slate-100 text-slate-700 ring-slate-200';
       },
 
-      select(j){
-        if(!j) return;
-        this.selected = JSON.parse(JSON.stringify(j));
-        this.selectedNotes = this.selected.notes || '';
-        this.checks = { hasClearTitle:false, hasValidCompany:false, noScamSignals:false, correctCategory:false };
+      checksCount(){
+        let n = 0;
+        if(this.checks.hasClearTitle) n++;
+        if(this.checks.hasValidCompany) n++;
+        if(this.checks.noScamSignals) n++;
+        if(this.checks.correctCategory) n++;
+        return n;
       },
 
       filteredJobs(){
@@ -461,7 +510,7 @@
         const from = this.filters.from ? new Date(this.filters.from) : null;
         const to = this.filters.to ? new Date(this.filters.to) : null;
 
-        return this.jobs.filter(j => {
+        const rows = this.jobs.filter(j => {
           const hay = `${j.title} ${j.company} ${j.location}`.toLowerCase();
           const matchesQ = !q || hay.includes(q);
           const matchesStatus = status === 'All' || j.status === status;
@@ -478,6 +527,63 @@
 
           return matchesQ && matchesStatus && matchesFlag && matchesDate;
         });
+
+        const maxP = Math.max(1, Math.ceil(rows.length / this.perPage));
+        if (this.page > maxP) this.page = maxP;
+
+        return rows;
+      },
+
+      totalPages(){
+        const total = this.filteredJobs().length;
+        return Math.max(1, Math.ceil(total / this.perPage));
+      },
+
+      pagedJobs(){
+        const rows = this.filteredJobs();
+        const start = (this.page - 1) * this.perPage;
+        return rows.slice(start, start + this.perPage);
+      },
+
+      prevPage(){
+        if (this.page <= 1) {
+          this.toast('info', 'Already on first page');
+          return;
+        }
+        this.page--;
+        this.toast('info', 'Page ' + this.page);
+      },
+
+      nextPage(){
+        const tp = this.totalPages();
+        if (this.page >= tp) {
+          this.toast('info', 'No more pages');
+          return;
+        }
+        this.page++;
+        this.toast('info', 'Page ' + this.page);
+      },
+
+      resetFilters(){
+        this.filters = { q:'', status:'All', flag:'All', from:'', to:'' };
+        this.page = 1;
+        this.toast('info', 'Filters reset');
+      },
+
+      exportList(){
+        this.toast('info', 'Export started (demo)');
+      },
+
+      bulkActions(){
+        this.toast('info', 'Bulk actions (demo)');
+      },
+
+      select(j){
+        if(!j) return;
+        this.selected = JSON.parse(JSON.stringify(j));
+        this.selectedNotes = this.selected.notes || '';
+        this.checks = { hasClearTitle:false, hasValidCompany:false, noScamSignals:false, correctCategory:false };
+        this.toast('info', 'Selected job #' + this.selected.id);
       },
 
       syncSelected(){
@@ -487,39 +593,103 @@
       },
 
       saveNotes(){
-        if(!this.selected) return;
-        this.selected.notes = this.selectedNotes;
+        if(!this.selected){
+          this.toast('warning', 'Select a job first');
+          return;
+        }
+
+        const notes = String(this.selectedNotes || '').trim();
+        if(!notes){
+          this.toast('error', 'Notes cannot be empty');
+          return;
+        }
+
+        this.selected.notes = notes;
         this.syncSelected();
-        this.notify('Notes saved');
+        this.toast('success', 'Notes saved');
+      },
+
+      canApprove(){
+        return this.checksCount() >= 3;
       },
 
       approve(){
-        if(!this.selected) return;
+        if(!this.selected){
+          this.toast('warning', 'Select a job first');
+          return;
+        }
+        if(this.selected.status === 'Approved'){
+          this.toast('info', 'Already approved');
+          return;
+        }
+        if(!this.canApprove()){
+          this.toast('error', 'Complete the checklist before approving');
+          return;
+        }
+
         this.selected.status = 'Approved';
-        this.selected.notes = this.selectedNotes;
+        this.selected.notes = String(this.selectedNotes || '').trim();
         this.syncSelected();
-        this.notify('Job approved');
+        this.toast('success', 'Job approved');
       },
 
       reject(){
-        if(!this.selected) return;
+        if(!this.selected){
+          this.toast('warning', 'Select a job first');
+          return;
+        }
+        if(this.selected.status === 'Rejected'){
+          this.toast('info', 'Already rejected');
+          return;
+        }
+
+        const notes = String(this.selectedNotes || '').trim();
+        if(!notes){
+          this.toast('error', 'Add a reason in Notes before rejecting');
+          return;
+        }
+
         this.selected.status = 'Rejected';
-        this.selected.notes = this.selectedNotes;
+        this.selected.notes = notes;
         this.syncSelected();
-        this.notify('Job rejected');
+        this.toast('warning', 'Job rejected');
       },
 
       remove(){
-        if(!this.selected) return;
+        if(!this.selected){
+          this.toast('warning', 'Select a job first');
+          return;
+        }
+        if(this.selected.status === 'Removed'){
+          this.toast('info', 'Already removed');
+          return;
+        }
+
+        const notes = String(this.selectedNotes || '').trim();
+        if(!notes){
+          this.toast('error', 'Add a reason in Notes before removing');
+          return;
+        }
+
         this.selected.status = 'Removed';
-        this.selected.notes = this.selectedNotes;
+        this.selected.notes = notes;
         this.syncSelected();
-        this.notify('Job removed');
+        this.toast('warning', 'Job removed');
       },
 
       notifyEmployer(){
-        if(!this.selected) return;
-        this.notify('Employer notified');
+        if(!this.selected){
+          this.toast('warning', 'Select a job first');
+          return;
+        }
+
+        const email = String(this.selected.company_email || '').trim();
+        if(!email){
+          this.toast('error', 'Employer email is missing');
+          return;
+        }
+
+        this.toast('info', 'Employer notified: ' + email);
       },
     }
   }
