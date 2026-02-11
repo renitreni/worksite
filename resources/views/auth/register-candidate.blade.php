@@ -143,7 +143,7 @@
                         </div>
 
                         <div class="mt-4 flex items-center gap-2">
-                            <a href="{{ route('login') }}"
+                            <a href="{{ route('candidate.login') }}"
                                 class="w-1/2 text-center rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">
                                 Back
                             </a>
