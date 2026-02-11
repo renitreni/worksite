@@ -151,7 +151,7 @@
 
             <div class="p-5 space-y-3">
                 <!-- ✅ change routes here if you have separate login pages -->
-                <a href="/login?role=candidate"
+                <a href="/candidate/login"
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
                     <div class="mt-0.5 h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center border border-green-200">
                         <i data-lucide="user" class="w-5 h-5 text-green-700"></i>
@@ -166,7 +166,7 @@
                     </div>
                 </a>
 
-                <a href="/login?role=employer"
+                <a href="/employer/login"
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
                     <div class="mt-0.5 h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
                         <i data-lucide="briefcase" class="w-5 h-5 text-emerald-700"></i>
