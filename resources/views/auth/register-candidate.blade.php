@@ -304,6 +304,8 @@
         </div>
     </main>
 
+    @include("auth.partials-candidate.email-verification-modal")
+
     <!-- Intl Tel Input JS (✅ ONLY THIS, no utils.js script tag) -->
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/intlTelInput.min.js"></script>
 

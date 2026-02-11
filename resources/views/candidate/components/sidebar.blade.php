@@ -51,7 +51,7 @@
         </div>
 
        
-        <form method="POST" action="{{ route('logout') }}">
+        <form method="POST" action="{{ route('candidate.logout') }}">
             @csrf
             <button
                 type="submit"
@@ -105,7 +105,7 @@
         </div>
 
        
-        <form method="POST" action="{{ route('logout') }}">
+        <form method="POST" action="{{ route('candidate.logout') }}">
             @csrf
             <button
                 type="submit"
