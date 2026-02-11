@@ -193,7 +193,7 @@ class CandidateAuthController extends Controller
         }
 
 
-        return redirect()->route('candidate.dashboard');
+        return redirect()->route('home');
     }
 
     public function logout(Request $request)

@@ -80,6 +80,7 @@ Route::middleware('guest')->prefix('admin')->name('admin.')->group(function () {
 Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candidate'])->group(function () {
     Route::get('/', fn() => view('candidate.layout'))->name('index');
 
+    Route::get('/home', fn() => view('candidate.contents.home'))->name('home');
     Route::get('/dashboard', fn() => view('candidate.contents.dashboard'))->name('dashboard');
 
     Route::get('/profile', fn() => view('candidate.contents.profile'))->name('profile');
