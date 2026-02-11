@@ -1,125 +1,142 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return view('main');
+use App\Http\Controllers\Auth\AuthController; // employer/admin login can stay here
+use App\Http\Controllers\Candidate\CandidateAuthController;
+use App\Http\Controllers\Employer\EmployerAuthController;
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC
+|--------------------------------------------------------------------------
+*/
+Route::get('/', fn () => view('main'))->name('home');
+
+Route::view('/search-jobs', 'mainpage.search-jobs-page.search-jobs')
+    ->name('search-jobs');
+
+/*
+|--------------------------------------------------------------------------
+| AUTH - CANDIDATE (GUEST ONLY)  ✅ separate controller + folder
+|--------------------------------------------------------------------------
+*/
+Route::prefix('candidate')->name('candidate.')->middleware('guest')->group(function () {
+    Route::get('/register', [CandidateAuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [CandidateAuthController::class, 'register'])->name('register.store');
+
+    Route::get('/login', [CandidateAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [CandidateAuthController::class, 'login'])->name('login.store');
 });
 
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+Route::post('/candidate/logout', [CandidateAuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('candidate.logout');
 
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
+/*
+|--------------------------------------------------------------------------
+| AUTH - EMPLOYER (GUEST ONLY)  ✅ keep for now (same AuthController)
+|--------------------------------------------------------------------------
+| Note: You can later make EmployerAuthController similar to candidate.
+*/
+Route::middleware('guest')->prefix('employer')->group(function () {
+    Route::get('/register', [EmployerAuthController::class, 'showRegister'])->name('employer.register');
+    Route::post('/register', [EmployerAuthController::class, 'register'])->name('employer.register.store');
 
-#CANDIDATE ROUTES
+    Route::get('/login', [EmployerAuthController::class, 'showLogin'])->name('employer.login');
+    Route::post('/login', [EmployerAuthController::class, 'login'])->name('employer.login.store');
+});
 
-Route::get('/candidate', function(){
-    return view('candidate.layout');
-})->name('candidate');
+Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('employer.logout');
 
-Route::get('/candidate/dashboard', function(){
-    return view('candidate.contents.dashboard');
-})->name('candidate.dashboard');
+/*
+|--------------------------------------------------------------------------
+| AUTH - ADMIN (GUEST ONLY)
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::view('/admin/adminlogin', 'adminpage.contents.adminlogin')->name('admin.adminlogin');
 
-Route::get('/candidate/profile', function () {
-    return view('candidate.contents.profile');
-})->name('candidate.profile');
+    // Optional: if you have admin login controller method
+    // Route::post('/admin/adminlogin', [AuthController::class, 'adminLogin'])->name('admin.login.store');
+});
 
-Route::get('/candidate/my-resume', function () {
-    return view('candidate.contents.my-resume');
-})->name('candidate.my-resume');
+/*
+|--------------------------------------------------------------------------
+| FALLBACK AUTH ROUTES (optional)
+|--------------------------------------------------------------------------
+| If you still want /login and /register to exist, point them to candidate.
+| Remove these if you don't want them.
+*/
+Route::get('/login', fn () => redirect()->route('candidate.login'))->name('login');
+Route::get('/register', fn () => redirect()->route('candidate.register'))->name('register');
 
-Route::get('/candidate/my-applied-jobs', function () {
-    return view('candidate.contents.my-applied-jobs');
-})->name('candidate.my-applied-jobs');
+/*
+|--------------------------------------------------------------------------
+| LOGOUT (AUTH ONLY) - ONE ROUTE ONLY
+|--------------------------------------------------------------------------
+| Works for all roles (candidate/employer/admin)
+*/
+Route::post('/logout', [CandidateAuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
-Route::get('/candidate/shortlist-jobs', function () {
-    return view('candidate.contents.shortlist-jobs');
-})->name('candidate.shortlist-jobs');
+/*
+|--------------------------------------------------------------------------
+| CANDIDATE PAGES (AUTH + ROLE)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candidate'])->group(function () {
+    Route::get('/', fn () => view('candidate.layout'))->name('index');
 
-Route::get('/candidate/following-employers', function () {
-    return view('candidate.contents.following-employers');
-})->name('candidate.following-employers');
+    Route::get('/dashboard', fn () => view('candidate.contents.dashboard'))->name('dashboard');
 
-Route::get('/candidate/job-alerts', function () {
-    return view('candidate.contents.job-alerts');
-})->name('candidate.job-alerts');
+    Route::get('/profile', fn () => view('candidate.contents.profile'))->name('profile');
+    Route::get('/my-resume', fn () => view('candidate.contents.my-resume'))->name('my-resume');
+    Route::get('/my-applied-jobs', fn () => view('candidate.contents.my-applied-jobs'))->name('my-applied-jobs');
+    Route::get('/shortlist-jobs', fn () => view('candidate.contents.shortlist-jobs'))->name('shortlist-jobs');
+    Route::get('/following-employers', fn () => view('candidate.contents.following-employers'))->name('following-employers');
+    Route::get('/job-alerts', fn () => view('candidate.contents.job-alerts'))->name('job-alerts');
+    Route::get('/messages', fn () => view('candidate.contents.messages'))->name('messages');
+    Route::get('/meetings', fn () => view('candidate.contents.meetings'))->name('meetings');
+    Route::get('/change-password', fn () => view('candidate.contents.change-password'))->name('change-password');
+    Route::get('/delete-profile', fn () => view('candidate.contents.delete-profile'))->name('delete-profile');
+});
 
-Route::get('/candidate/messages', function () {
-    return view('candidate.contents.messages');
-})->name('candidate.messages');
+/*
+|--------------------------------------------------------------------------
+| EMPLOYER PAGES (AUTH + ROLE)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('employer')->name('employer.')->middleware(['auth', 'role:employer'])->group(function () {
+    Route::view('/dashboard', 'employer.contents.dashboard')->name('dashboard');
 
-Route::get('/candidate/meetings', function () {
-    return view('candidate.contents.meetings');
-})->name('candidate.meetings');
+    Route::get('/company-profile', fn () => view('employer.contents.profile'))->name('company-profile');
+    Route::get('/analytics', fn () => view('employer.contents.analytics'))->name('analytics');
+    Route::get('/subscription', fn () => view('employer.contents.subscription'))->name('subscription');
 
-Route::get('/candidate/change-password', function () {
-    return view('candidate.contents.change-password');
-})->name('candidate.change-password');
+    Route::get('/job-postings/active', fn () => view('employer.contents.job-postings.active'))->name('job-postings.active');
+    Route::get('/job-postings/closed', fn () => view('employer.contents.job-postings.closed'))->name('job-postings.closed');
 
-Route::get('/candidate/delete-profile', function () {
-    return view('candidate.contents.delete-profile');
-})->name('candidate.delete-profile');
+    Route::get('/applicants/all', fn () => view('employer.contents.applicants.all'))->name('applicants.all');
+    Route::get('/applicants/shortlisted', fn () => view('employer.contents.applicants.shortlisted'))->name('applicants.shortlisted');
+    Route::get('/applicants/rejected', fn () => view('employer.contents.applicants.rejected'))->name('applicants.rejected');
+});
 
+/*
+|--------------------------------------------------------------------------
+| ADMIN PAGES (AUTH + ROLE)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
 
-Route::post('/logout', function () {
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-
-    return redirect('/login');
-})->name('logout');
-
-
-#EMPLOYER ROUTES
-Route::view('/employer/dashboard', 'employer.contents.dashboard')
-    ->name('employer.dashboard');
-
-Route::get('/employer/company-profile', function () {
-    return view('employer.contents.profile');
-})->name('employer.company-profile');
-
-Route::get('/employer/analytics', function () {
-    return view('employer.contents.analytics');
-})->name('employer.analytics');
-
-Route::get('/employer/subscription', function () {
-    return view('employer.contents.subscription');
-})->name('employer.subscription');
-
-Route::get('/employer/job-postings/active', function () {
-    return view('employer.contents.job-postings.active');
-})->name('employer.job-postings.active');
-
-Route::get('/employer/job-postings/closed', function () {
-    return view('employer.contents.job-postings.closed');
-})->name('employer.job-postings.closed');
-
-Route::get('/employer/applicants/all', function () {
-    return view('employer.contents.applicants.all');
-})->name('employer.applicants.all');
-
-Route::get('/employer/applicants/shortlisted', function () {
-    return view('employer.contents.applicants.shortlisted');
-})->name('employer.applicants.shortlisted');
-
-Route::get('/employer/applicants/rejected', function () {
-    return view('employer.contents.applicants.rejected');
-})->name('employer.applicants.rejected');
-
-
-#ADMIN ROUTESSS
-Route::view('/admin/adminlogin', 'adminpage.contents.adminlogin')->name('admin.adminlogin');
-
-Route::view('/admin', 'adminpage.contents.dashboard')->name('admin.dashboard');
-Route::view('/admin/users', 'adminpage.contents.users')->name('admin.users');
-Route::view('/admin/jobs', 'adminpage.contents.jobs')->name('admin.jobs');
-Route::view('/admin/billing', 'adminpage.contents.billing')->name('admin.billing');
-Route::view('/admin/reports', 'adminpage.contents.reports')->name('admin.reports');
-Route::view('/admin/settings', 'adminpage.contents.settings')->name('admin.settings');
-Route::view('/admin/taxonomy', 'adminpage.contents.taxonomy')->name('admin.taxonomy');
-
+    Route::view('/users', 'adminpage.contents.users')->name('users');
+    Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
+    Route::view('/billing', 'adminpage.contents.billing')->name('billing');
+    Route::view('/reports', 'adminpage.contents.reports')->name('reports');
+    Route::view('/settings', 'adminpage.contents.settings')->name('settings');
+    Route::view('/taxonomy', 'adminpage.contents.taxonomy')->name('taxonomy');
+});

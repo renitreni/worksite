@@ -23,6 +23,14 @@
     <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <style>
+        .hero-bg {
+            background-attachment: scroll !important;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+
 
 </head>
 
@@ -36,6 +44,8 @@
     @include('mainpage.marketing')
     @include('mainpage.components.footer')
 
+
+    @yield('script')
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();

@@ -10,7 +10,7 @@
             style="background-image: url('/images/ofw.png');"></div>
 
         <!-- Very light blur -->
-        <div class="absolute inset-0 backdrop-blur-[2px]"></div>
+        <div class="absolute inset-0 "></div>
 
         <!-- Color mask -->
         <div class="absolute inset-0 bg-gradient-to-br from-green-950/50 via-black/40 to-green-900/45"></div>
