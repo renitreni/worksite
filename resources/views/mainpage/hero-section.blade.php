@@ -61,12 +61,12 @@
                 </select>
             </div>
 
-            <button class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 transition
+            <a href="{{ route('search-jobs') }}" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 transition
                        text-white font-semibold px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl
                        text-sm sm:text-lg transform hover:-translate-y-0.5 hover:shadow-md duration-200">
                 <i data-lucide="search" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                 Search Jobs
-            </button>
+            </a>
         </div>
 
         <div class="mt-5 sm:mt-6 grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-3">
@@ -117,12 +117,10 @@
 </script>
 
 <style>
-    /* IMPORTANT: stops the "zooming/parallax" feeling on mobile */
     .hero-bg {
         background-attachment: scroll !important;
         background-position: center center;
         background-repeat: no-repeat;
-        /* keeps it stable on mobile repaint */
         transform: translateZ(0);
         will-change: auto;
     }

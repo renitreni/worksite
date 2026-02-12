@@ -18,6 +18,17 @@ Route::get('/', fn() => view('main'))->name('home');
 Route::view('/search-jobs', 'mainpage.search-jobs-page.search-jobs')
     ->name('search-jobs');
 
+Route::view('/search-agency', 'mainpage.search-jobs-page.search-agency')
+    ->name('search-agency');
+
+Route::view('/search-industries', 'mainpage.search-jobs-page.search-industries')
+    ->name('search-industries');
+
+Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
+    ->name('search-country');
+
+Route::view('/agency-details', 'mainpage.agency-details-page.agency.show')
+    ->name('agency.details');
 /*
 |--------------------------------------------------------------------------
 | AUTH - CANDIDATE (GUEST ONLY)  
