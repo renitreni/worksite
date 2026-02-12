@@ -10,6 +10,8 @@
                 Search by keyword, preferred country, and industry — then apply quick filters to match your needs.
             </p>
         </div>
+        @include('mainpage.components.search-switcher')
+
 
         <!-- GREEN SEARCH CARD -->
         <div class="relative overflow-hidden rounded-3xl shadow-lg border border-emerald-900/10">

@@ -2,27 +2,39 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search Jobs | Worksite</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>{{ config('app.name', default: 'Worksite') }}</title>
+
+    <!-- Fonts -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    
     <style>
-        html, body { overflow-x: hidden; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
+
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        
+
+    <!-- Styles / Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 
-<body class="font-['Inter',sans-serif] bg-gray-50 text-gray-800">
+<body class="font-['Inter',sans-serif] text-gray-800">
     @include('mainpage.components.navbar')
 
     {{-- ✅ Search Bar Partial --}}
-    @include('mainpage.search-jobs-page.partials._search-bar')
+    @include('mainpage.search-jobs-page.partials-search-jobs._search-bar')
 
     {{-- ✅ Results Partial --}}
-    @include('mainpage.search-jobs-page.partials._results')
+    @include('mainpage.search-jobs-page.partials-search-jobs._results')
 
     @include('mainpage.components.footer')
 
@@ -31,4 +43,5 @@
     </script>
 
 </body>
+
 </html>

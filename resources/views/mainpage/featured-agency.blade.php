@@ -149,7 +149,7 @@
 
                             <!-- Buttons -->
                             <div class="flex justify-between items-center">
-                                <a href="#" class="text-white bg-[#16A34A] px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition
+                                <a href="{{ route('agency.details') }}" class="text-white bg-[#16A34A] px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition
                                                               text-center flex-1 text-sm mr-2">
                                     View Profile
                                 </a>

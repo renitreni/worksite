@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -7,6 +7,7 @@
 
     <title>{{ config('app.name', default: 'Worksite') }}</title>
 
+    <!-- Fonts -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
@@ -24,33 +25,21 @@
     <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <style>
-        .hero-bg {
-            background-attachment: scroll !important;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-    </style>
-
-
 </head>
 
 <body class="font-['Inter',sans-serif] text-gray-800">
     @include('mainpage.components.navbar')
-    @include('mainpage.hero-section')
-    @include('mainpage.browse-by-industry')
-    @include('mainpage.featured-agency')
-    @include('mainpage.featured-job')
-    @include('mainpage.how-it-works')
-    @include('mainpage.marketing')
+
+    {{-- ✅ Search Bar Partial --}}
+    @include('mainpage.search-jobs-page.partials-search-agency._search-bar')
+
+    @include('mainpage.search-jobs-page.partials-search-agency._results')
+
     @include('mainpage.components.footer')
 
-
-    @yield('script')
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();
     </script>
-</body>
 
+</body>
 </html>
