@@ -317,9 +317,19 @@
       selected: null,
       filters: { q: '', role: 'All', status: 'All', payment: 'All' },
 
-      init(){
-        // Keep this for future (server fetch / pagination / etc)
-      },
+      
+      toast(type, msg, title = ''){
+  if (!window.toast) return;
+
+  const allowed = ['success','info','warning','error'];
+  const safeType = allowed.includes(type) ? type : 'info';
+
+  const message = String(msg || '');
+  const ttl = String(title || '');
+  const text = ttl ? `${ttl}: ${message}` : message;
+
+  window.toast(safeType, text);
+},
 
       select(u){
         this.selected = JSON.parse(JSON.stringify(u));

@@ -1,10 +1,9 @@
 @props([
-    'href' => url('/'),   // fallback if there is no history
     'label' => null,
 ])
 
 <button type="button"
-    onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='{{ $href }}'; }"
+    onclick="{ window.location.href='/'; }"
     {{ $attributes->merge([
         'class' => 'inline-flex items-center gap-2 text-gray-600 hover:text-[#16A34A]
                     transition font-medium text-sm group'

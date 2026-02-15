@@ -65,7 +65,7 @@
             <div class="h-px bg-gray-100"></div>
         </div>
 
-        <form method="POST" action="{{ route('logout') }}">
+        <form method="POST" action="{{ route('employer.logout') }}">
             @csrf
             <button type="submit" class="w-full group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition cursor-pointer">
                 <i data-lucide="log-out" class="h-5 w-5 text-red-500"></i>

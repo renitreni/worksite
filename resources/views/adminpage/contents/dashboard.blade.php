@@ -456,6 +456,20 @@
         jobsChange: '',
       },
 
+      // ✅ UPDATED: use global Notyf helper (window.toast)
+      toast(type, message, title = ''){
+        if (!window.toast) return;
+
+        const allowed = ['success','info','warning','error'];
+        const safeType = allowed.includes(type) ? type : 'info';
+
+        const msg = String(message || '');
+        const ttl = String(title || '');
+        const text = ttl ? `${ttl}: ${msg}` : msg;
+
+        window.toast(safeType, text);
+      },
+
       init(){
         this.computeHighlights();
       },
@@ -604,4 +618,5 @@
     }
   }
 </script>
+
 @endsection
