@@ -106,12 +106,17 @@
 
       <div class="my-5 border-t border-slate-200"></div>
 
-      <a
-        {{ route('admin.login') }}
-        class="block rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-      >
-        Logout
-      </a>
+      <form method="POST" action="{{ route('admin.logout') }}">
+  @csrf
+  <button
+    type="submit"
+    @click="sidebarOpen = false"
+    class="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50"
+  >
+    Logout
+  </button>
+</form>
+
     </nav>
 
   </div>

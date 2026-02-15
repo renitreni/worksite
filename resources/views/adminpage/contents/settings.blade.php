@@ -44,7 +44,8 @@
     ],
   ];
 
-  $roles = ['Admin','Employer','Candidate'];
+  $roles = ['Super Admin','Admin','Employer','Candidate'];
+
   $modules = [
     ['name'=>'Dashboard', 'key'=>'mod_dashboard'],
     ['name'=>'Taxonomy (Categories/Skills/Locations)', 'key'=>'mod_taxonomy'],
@@ -53,6 +54,29 @@
     ['name'=>'Billing / Subscriptions', 'key'=>'mod_billing'],
     ['name'=>'Reports', 'key'=>'mod_reports'],
     ['name'=>'System Settings', 'key'=>'mod_settings'],
+    ['name'=>'Admin Accounts', 'key'=>'mod_admin_accounts'],
+  ];
+
+  // ✅ Demo: make the Super Admin data consistent
+  $adminAccounts = [
+    [
+      'id' => 1,
+      'name' => 'Super Admin',
+      'email' => 'superadmin@jobfinder.test',
+      'role' => 'Super Admin',
+      'status' => 'Active',
+      'created_at' => '2026-02-01 09:30',
+      'last_login' => '2026-02-10 16:55',
+    ],
+    [
+      'id' => 2,
+      'name' => 'Admin One',
+      'email' => 'admin1@jobfinder.test',
+      'role' => 'Admin',
+      'status' => 'Active',
+      'created_at' => '2026-02-03 14:10',
+      'last_login' => '2026-02-09 11:05',
+    ],
   ];
 @endphp
 
@@ -62,6 +86,7 @@
     templates: @js($emailTemplates),
     roles: @js($roles),
     modules: @js($modules),
+    admins: @js($adminAccounts),
   })"
   x-init="init()"
 >
@@ -113,6 +138,15 @@
         :class="tab==='security' ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'">
         Security & Access
       </button>
+
+      {{-- ✅ Demo-only gating: show Admin Accounts tab only if Super Admin has access --}}
+      <template x-if="canSeeAdminsTab">
+        <button type="button" @click="tab='admins'"
+          class="rounded-xl px-4 py-2 text-sm font-semibold ring-1"
+          :class="tab==='admins' ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'">
+          Admin Accounts
+        </button>
+      </template>
     </div>
   </div>
 
@@ -146,7 +180,8 @@
           <label class="text-xs font-semibold text-slate-700">Maintenance mode</label>
           <div class="mt-1 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
             <div class="text-sm font-semibold text-slate-800">Enable</div>
-            <button type="button" @click="draft.sys.maintenance_mode = !draft.sys.maintenance_mode; toast('info', draft.sys.maintenance_mode ? 'Maintenance mode ON (demo)' : 'Maintenance mode OFF (demo)')"
+            <button type="button"
+              @click="draft.sys.maintenance_mode = !draft.sys.maintenance_mode; toast('info', draft.sys.maintenance_mode ? 'Maintenance mode ON (demo)' : 'Maintenance mode OFF (demo)')"
               class="rounded-full px-3 py-2 text-xs font-semibold ring-1"
               :class="draft.sys.maintenance_mode ? 'bg-rose-600 text-white ring-rose-600' : 'bg-white text-slate-700 ring-slate-200'">
               <span x-text="draft.sys.maintenance_mode ? 'ON' : 'OFF'"></span>
@@ -405,6 +440,198 @@
     </div>
   </div>
 
+  {{-- ADMIN ACCOUNTS --}}
+  <div x-show="tab==='admins'" x-transition class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <div class="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div class="text-sm font-semibold text-slate-900">Admin Accounts</div>
+          <div class="mt-1 text-xs text-slate-500">
+            Frontend demo. Later: only Super Admin can create/disable admins.
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+            <span class="text-slate-400">⌕</span>
+            <input x-model.trim="adminQ"
+              class="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none sm:w-64"
+              placeholder="Search name/email/role…" />
+          </div>
+
+          <button type="button" @click="openAdminModal()"
+            class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+            + Add Admin
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full text-left">
+          <thead>
+            <tr class="text-xs text-slate-500">
+              <th class="py-2 pr-4">Name</th>
+              <th class="py-2 pr-4">Email</th>
+              <th class="py-2 pr-4">Role</th>
+              <th class="py-2 pr-4">Status</th>
+              <th class="py-2 pr-4">Created</th>
+              <th class="py-2 pr-4">Last login</th>
+              <th class="py-2">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-200">
+            <template x-for="a in adminFiltered" :key="a.id">
+              <tr class="text-sm">
+                <td class="py-3 pr-4 font-semibold text-slate-900" x-text="a.name"></td>
+                <td class="py-3 pr-4 text-slate-700" x-text="a.email"></td>
+                <td class="py-3 pr-4">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
+                    :class="a.role === 'Super Admin' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-slate-100 text-slate-700 ring-slate-200'">
+                    <span x-text="a.role"></span>
+                  </span>
+                </td>
+                <td class="py-3 pr-4">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
+                    :class="a.status === 'Active' ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-rose-50 text-rose-700 ring-rose-200'">
+                    <span x-text="a.status"></span>
+                  </span>
+                </td>
+                <td class="py-3 pr-4 text-xs text-slate-600" x-text="a.created_at"></td>
+                <td class="py-3 pr-4 text-xs text-slate-600" x-text="a.last_login"></td>
+
+                <td class="py-3">
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" @click="openAdminModal(a)"
+                      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50">
+                      Edit
+                    </button>
+
+                    <button type="button" @click="toggleAdminStatus(a.id)"
+                      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50"
+                      :disabled="a.role === 'Super Admin'"
+                      :class="a.role === 'Super Admin' ? 'opacity-50 cursor-not-allowed' : ''">
+                      <span x-text="a.status === 'Active' ? 'Disable' : 'Enable'"></span>
+                    </button>
+
+                    <button type="button" @click="resetAdminPassword(a.id)"
+                      class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                      :disabled="a.role === 'Super Admin'"
+                      :class="a.role === 'Super Admin' ? 'opacity-50 cursor-not-allowed' : ''">
+                      Reset PW
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+
+            <tr x-show="adminFiltered.length === 0">
+              <td colspan="7" class="py-8 text-center text-sm text-slate-500">
+                No matching admin accounts.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+        Demo limitation: UI-only gating. Backend later must restrict create/edit/disable actions.
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="text-sm font-semibold text-slate-900">Notes</div>
+      <div class="mt-1 text-xs text-slate-500">Recommended rules</div>
+
+      <div class="mt-4 space-y-3 text-sm text-slate-700">
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs font-semibold text-slate-700">Rule #1</div>
+          <div class="mt-1 text-xs text-slate-600">Do not allow public registration to create Admin roles.</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs font-semibold text-slate-700">Rule #2</div>
+          <div class="mt-1 text-xs text-slate-600">Only Super Admin can add/disable Admin accounts.</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div class="text-xs font-semibold text-slate-700">Rule #3</div>
+          <div class="mt-1 text-xs text-slate-600">Log admin actions (who created, disabled, reset password).</div>
+        </div>
+      </div>
+    </div>
+
+    {{-- Admin modal --}}
+    <div x-show="adminModalOpen" x-transition.opacity class="fixed inset-0 z-50">
+      <div class="absolute inset-0 bg-black/40" @click="closeAdminModal()"></div>
+
+      <div class="relative mx-auto mt-10 w-[92%] max-w-xl rounded-2xl bg-white p-5 shadow-xl">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="text-sm font-semibold text-slate-900" x-text="adminForm.id ? 'Edit Admin' : 'Add Admin'"></div>
+            <div class="mt-1 text-xs text-slate-500">Frontend demo only — no database yet.</div>
+          </div>
+          <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50"
+            @click="closeAdminModal()">Close</button>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="text-xs font-semibold text-slate-700">Full name</label>
+            <input x-model.trim="adminForm.name"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+              placeholder="e.g., Admin Two" />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="text-xs font-semibold text-slate-700">Email</label>
+            <input x-model.trim="adminForm.email" type="email"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+              placeholder="e.g., admin2@jobfinder.test" />
+          </div>
+
+          <div>
+            <label class="text-xs font-semibold text-slate-700">Role</label>
+            <select x-model="adminForm.role"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+              <option>Admin</option>
+              <option>Super Admin</option>
+            </select>
+            <div class="mt-1 text-[11px] text-slate-500">Backend later: only Super Admin can assign Super Admin.</div>
+          </div>
+
+          <div>
+            <label class="text-xs font-semibold text-slate-700">Status</label>
+            <select x-model="adminForm.status"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+              <option>Active</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="text-xs font-semibold text-slate-700">Temporary password (demo)</label>
+            <input x-model.trim="adminForm.temp_password" type="text"
+              class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Generate later in backend" />
+            <div class="mt-1 text-[11px] text-slate-500">
+              Later: generate + email invite link instead of showing a password here.
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <button type="button" @click="closeAdminModal()"
+            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="button" @click="saveAdmin()"
+            class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+            Save Admin
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {{-- Preview modal --}}
   <div x-show="previewOpen" x-transition.opacity class="fixed inset-0 z-50">
     <div class="absolute inset-0 bg-black/40" @click="previewOpen=false"></div>
@@ -447,6 +674,11 @@
       modules: [],
       access: {},
 
+      adminQ: '',
+      admins: [],
+      adminModalOpen: false,
+      adminForm: { id:null, name:'', email:'', role:'Admin', status:'Active', temp_password:'' },
+
       selectedTemplateKey: null,
 
       toast(type, msg, title = ''){
@@ -477,14 +709,18 @@
 
         this.roles = seed.roles || [];
         this.modules = seed.modules || [];
+        this.admins = (seed.admins || []).map(a => ({...a}));
 
+        // ✅ Cleaned demo defaults:
+        // - Super Admin: allow all
+        // - Admin: allow everything EXCEPT System Settings + Admin Accounts (demo)
+        // - Employer/Candidate: deny all
         this.access = {};
         this.modules.forEach(m => {
           this.access[m.key] = {};
           this.roles.forEach(r => {
-            // demo defaults
-            if(r === 'Admin') this.access[m.key][r] = true;
-            else if(r === 'Moderator') this.access[m.key][r] = (m.key !== 'mod_settings');
+            if(r === 'Super Admin') this.access[m.key][r] = true;
+            else if(r === 'Admin') this.access[m.key][r] = !['mod_settings','mod_admin_accounts'].includes(m.key);
             else this.access[m.key][r] = false;
           });
         });
@@ -492,8 +728,11 @@
         if(this.draft.templates.length){
           this.selectedTemplateKey = this.draft.templates[0].key;
         }
+      },
 
-        this.toast('info', 'Settings ready');
+      // ✅ Used for tab gating (demo)
+      get canSeeAdminsTab(){
+        return this.access?.mod_admin_accounts?.['Super Admin'] === true;
       },
 
       resetDraft(withToast=true){
@@ -586,6 +825,113 @@
         const modName = this.modules.find(m => m.key === moduleKey)?.name || moduleKey;
         const state = this.access[moduleKey][role] ? 'Allowed' : 'Denied';
         this.toast('info', `${state}: ${role} → ${modName}`);
+      },
+
+      get adminFiltered(){
+        const q = (this.adminQ || '').toLowerCase().trim();
+        if(!q) return this.admins;
+
+        return this.admins.filter(a => {
+          const hay = `${a.name} ${a.email} ${a.role} ${a.status}`.toLowerCase();
+          return hay.includes(q);
+        });
+      },
+
+      openAdminModal(admin=null){
+        if(admin){
+          this.adminForm = {
+            id: admin.id,
+            name: admin.name,
+            email: admin.email,
+            role: admin.role,
+            status: admin.status,
+            temp_password: '',
+          };
+          this.toast('info', 'Editing admin: ' + admin.email);
+        } else {
+          this.adminForm = { id:null, name:'', email:'', role:'Admin', status:'Active', temp_password:'' };
+          this.toast('info', 'Add a new admin');
+        }
+        this.adminModalOpen = true;
+      },
+
+      closeAdminModal(){
+        this.adminModalOpen = false;
+      },
+
+      saveAdmin(){
+        const name = String(this.adminForm.name || '').trim();
+        const email = String(this.adminForm.email || '').trim();
+
+        if(!name){
+          this.toast('error', 'Name is required');
+          return;
+        }
+        if(!email || !email.includes('@')){
+          this.toast('error', 'Valid email is required');
+          return;
+        }
+
+        const dup = this.admins.some(a => a.email.toLowerCase() === email.toLowerCase() && a.id !== this.adminForm.id);
+        if(dup){
+          this.toast('error', 'Email already exists');
+          return;
+        }
+
+        if(this.adminForm.role === 'Super Admin'){
+          const hasSuper = this.admins.some(a => a.role === 'Super Admin' && a.id !== this.adminForm.id);
+          if(hasSuper){
+            this.toast('warning', 'Demo rule: only one Super Admin allowed');
+            return;
+          }
+        }
+
+        if(this.adminForm.id){
+          const idx = this.admins.findIndex(a => a.id === this.adminForm.id);
+          if(idx !== -1){
+            this.admins[idx] = { ...this.admins[idx], name, email, role: this.adminForm.role, status: this.adminForm.status };
+          }
+          this.toast('success', 'Admin updated (demo)');
+        } else {
+          const nextId = Math.max(0, ...this.admins.map(a => Number(a.id || 0))) + 1;
+          this.admins.unshift({
+            id: nextId,
+            name,
+            email,
+            role: this.adminForm.role,
+            status: this.adminForm.status,
+            created_at: new Date().toISOString().slice(0,16).replace('T',' '),
+            last_login: '—',
+          });
+          this.toast('success', 'Admin added (demo)');
+        }
+
+        this.adminModalOpen = false;
+      },
+
+      toggleAdminStatus(id){
+        const idx = this.admins.findIndex(a => a.id === id);
+        if(idx === -1) return;
+
+        if(this.admins[idx].role === 'Super Admin'){
+          this.toast('warning', 'Super Admin cannot be disabled (demo)');
+          return;
+        }
+
+        this.admins[idx].status = (this.admins[idx].status === 'Active') ? 'Disabled' : 'Active';
+        this.toast('info', 'Status updated (demo)');
+      },
+
+      resetAdminPassword(id){
+        const a = this.admins.find(x => x.id === id);
+        if(!a) return;
+
+        if(a.role === 'Super Admin'){
+          this.toast('warning', 'Super Admin reset disabled in demo');
+          return;
+        }
+
+        this.toast('info', `Password reset link would be sent to: ${a.email} (demo)`);
       },
     }
   }

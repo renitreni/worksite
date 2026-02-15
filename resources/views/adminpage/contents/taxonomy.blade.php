@@ -4,7 +4,6 @@
 
 @section('content')
 @php
-  // Demo data (wire to DB later)
   $categories = ['IT & Software','Healthcare','Logistics','Construction','Customer Service'];
   $skills = ['JavaScript','Laravel','MySQL','Customer Support','MS Excel'];
   $locations = [
@@ -12,7 +11,6 @@
     ['city'=>'Parañaque', 'barangays'=>['San Dionisio','BF Homes','Tambo']],
   ];
 
-  // Demo “suggestions” (UI only)
   $locationSuggestions = [
     ['country'=>'UAE','city'=>'Dubai','area'=>'Al Nahda','count'=>5],
     ['country'=>'Saudi Arabia','city'=>'Riyadh','area'=>'Al Olaya','count'=>3],
@@ -30,14 +28,11 @@
   x-init="init()"
 >
 
-  {{-- Header --}}
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div class="min-w-0">
         <div class="text-sm font-semibold text-slate-900">Manage searchable lists</div>
-        <div class="mt-1 text-xs text-slate-500">
-          Add, edit, and remove categories, skills, and locations.
-        </div>
+        <div class="mt-1 text-xs text-slate-500">Add, edit, and remove categories, skills, and locations.</div>
       </div>
 
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -60,7 +55,6 @@
       </div>
     </div>
 
-    {{-- Tabs --}}
     <div class="mt-4 flex flex-wrap gap-2">
       <button type="button" @click="tab='categories'"
         class="rounded-xl px-4 py-2 text-sm font-semibold ring-1"
@@ -85,10 +79,8 @@
     </div>
   </div>
 
-  {{-- GRID --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
 
-    {{-- Categories --}}
     <div x-show="tab==='categories'" x-transition class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="border-b border-slate-200 p-5">
         <div class="text-sm font-semibold text-slate-900">Categories</div>
@@ -161,13 +153,10 @@
           </template>
         </div>
 
-        <div class="mt-4 text-xs text-slate-500">
-          Keep names consistent and avoid duplicates.
-        </div>
+        <div class="mt-4 text-xs text-slate-500">Keep names consistent and avoid duplicates.</div>
       </div>
     </div>
 
-    {{-- Skills --}}
     <div x-show="tab==='skills'" x-transition class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="border-b border-slate-200 p-5">
         <div class="text-sm font-semibold text-slate-900">Skills</div>
@@ -223,13 +212,10 @@
           </template>
         </div>
 
-        <div class="mt-4 text-xs text-slate-500">
-          Use standard naming (example: “MS Excel”, not “excel”).
-        </div>
+        <div class="mt-4 text-xs text-slate-500">Use standard naming (example: “MS Excel”, not “excel”).</div>
       </div>
     </div>
 
-    {{-- Locations --}}
     <div x-show="tab==='locations'" x-transition class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="border-b border-slate-200 p-5">
         <div class="text-sm font-semibold text-slate-900">Locations</div>
@@ -256,9 +242,7 @@
         </div>
 
         <template x-if="locFiltered.length === 0">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-            No results.
-          </div>
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">No results.</div>
         </template>
 
         <div class="space-y-3">
@@ -267,7 +251,8 @@
               <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div class="min-w-0">
                   <div class="flex items-center gap-2">
-                    <button type="button" class="grid h-8 w-8 place-items-center rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
+                    <button type="button"
+                      class="grid h-8 w-8 place-items-center rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
                       @click="toggleCity(idx)"
                       :title="openCities[idx] ? 'Collapse' : 'Expand'">
                       <span x-text="openCities[idx] ? '−' : '+'"></span>
@@ -336,9 +321,7 @@
                   </button>
                 </div>
 
-                <div class="text-xs text-slate-500">
-                  Keep spelling consistent to avoid duplicates.
-                </div>
+                <div class="text-xs text-slate-500">Keep spelling consistent to avoid duplicates.</div>
               </div>
             </div>
           </template>
@@ -347,20 +330,15 @@
       </div>
     </div>
 
-    {{-- Suggestions --}}
     <div x-show="tab==='suggestions'" x-transition class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="border-b border-slate-200 p-5">
         <div class="text-sm font-semibold text-slate-900">Suggestions</div>
-        <div class="mt-1 text-xs text-slate-500">
-          New locations suggested by users. Approve to add them to the list.
-        </div>
+        <div class="mt-1 text-xs text-slate-500">New locations suggested by users. Approve to add them to the list.</div>
       </div>
 
       <div class="p-5">
         <template x-if="suggestFiltered.length === 0">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-            No results.
-          </div>
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">No results.</div>
         </template>
 
         <div class="space-y-2">
@@ -443,24 +421,22 @@
         this.suggestions = [...(seed.suggestions || [])];
 
         if(this.locations.length) this.openCities[0] = true;
-
-        this.toast('info', 'Taxonomy ready');
       },
 
       get catFiltered(){
-        const q = this.q.toLowerCase();
+        const q = (this.q || '').toLowerCase();
         return this.categories
           .filter(x => x.toLowerCase().includes(q))
           .sort((a,b)=>a.localeCompare(b));
       },
       get skillFiltered(){
-        const q = this.q.toLowerCase();
+        const q = (this.q || '').toLowerCase();
         return this.skills
           .filter(x => x.toLowerCase().includes(q))
           .sort((a,b)=>a.localeCompare(b));
       },
       get locFiltered(){
-        const q = this.q.toLowerCase();
+        const q = (this.q || '').toLowerCase();
         return this.locations.filter(loc => {
           if(!q) return true;
           const cityHit = (loc.city || '').toLowerCase().includes(q);
@@ -469,7 +445,7 @@
         });
       },
       get suggestFiltered(){
-        const q = this.q.toLowerCase();
+        const q = (this.q || '').toLowerCase();
         return this.suggestions.filter(s => {
           if(!q) return true;
           return [s.country, s.city, s.area].some(v => String(v||'').toLowerCase().includes(q));
@@ -479,9 +455,8 @@
       norm(s){
         return String(s || '').trim().replace(/\s+/g,' ');
       },
-      existsIn(list, value){
-        const v = this.norm(value).toLowerCase();
-        return list.some(x => this.norm(x).toLowerCase() === v);
+      same(a,b){
+        return this.norm(a).toLowerCase() === this.norm(b).toLowerCase();
       },
 
       quickAdd(){
@@ -494,86 +469,70 @@
         } else if(this.tab === 'locations'){
           const v = prompt('Add city:');
           if(v) { this.newCity = v; this.addCity(); }
-        } else {
-          this.toast('info', 'Suggestions are user-generated in this demo.');
         }
       },
 
       addCategory(){
         const v = this.norm(this.newCategory);
-        if(!v) { this.toast('warning', 'Please enter a category.'); return; }
-        if(this.existsIn(this.categories, v)) { this.toast('warning', 'Category already exists.'); return; }
+        if(!v) return;
+        if(this.categories.some(x => this.same(x, v))) return;
         this.categories.push(v);
         this.newCategory = '';
-        this.toast('success', 'Category added (demo).');
       },
       removeCategory(idx){
         if(!confirm('Delete this category?')) return;
-        const removed = this.categories[idx];
         this.categories.splice(idx, 1);
         if(this.editKey === ('cat'+idx)) this.cancelEdit();
-        this.toast('success', `Deleted category: ${removed || ''}`);
       },
 
       addSkill(){
         const v = this.norm(this.newSkill);
-        if(!v) { this.toast('warning', 'Please enter a skill.'); return; }
-        if(this.existsIn(this.skills, v)) { this.toast('warning', 'Skill already exists.'); return; }
+        if(!v) return;
+        if(this.skills.some(x => this.same(x, v))) return;
         this.skills.push(v);
         this.newSkill = '';
-        this.toast('success', 'Skill added (demo).');
       },
       removeSkill(idx){
         if(!confirm('Delete this skill?')) return;
-        const removed = this.skills[idx];
         this.skills.splice(idx, 1);
         if(this.editKey === ('skill'+idx)) this.cancelEdit();
-        this.toast('success', `Deleted skill: ${removed || ''}`);
       },
 
       addCity(){
         const v = this.norm(this.newCity);
-        if(!v) { this.toast('warning', 'Please enter a city.'); return; }
-        if(this.locations.some(l => this.norm(l.city).toLowerCase() === v.toLowerCase())){
-          this.toast('warning', 'City already exists.');
-          return;
-        }
+        if(!v) return;
+        if(this.locations.some(l => this.same(l.city, v))) return;
+
         this.locations.push({ city: v, barangays: [] });
         const newIndex = this.locations.length - 1;
         this.openCities[newIndex] = true;
         this.newCity = '';
-        this.toast('success', 'City added (demo).');
       },
       removeCity(idx){
         if(!confirm('Delete this city and its barangays?')) return;
-        const removed = this.locations[idx]?.city || '';
         this.locations.splice(idx, 1);
-        delete this.openCities[idx];
-        delete this.barangayDraft[idx];
+        this.openCities = {};
+        this.barangayDraft = {};
         this.cancelEdit();
-        this.toast('success', `Deleted city: ${removed}`);
       },
       toggleCity(idx){
         this.openCities[idx] = !this.openCities[idx];
       },
+
       addBarangay(cityIdx){
         const v = this.norm(this.barangayDraft[cityIdx]);
-        if(!v) { this.toast('warning', 'Please enter a barangay.'); return; }
-        const brgys = this.locations[cityIdx].barangays || [];
-        if(brgys.some(b => this.norm(b).toLowerCase() === v.toLowerCase())){
-          this.toast('warning', 'Barangay already exists in this city.');
-          return;
-        }
+        if(!v) return;
+
+        const brgys = this.locations[cityIdx]?.barangays || [];
+        if(brgys.some(b => this.same(b, v))) return;
+
         brgys.push(v);
         this.locations[cityIdx].barangays = brgys;
         this.barangayDraft[cityIdx] = '';
-        this.toast('success', 'Barangay added (demo).');
       },
       removeBarangay(cityIdx, bIdx){
         if(!confirm('Remove this barangay?')) return;
-        const removed = this.locations[cityIdx]?.barangays?.[bIdx] || '';
-        this.locations[cityIdx].barangays.splice(bIdx, 1);
-        this.toast('success', `Removed barangay: ${removed}`);
+        this.locations[cityIdx]?.barangays?.splice(bIdx, 1);
       },
 
       approveSuggestion(idx){
@@ -581,7 +540,7 @@
         if(!s) return;
 
         const cityName = this.norm(s.city);
-        let cityIdx = this.locations.findIndex(l => this.norm(l.city).toLowerCase() === cityName.toLowerCase());
+        let cityIdx = this.locations.findIndex(l => this.same(l.city, cityName));
         if(cityIdx === -1){
           this.locations.push({ city: cityName, barangays: [] });
           cityIdx = this.locations.length - 1;
@@ -590,19 +549,16 @@
         const area = this.norm(s.area);
         if(area){
           const brgys = this.locations[cityIdx].barangays || [];
-          const exists = brgys.some(b => this.norm(b).toLowerCase() === area.toLowerCase());
-          if(!exists) brgys.push(area);
+          if(!brgys.some(b => this.same(b, area))) brgys.push(area);
           this.locations[cityIdx].barangays = brgys;
           this.openCities[cityIdx] = true;
         }
 
         this.suggestions.splice(idx, 1);
-        this.toast('success', 'Approved (demo). Added to Locations list.');
       },
       ignoreSuggestion(idx){
         if(!confirm('Ignore this suggestion?')) return;
         this.suggestions.splice(idx, 1);
-        this.toast('info', 'Suggestion ignored (demo).');
       },
 
       startEdit(type, idx, current){
@@ -617,27 +573,24 @@
       },
       saveEdit(type, idx){
         const v = this.norm(this.editValue);
-        if(!v) { this.toast('error', 'Value cannot be empty.'); return; }
+        if(!v) return;
 
         if(type === 'category'){
           const other = this.categories.filter((_,i)=>i!==idx);
-          if(this.existsIn(other, v)) { this.toast('warning', 'Duplicate category.'); return; }
+          if(other.some(x => this.same(x, v))) return;
           this.categories[idx] = v;
-          this.toast('success', 'Category updated (demo).');
         }
 
         if(type === 'skill'){
           const other = this.skills.filter((_,i)=>i!==idx);
-          if(this.existsIn(other, v)) { this.toast('warning', 'Duplicate skill.'); return; }
+          if(other.some(x => this.same(x, v))) return;
           this.skills[idx] = v;
-          this.toast('success', 'Skill updated (demo).');
         }
 
         if(type === 'city'){
           const other = this.locations.filter((_,i)=>i!==idx).map(x=>x.city);
-          if(this.existsIn(other, v)) { this.toast('warning', 'Duplicate city.'); return; }
+          if(other.some(x => this.same(x, v))) return;
           this.locations[idx].city = v;
-          this.toast('success', 'City updated (demo).');
         }
 
         this.cancelEdit();

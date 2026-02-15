@@ -102,7 +102,6 @@
 
 <div x-data="jobModeration(@js($jobs))" x-init="init()" class="space-y-6">
 
-  {{-- Stats --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
     @foreach($stats as $s)
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -115,7 +114,6 @@
     @endforeach
   </div>
 
-  {{-- Filters --}}
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 
@@ -167,13 +165,13 @@
       <div class="flex flex-wrap gap-2">
         <button type="button"
           class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-          @click="exportList()"
+          disabled
         >
           Export
         </button>
         <button type="button"
           class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-          @click="bulkActions()"
+          disabled
         >
           Bulk Actions
         </button>
@@ -185,7 +183,6 @@
     </div>
   </div>
 
-  {{-- Queue + Review --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-5">
 
     <div class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -261,6 +258,7 @@
 
         <div class="flex gap-2">
           <button
+            type="button"
             class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50"
             @click="prevPage()"
             :disabled="page<=1"
@@ -269,6 +267,7 @@
             Prev
           </button>
           <button
+            type="button"
             class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-slate-50"
             @click="nextPage()"
             :disabled="page>=totalPages()"
@@ -349,7 +348,6 @@
           </div>
         </div>
 
-        {{-- Checklist --}}
         <div class="rounded-2xl border border-slate-200 p-4">
           <div class="text-sm font-semibold">Platform Standards</div>
           <div class="mt-1 text-xs text-slate-500">Quick checklist before approving</div>
@@ -379,7 +377,6 @@
           </div>
         </div>
 
-        {{-- Notes --}}
         <div class="rounded-2xl border border-slate-200 p-4">
           <div class="text-sm font-semibold">Internal Notes</div>
           <textarea
@@ -397,7 +394,6 @@
           </button>
         </div>
 
-        {{-- Actions --}}
         <div class="space-y-2">
           <button
             type="button"
@@ -453,16 +449,9 @@
       selected: null,
       selectedNotes: '',
 
-      checks: {
-        hasClearTitle: false,
-        hasValidCompany: false,
-        noScamSignals: false,
-        correctCategory: false,
-      },
-
+      checks: { hasClearTitle:false, hasValidCompany:false, noScamSignals:false, correctCategory:false },
       filters: { q:'', status:'All', flag:'All', from:'', to:'' },
 
-      // pagination (frontend demo)
       page: 1,
       perPage: 10,
 
@@ -488,18 +477,23 @@
         if(s === 'Pending') return 'bg-amber-50 text-amber-700 ring-amber-200';
         if(s === 'Approved') return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
         if(s === 'Rejected') return 'bg-rose-50 text-rose-700 ring-rose-200';
-        if(s === 'Removed') return 'bg-slate-100 text-slate-700 ring-slate-200';
-        if(s === 'Expired') return 'bg-slate-100 text-slate-700 ring-slate-200';
+        return 'bg-slate-100 text-slate-700 ring-slate-200';
+      },
+
+      paymentPill(p){
+        if(p === 'Completed') return 'bg-emerald-50 text-emerald-700 ring-emerald-200';
+        if(p === 'Pending') return 'bg-amber-50 text-amber-700 ring-amber-200';
+        if(p === 'Failed') return 'bg-rose-50 text-rose-700 ring-rose-200';
         return 'bg-slate-100 text-slate-700 ring-slate-200';
       },
 
       checksCount(){
-        let n = 0;
-        if(this.checks.hasClearTitle) n++;
-        if(this.checks.hasValidCompany) n++;
-        if(this.checks.noScamSignals) n++;
-        if(this.checks.correctCategory) n++;
-        return n;
+        return [
+          this.checks.hasClearTitle,
+          this.checks.hasValidCompany,
+          this.checks.noScamSignals,
+          this.checks.correctCategory,
+        ].filter(Boolean).length;
       },
 
       filteredJobs(){
@@ -515,11 +509,11 @@
           const matchesQ = !q || hay.includes(q);
           const matchesStatus = status === 'All' || j.status === status;
 
-          const hasFlags = (j.flags || []);
+          const flags = (j.flags || []);
           const matchesFlag =
             flag === 'All' ||
-            (flag === 'None' && hasFlags.length === 0) ||
-            hasFlags.includes(flag);
+            (flag === 'None' && flags.length === 0) ||
+            flags.includes(flag);
 
           let matchesDate = true;
           if(from) matchesDate = matchesDate && (new Date(j.posted) >= from);
@@ -546,36 +540,21 @@
       },
 
       prevPage(){
-        if (this.page <= 1) {
-          this.toast('info', 'Already on first page');
-          return;
-        }
-        this.page--;
-        this.toast('info', 'Page ' + this.page);
+        if (this.page > 1) this.page--;
       },
 
       nextPage(){
         const tp = this.totalPages();
-        if (this.page >= tp) {
-          this.toast('info', 'No more pages');
-          return;
-        }
-        this.page++;
-        this.toast('info', 'Page ' + this.page);
+        if (this.page < tp) this.page++;
       },
 
       resetFilters(){
         this.filters = { q:'', status:'All', flag:'All', from:'', to:'' };
         this.page = 1;
-        this.toast('info', 'Filters reset');
-      },
-
-      exportList(){
-        this.toast('info', 'Export started (demo)');
-      },
-
-      bulkActions(){
-        this.toast('info', 'Bulk actions (demo)');
+        if (this.selected) {
+          const stillVisible = this.filteredJobs().some(x => x.id === this.selected.id);
+          if (!stillVisible) this.selected = null;
+        }
       },
 
       select(j){
@@ -583,7 +562,6 @@
         this.selected = JSON.parse(JSON.stringify(j));
         this.selectedNotes = this.selected.notes || '';
         this.checks = { hasClearTitle:false, hasValidCompany:false, noScamSignals:false, correctCategory:false };
-        this.toast('info', 'Selected job #' + this.selected.id);
       },
 
       syncSelected(){
@@ -593,20 +571,11 @@
       },
 
       saveNotes(){
-        if(!this.selected){
-          this.toast('warning', 'Select a job first');
-          return;
-        }
-
+        if(!this.selected) return;
         const notes = String(this.selectedNotes || '').trim();
-        if(!notes){
-          this.toast('error', 'Notes cannot be empty');
-          return;
-        }
-
+        if(!notes) return;
         this.selected.notes = notes;
         this.syncSelected();
-        this.toast('success', 'Notes saved');
       },
 
       canApprove(){
@@ -614,82 +583,41 @@
       },
 
       approve(){
-        if(!this.selected){
-          this.toast('warning', 'Select a job first');
-          return;
-        }
-        if(this.selected.status === 'Approved'){
-          this.toast('info', 'Already approved');
-          return;
-        }
-        if(!this.canApprove()){
-          this.toast('error', 'Complete the checklist before approving');
-          return;
-        }
+        if(!this.selected) return;
+        if(this.selected.status === 'Approved') return;
+        if(!this.canApprove()) return;
 
         this.selected.status = 'Approved';
         this.selected.notes = String(this.selectedNotes || '').trim();
         this.syncSelected();
-        this.toast('success', 'Job approved');
       },
 
       reject(){
-        if(!this.selected){
-          this.toast('warning', 'Select a job first');
-          return;
-        }
-        if(this.selected.status === 'Rejected'){
-          this.toast('info', 'Already rejected');
-          return;
-        }
+        if(!this.selected) return;
+        if(this.selected.status === 'Rejected') return;
 
         const notes = String(this.selectedNotes || '').trim();
-        if(!notes){
-          this.toast('error', 'Add a reason in Notes before rejecting');
-          return;
-        }
+        if(!notes) return;
 
         this.selected.status = 'Rejected';
         this.selected.notes = notes;
         this.syncSelected();
-        this.toast('warning', 'Job rejected');
       },
 
       remove(){
-        if(!this.selected){
-          this.toast('warning', 'Select a job first');
-          return;
-        }
-        if(this.selected.status === 'Removed'){
-          this.toast('info', 'Already removed');
-          return;
-        }
+        if(!this.selected) return;
+        if(this.selected.status === 'Removed') return;
 
         const notes = String(this.selectedNotes || '').trim();
-        if(!notes){
-          this.toast('error', 'Add a reason in Notes before removing');
-          return;
-        }
+        if(!notes) return;
 
         this.selected.status = 'Removed';
         this.selected.notes = notes;
         this.syncSelected();
-        this.toast('warning', 'Job removed');
       },
 
       notifyEmployer(){
-        if(!this.selected){
-          this.toast('warning', 'Select a job first');
-          return;
-        }
-
-        const email = String(this.selected.company_email || '').trim();
-        if(!email){
-          this.toast('error', 'Employer email is missing');
-          return;
-        }
-
-        this.toast('info', 'Employer notified: ' + email);
+        // Placeholder: wire to backend email/notification later
       },
     }
   }

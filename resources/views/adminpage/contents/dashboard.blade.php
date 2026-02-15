@@ -10,12 +10,6 @@
   ];
   $users['total'] = $users['candidates'] + $users['employers'];
 
-  $employers = [
-    'free' => 92,
-    'paid' => 36,
-  ];
-  $employers['active'] = $employers['free'] + $employers['paid'];
-
   $jobs = [
     'active'   => 312,
     'pending'  => 28,
@@ -75,8 +69,7 @@
       $pct >= 33 => 'w-1/3',
       $pct >= 25 => 'w-1/4',
       $pct >= 20 => 'w-1/5',
-      $pct >= 10 => 'w-1/12',
-      default  => 'w-1/12',
+      default   => 'w-1/12',
     };
   };
 
@@ -106,7 +99,6 @@
   })"
   x-init="init()"
 >
-
   <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
     <div class="min-w-0">
       <div class="text-sm font-semibold text-slate-900">Live Overview</div>
@@ -137,14 +129,15 @@
         Refresh
       </button>
 
-      <a href="{{ route('admin.reports') }}"
-         class="w-full rounded-xl bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-emerald-700 sm:w-auto">
+      <a
+        href="{{ route('admin.reports') }}"
+        class="w-full rounded-xl bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-emerald-700 sm:w-auto"
+      >
         Generate Report
       </a>
     </div>
   </div>
 
-  {{-- KPI grid --}}
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
     @foreach($kpis as $k)
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -167,7 +160,6 @@
     @endforeach
   </div>
 
-  {{-- Highlights + Users split + Risk --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="text-sm font-semibold text-slate-900">Highlights</div>
@@ -222,8 +214,10 @@
         </div>
       </div>
 
-      <a href="{{ route('admin.users') }}"
-         class="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">
+      <a
+        href="{{ route('admin.users') }}"
+        class="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+      >
         Manage Users
       </a>
     </div>
@@ -262,18 +256,16 @@
     </div>
   </div>
 
-  {{-- Analytics row --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-5">
     <div class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div class="text-sm font-semibold text-slate-900">Revenue Trend</div>
-          <div class="mt-1 text-xs text-slate-500">Hover/tap bars to see values</div>
+          <div class="mt-1 text-xs text-slate-500">Hover or tap bars to see values</div>
         </div>
         <div class="flex gap-2">
-          <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('revenue')">Revenue</button>
-          <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('jobs')">Jobs</button>
+          <button type="button" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('revenue')">Revenue</button>
+          <button type="button" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('jobs')">Jobs</button>
         </div>
       </div>
 
@@ -342,10 +334,8 @@
           </template>
         </div>
       </div>
-
     </div>
 
-    {{-- Jobs breakdown --}}
     <div class="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="text-sm font-semibold text-slate-900">Jobs Breakdown</div>
       <div class="mt-1 text-xs text-slate-500">Distribution by status</div>
@@ -373,20 +363,17 @@
       </div>
 
       <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
-        <a href="{{ route('admin.jobs') }}"
-           class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">
+        <a href="{{ route('admin.jobs') }}" class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">
           Go to Job Queue
         </a>
 
-        <a href="{{ route('admin.jobs') }}"
-           class="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+        <a href="{{ route('admin.jobs') }}" class="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
           Review Pending ({{ number_format($jobs['pending']) }})
         </a>
       </div>
     </div>
   </div>
 
-  {{-- Action center + Activity feed --}}
   <div class="grid grid-cols-1 gap-4 xl:grid-cols-5">
     <div class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="flex items-start justify-between gap-3">
@@ -444,13 +431,12 @@
       <button
         type="button"
         class="mt-5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-        @click="toast('info','No more items (demo UI)')"
+        disabled
       >
         Load more
       </button>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -499,7 +485,6 @@
         this.tip.show = false;
         this.tip.locked = false;
         this.computeHighlights();
-        this.toast('success', 'Dashboard refreshed');
       },
 
       applyRange(){
@@ -526,7 +511,9 @@
         }
 
         this.computeHighlights();
-        this.refresh();
+        this.lastUpdated = new Date().toLocaleTimeString();
+        this.tip.show = false;
+        this.tip.locked = false;
       },
 
       computeHighlights(){
@@ -616,6 +603,7 @@
           this.tip.show = false;
           return;
         }
+
         this.tip.locked = true;
         this.tip.title = title;
         this.tip.value = value;
