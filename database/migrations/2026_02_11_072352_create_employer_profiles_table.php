@@ -22,7 +22,7 @@ return new class extends Migration
 
             // optional for approval flow
             $table->enum('status', ['pending','approved','rejected'])->default('pending');
-
+            $table->boolean('is_verified')->default(false);
             $table->timestamps();
         });
     }

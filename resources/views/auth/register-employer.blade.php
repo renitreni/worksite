@@ -330,114 +330,155 @@
             </div>
         </div>
     </main>
-
-    <!-- Intl Tel Input JS (✅ ONLY THIS, no utils.js script tag) -->
+    <!-- 1️⃣ AlpineJS Multi-Step Form -->
     <script>
-        function employerRegister() {
-            return {
-                step: 1,
-                showPass: false,
+    function employerRegister() {
+        return {
+            step: 1,
+            showPass: false,
+            password: '',
+            confirmPassword: '',
 
-                // password UI state
-                password: '',
-                confirmPassword: '',
+            refreshIcons() {
+                setTimeout(() => lucide.createIcons(), 0);
+            },
 
-                refreshIcons() {
-                    setTimeout(() => lucide.createIcons(), 0);
-                },
+            get ruleLen() { return this.password.length >= 8; },
+            get ruleUpper() { return /[A-Z]/.test(this.password); },
+            get ruleLower() { return /[a-z]/.test(this.password); },
+            get ruleSymbol() { return /[^A-Za-z0-9]/.test(this.password); },
 
-                // password rules
-                get ruleLen() { return this.password.length >= 8; },
-                get ruleUpper() { return /[A-Z]/.test(this.password); },
-                get ruleLower() { return /[a-z]/.test(this.password); },
-                get ruleSymbol() { return /[^A-Za-z0-9]/.test(this.password); },
+            get passwordsMatch() {
+                return this.password.length > 0 && this.password === this.confirmPassword;
+            },
 
-                get passwordsMatch() {
-                    return this.password.length > 0 && this.password === this.confirmPassword;
-                },
+            get canSubmit() {
+                return this.ruleLen && this.ruleUpper && this.ruleLower && this.ruleSymbol && this.passwordsMatch;
+            },
 
-                get canSubmit() {
-                    return this.ruleLen && this.ruleUpper && this.ruleLower && this.ruleSymbol && this.passwordsMatch;
-                },
-
-                goNext() {
-                    const form = this.$root.querySelector('form')
-                    const required = {
-                        1: ['company_name', 'company_email'],
-                        2: ['company_address', 'company_contact'],
-                        3: ['representative_name', 'position'],
-                    }
-                    const fields = required[this.step] || []
-
-                    let ok = true
-                    fields.forEach((name) => {
-                        const el = form.querySelector(`[name="${name}"]`)
-                        if (!el || !el.value.trim()) ok = false
-                    })
-                    if (!ok) return
-
-                    this.step = Math.min(4, this.step + 1)
-                    this.refreshIcons()
+            goNext() {
+                const form = this.$root.querySelector('form')
+                const required = {
+                    1: ['company_name', 'company_email'],
+                    2: ['company_address', 'company_contact'],
+                    3: ['representative_name', 'position'],
                 }
+                const fields = required[this.step] || []
+
+                let ok = true
+                fields.forEach((name) => {
+                    const el = form.querySelector(`[name="${name}"]`)
+                    if (!el || !el.value.trim()) ok = false
+                })
+                if (!ok) return
+
+                this.step = Math.min(4, this.step + 1)
+                this.refreshIcons()
             }
         }
+    }
     </script>
 
+    <!-- 2️⃣ IntlTelInput -->
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/intlTelInput.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', async () => {
+        lucide.createIcons();
 
-            const input = document.querySelector('#employer_phone');
-            const hidden = document.querySelector('#company_contact_e164');
+        const input = document.querySelector('#employer_phone');
+        const hidden = document.querySelector('#company_contact_e164');
 
-            if (!input || !hidden) return;
+        if (!input || !hidden) return;
 
-            const iti = window.intlTelInput(input, {
-                initialCountry: 'ph',
-                separateDialCode: true,
-                nationalMode: true,
-                dropdownContainer: document.body,
-                autoPlaceholder: 'aggressive',
-                formatOnDisplay: true,
-            });
-
-            // Try load utils
-            let utilsReady = false;
-            if (typeof iti.loadUtils === 'function') {
-                try {
-                    await iti.loadUtils('https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
-                    utilsReady = true;
-                } catch (e) {
-                    utilsReady = false;
-                    console.warn('Employer utils failed, using fallback e164', e);
-                }
-            }
-
-            function fallbackE164() {
-                const dialCode = iti.getSelectedCountryData()?.dialCode || '';
-                let digits = (input.value || '').replace(/\D/g, '');
-                if (digits.startsWith('0')) digits = digits.slice(1);
-                if (!dialCode || !digits) return '';
-                return `+${dialCode}${digits}`;
-            }
-
-            function sync() {
-                let e164 = '';
-                if (utilsReady) e164 = iti.getNumber() || '';
-                if (!e164) e164 = fallbackE164();
-                hidden.value = e164;
-            }
-
-            input.addEventListener('input', sync);
-            input.addEventListener('blur', sync);
-            input.addEventListener('countrychange', sync);
-
-            sync();
+        const iti = window.intlTelInput(input, {
+            initialCountry: 'ph',
+            separateDialCode: true,
+            nationalMode: true,
+            dropdownContainer: document.body,
+            autoPlaceholder: 'aggressive',
+            formatOnDisplay: true,
         });
+
+        let utilsReady = false;
+        if (typeof iti.loadUtils === 'function') {
+            try {
+                await iti.loadUtils('https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
+                utilsReady = true;
+            } catch (e) {
+                utilsReady = false;
+                console.warn('Employer utils failed, using fallback e164', e);
+            }
+        }
+
+        function fallbackE164() {
+            const dialCode = iti.getSelectedCountryData()?.dialCode || '';
+            let digits = (input.value || '').replace(/\D/g, '');
+            if (digits.startsWith('0')) digits = digits.slice(1);
+            if (!dialCode || !digits) return '';
+            return `+${dialCode}${digits}`;
+        }
+
+        function sync() {
+            let e164 = '';
+            if (utilsReady) e164 = iti.getNumber() || '';
+            if (!e164) e164 = fallbackE164();
+            hidden.value = e164;
+        }
+
+        input.addEventListener('input', sync);
+        input.addEventListener('blur', sync);
+        input.addEventListener('countrychange', sync);
+
+        sync();
+    });
     </script>
 
+    <!-- Bootstrap Modal -->
+    @if(session('showApprovalModal'))
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-2xl">
+        <div class="modal-header border-0">
+            <h5 class="modal-title" id="approvalModalLabel">Registration Submitted</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modalCloseBtn"></button>
+        </div>
+        <div class="modal-body text-center">
+            Your account is pending admin approval. An email will be sent once approved.
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+            <button type="button" class="btn btn-success px-5 py-2 rounded-xl" id="modalCloseBtn">Okay</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var approvalModalEl = document.getElementById('approvalModal');
+        if (!approvalModalEl) return;
+
+        var approvalModal = new bootstrap.Modal(approvalModalEl);
+        approvalModal.show();
+
+        // handle clicks
+        document.querySelectorAll('#modalCloseBtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                approvalModal.hide();
+                window.location.href = "{{ route('home') }}";
+            });
+        });
+
+        // auto-close after 6s
+        setTimeout(() => {
+            approvalModal.hide();
+            window.location.href = "{{ route('home') }}";
+        }, 6000);
+    });
+    </script>
+    @endif
 
 </body>
 

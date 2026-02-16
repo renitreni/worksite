@@ -46,7 +46,8 @@ class EmployerAuthController extends Controller
             'email'      => $validated['company_email'],
             'phone'      => $phoneToSave, 
             'role'       => 'employer',
-            'password'   => $validated['password'],
+            'password'   => bcrypt($validated['password']),
+            'is_verified' => false,
         ]);
 
         EmployerProfile::create([
@@ -60,12 +61,8 @@ class EmployerAuthController extends Controller
             'status' => 'pending',
         ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('employer.dashboard');
+        return redirect()->route('employer.register')->with('showApprovalModal', true);
     }
-
 
     public function showLogin()
     {
@@ -79,14 +76,21 @@ class EmployerAuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $credentials['role'] = 'employer';
+        $user = User::where('email', $credentials['email'])
+                    ->where('role', 'employer')
+                    ->first();
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()
-                ->withErrors(['email' => 'Invalid employer email or password.'])
-                ->onlyInput('email');
+        if (!$user || !password_verify($credentials['password'], $user->password)) {
+            return back()->withErrors(['email' => 'Invalid employer email or password.'])
+                         ->onlyInput('email');
         }
 
+        if (!$user->employerProfile || !$user->employerProfile->is_verified) {
+            return back()->withErrors(['email' => 'Your account is not verified yet. Please wait for admin approval.'])
+                         ->onlyInput('email');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
         return redirect()->route('employer.dashboard');
