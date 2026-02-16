@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['candidate', 'employer', 'admin'])
                   ->default('candidate');
-            $table->boolean('is_verified')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

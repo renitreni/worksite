@@ -52,6 +52,10 @@
             border-radius: 12px;
             z-index: 99999 !important;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -66,9 +70,21 @@
     </div>
 
     <main class="min-h-screen flex items-center justify-center px-4 py-6">
-        <!-- ✅ removed overflow-hidden so dropdown isn't clipped -->
         <div x-data="employerRegister()"
             class="w-full max-w-sm sm:max-w-md rounded-3xl border border-gray-200 bg-white shadow-lg">
+            <!-- ✅ Submit Loading Overlay (Employer) -->
+            <div x-cloak x-show="isSubmitting"
+                class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm"
+                aria-live="polite" aria-busy="true">
+                <div class="w-[92%] max-w-sm rounded-2xl bg-white shadow-xl border border-gray-200 p-5 text-center">
+                    <div
+                        class="mx-auto h-10 w-10 rounded-full border-4 border-gray-200 border-t-[#16A34A] animate-spin">
+                    </div>
+                    <p class="mt-4 text-sm font-semibold text-gray-900">Creating your employer account…</p>
+                    <p class="mt-1 text-xs text-gray-600">Please wait. Don’t close this tab.</p>
+                </div>
+            </div>
+
 
             {{-- Header --}}
             <div class="px-6 pt-6 pb-4 text-center">
@@ -99,7 +115,9 @@
 
             {{-- Body --}}
             <div class="px-6 pb-5">
-                <form id="empForm" method="POST" action="{{ route('employer.register.store') }}" class="space-y-3">
+                <form id="empForm" x-ref="empForm" @submit.prevent="submitForm" method="POST"
+                    action="{{ route('employer.register.store') }}" class="space-y-3">
+
                     @csrf
 
                     @if ($errors->any())
@@ -306,18 +324,29 @@
                                 Back
                             </button>
 
-                            <button type="submit" :disabled="!canSubmit"
-                                :class="canSubmit ? 'bg-[#16A34A] hover:bg-green-700' : 'bg-gray-300 cursor-not-allowed'"
-                                class="w-1/2 rounded-xl py-2.5 text-sm font-semibold text-white transition">
-                                Create Account
+                            <button type="submit" :disabled="!canSubmit || isSubmitting" :class="(!canSubmit || isSubmitting)
+        ? 'bg-gray-300 cursor-not-allowed'
+        : 'bg-[#16A34A] hover:bg-green-700'"
+                                class="w-1/2 rounded-xl py-2.5 text-sm font-semibold text-white transition inline-flex items-center justify-center gap-2">
+
+                                <svg x-show="isSubmitting" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+
+                                <span x-text="isSubmitting ? 'Creating…' : 'Create Account'"></span>
                             </button>
+
                         </div>
                     </div>
                 </form>
 
                 <p class="text-center text-sm text-gray-600 pt-3">
                     Already have an account?
-                    <a href="{{ route('employer.login') }}" class="font-semibold text-[#16A34A] hover:underline">Sign in</a>
+                    <a href="{{ route('employer.login') }}" class="font-semibold text-[#16A34A] hover:underline">Sign
+                        in</a>
                 </p>
             </div>
 
@@ -330,155 +359,181 @@
             </div>
         </div>
     </main>
+
     <!-- 1️⃣ AlpineJS Multi-Step Form -->
     <script>
-    function employerRegister() {
-        return {
-            step: 1,
-            showPass: false,
-            password: '',
-            confirmPassword: '',
+        function employerRegister() {
+            return {
+                step: 1,
+                showPass: false,
+                password: '',
+                confirmPassword: '',
+                isSubmitting: false,
 
-            refreshIcons() {
-                setTimeout(() => lucide.createIcons(), 0);
-            },
+                refreshIcons() {
+                    setTimeout(() => lucide.createIcons(), 0);
+                },
 
-            get ruleLen() { return this.password.length >= 8; },
-            get ruleUpper() { return /[A-Z]/.test(this.password); },
-            get ruleLower() { return /[a-z]/.test(this.password); },
-            get ruleSymbol() { return /[^A-Za-z0-9]/.test(this.password); },
+                // rules
+                get ruleLen() { return this.password.length >= 8; },
+                get ruleUpper() { return /[A-Z]/.test(this.password); },
+                get ruleLower() { return /[a-z]/.test(this.password); },
+                get ruleSymbol() { return /[^A-Za-z0-9]/.test(this.password); },
 
-            get passwordsMatch() {
-                return this.password.length > 0 && this.password === this.confirmPassword;
-            },
+                get passwordsMatch() {
+                    return this.password.length > 0 && this.password === this.confirmPassword;
+                },
 
-            get canSubmit() {
-                return this.ruleLen && this.ruleUpper && this.ruleLower && this.ruleSymbol && this.passwordsMatch;
-            },
+                get canSubmit() {
+                    return this.ruleLen && this.ruleUpper && this.ruleLower && this.ruleSymbol && this.passwordsMatch;
+                },
 
-            goNext() {
-                const form = this.$root.querySelector('form')
-                const required = {
-                    1: ['company_name', 'company_email'],
-                    2: ['company_address', 'company_contact'],
-                    3: ['representative_name', 'position'],
+                goNext() {
+                    const form = this.$root.querySelector('form');
+                    const required = {
+                        1: ['company_name', 'company_email'],
+                        2: ['company_address', 'company_contact'],
+                        3: ['representative_name', 'position'],
+                    };
+
+                    let ok = true;
+                    (required[this.step] || []).forEach((name) => {
+                        const el = form.querySelector(`[name="${name}"]`);
+                        if (!el || !el.value.trim()) ok = false;
+                    });
+
+                    if (!ok) return;
+
+                    this.step = Math.min(4, this.step + 1);
+                    this.refreshIcons();
+                },
+
+                submitForm() {
+                    // only allow submit when step 4 + valid
+                    if (this.step !== 4 || !this.canSubmit || this.isSubmitting) return;
+
+                    this.isSubmitting = true;
+                    this.refreshIcons();
+
+                    // submit real form
+                    this.$refs.empForm.submit();
                 }
-                const fields = required[this.step] || []
-
-                let ok = true
-                fields.forEach((name) => {
-                    const el = form.querySelector(`[name="${name}"]`)
-                    if (!el || !el.value.trim()) ok = false
-                })
-                if (!ok) return
-
-                this.step = Math.min(4, this.step + 1)
-                this.refreshIcons()
             }
         }
-    }
     </script>
+
 
     <!-- 2️⃣ IntlTelInput -->
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/intlTelInput.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-        lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
 
-        const input = document.querySelector('#employer_phone');
-        const hidden = document.querySelector('#company_contact_e164');
+            const input = document.querySelector('#employer_phone');
+            const hidden = document.querySelector('#company_contact_e164');
 
-        if (!input || !hidden) return;
+            if (!input || !hidden) return;
 
-        const iti = window.intlTelInput(input, {
-            initialCountry: 'ph',
-            separateDialCode: true,
-            nationalMode: true,
-            dropdownContainer: document.body,
-            autoPlaceholder: 'aggressive',
-            formatOnDisplay: true,
-        });
-
-        let utilsReady = false;
-        if (typeof iti.loadUtils === 'function') {
-            try {
-                await iti.loadUtils('https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
-                utilsReady = true;
-            } catch (e) {
-                utilsReady = false;
-                console.warn('Employer utils failed, using fallback e164', e);
-            }
-        }
-
-        function fallbackE164() {
-            const dialCode = iti.getSelectedCountryData()?.dialCode || '';
-            let digits = (input.value || '').replace(/\D/g, '');
-            if (digits.startsWith('0')) digits = digits.slice(1);
-            if (!dialCode || !digits) return '';
-            return `+${dialCode}${digits}`;
-        }
-
-        function sync() {
-            let e164 = '';
-            if (utilsReady) e164 = iti.getNumber() || '';
-            if (!e164) e164 = fallbackE164();
-            hidden.value = e164;
-        }
-
-        input.addEventListener('input', sync);
-        input.addEventListener('blur', sync);
-        input.addEventListener('countrychange', sync);
-
-        sync();
-    });
-    </script>
-
-    <!-- Bootstrap Modal -->
-    @if(session('showApprovalModal'))
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-2xl">
-        <div class="modal-header border-0">
-            <h5 class="modal-title" id="approvalModalLabel">Registration Submitted</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modalCloseBtn"></button>
-        </div>
-        <div class="modal-body text-center">
-            Your account is pending admin approval. An email will be sent once approved.
-        </div>
-        <div class="modal-footer border-0 justify-content-center">
-            <button type="button" class="btn btn-success px-5 py-2 rounded-xl" id="modalCloseBtn">Okay</button>
-        </div>
-        </div>
-    </div>
-    </div>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var approvalModalEl = document.getElementById('approvalModal');
-        if (!approvalModalEl) return;
-
-        var approvalModal = new bootstrap.Modal(approvalModalEl);
-        approvalModal.show();
-
-        // handle clicks
-        document.querySelectorAll('#modalCloseBtn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                approvalModal.hide();
-                window.location.href = "{{ route('home') }}";
+            const iti = window.intlTelInput(input, {
+                initialCountry: 'ph',
+                separateDialCode: true,
+                nationalMode: true,
+                dropdownContainer: document.body,
+                autoPlaceholder: 'aggressive',
+                formatOnDisplay: true,
             });
-        });
 
-        // auto-close after 6s
-        setTimeout(() => {
-            approvalModal.hide();
-            window.location.href = "{{ route('home') }}";
-        }, 6000);
-    });
+            let utilsReady = false;
+            if (typeof iti.loadUtils === 'function') {
+                try {
+                    await iti.loadUtils('https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
+                    utilsReady = true;
+                } catch (e) {
+                    utilsReady = false;
+                    console.warn('Employer utils failed, using fallback e164', e);
+                }
+            }
+
+            function fallbackE164() {
+                const dialCode = iti.getSelectedCountryData()?.dialCode || '';
+                let digits = (input.value || '').replace(/\D/g, '');
+                if (digits.startsWith('0')) digits = digits.slice(1);
+                if (!dialCode || !digits) return '';
+                return `+${dialCode}${digits}`;
+            }
+
+            function sync() {
+                let e164 = '';
+                if (utilsReady) e164 = iti.getNumber() || '';
+                if (!e164) e164 = fallbackE164();
+                hidden.value = e164;
+            }
+
+            input.addEventListener('input', sync);
+            input.addEventListener('blur', sync);
+            input.addEventListener('countrychange', sync);
+
+            sync();
+        });
     </script>
+
+
+
+    @if(session('showApprovalModal'))
+        <script>
+            window.__approval = { show: true };
+        </script>
+
+        <div x-data="{ open: false }" x-init="open = window.__approval.show; setTimeout(() => lucide.createIcons(), 0);"
+            x-show="open" x-cloak x-transition.opacity
+            class="fixed inset-0 z-[99998] flex items-center justify-center px-4">
+
+            <!-- backdrop -->
+            <div class="absolute inset-0 bg-black/40" @click="open=false"></div>
+
+            <!-- modal -->
+            <div class="relative w-full max-w-md rounded-3xl bg-white shadow-xl border border-gray-200 p-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="h-10 w-10 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center">
+                            <i data-lucide="clock" class="w-5 h-5 text-[#16A34A]"></i>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Registration submitted</h3>
+                            <p class="mt-1 text-sm text-gray-600">
+                                Please wait while the admin reviews and approves your employer account.
+                                Once approved, we will send an email notification.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- X -->
+                    <button type="button" @click="open=false"
+                        class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition">
+                        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+                </div>
+
+                <div class="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                    <p class="text-sm text-gray-700">
+                        You can close this window. We’ll notify you via email once approved.
+                    </p>
+                </div>
+
+                <div class="mt-6">
+                    <button type="button" @click="open=false; window.location.href='{{ route('home') }}'"
+                        class="w-full rounded-xl bg-[#16A34A] py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition">
+                        Back to Home
+                    </button>
+                </div>
+
+            </div>
+        </div>
     @endif
+
+
 
 </body>
 

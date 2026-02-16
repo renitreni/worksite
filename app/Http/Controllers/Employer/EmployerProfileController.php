@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Employer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\EmployerProfile;
 
-class EmployerController extends Controller
+class EmployerProfileController extends Controller
 {
     /**
      * Show the company profile edit form.
      */
     public function editProfile()
     {
+
         $user = Auth::user();
 
         if (!$user) {
@@ -27,7 +29,7 @@ class EmployerController extends Controller
                 'company_email'      => $user->email,
                 'company_contact'    => '',
                 'company_address'    => '',
-                'representative_name'=> $user->name,
+                'representative_name' => $user->name,
                 'position'           => '',
                 'status'             => 'pending',
                 'is_verified'        => 0,
@@ -62,7 +64,7 @@ class EmployerController extends Controller
         $employerProfile->update($validated);
 
         return redirect()->route('employer.company-profile')
-                         ->with('success', 'Profile updated successfully.');
+            ->with('success', 'Profile updated successfully.');
     }
 
     /**
@@ -70,13 +72,15 @@ class EmployerController extends Controller
      */
     public function deleteAccount()
     {
+        /** @var \App\Models\User $employer */
+
         $employer = Auth::user();
 
-        // Optional: delete related jobs if needed
+        // delete related records if needed
         // $employer->jobs()->delete();
 
-        Auth::logout();
-        $employer->delete();
+        $employer->delete();   // delete database record
+        Auth::logout();        // then logout
 
         return redirect('/')->with('success', 'Your account has been deleted.');
     }

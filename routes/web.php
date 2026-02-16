@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController; // employer/admin login can stay here
 use App\Http\Controllers\Candidate\CandidateAuthController;
 use App\Http\Controllers\Employer\EmployerAuthController;
-use App\Http\Controllers\Employer\EmployerController;
+use App\Http\Controllers\Employer\EmployerProfileController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Candidate\CandidateProfileController;
 use App\Http\Controllers\Candidate\ResumeController;
@@ -72,9 +72,9 @@ Route::middleware('guest')->prefix('employer')->name('employer.')->group(functio
 });
 
 Route::middleware(['auth'])->prefix('employer')->name('employer.')->group(function () {
-    Route::get('/company-profile', [EmployerController::class, 'editProfile'])->name('company-profile');
-    Route::post('/company-profile', [EmployerController::class, 'updateProfile'])->name('company-profile.update');
-    Route::delete('/delete-account', [EmployerController::class, 'deleteAccount'])->name('delete-account');
+    Route::get('/company-profile', [EmployerProfileController::class, 'editProfile'])->name('company-profile');
+    Route::post('/company-profile', [EmployerProfileController::class, 'updateProfile'])->name('company-profile.update');
+    Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
 });
 
 Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])

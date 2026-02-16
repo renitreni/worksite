@@ -16,13 +16,11 @@ return new class extends Migration
             $table->string('company_email')->unique();
             $table->string('company_address');
             $table->string('company_contact');
-
             $table->string('representative_name');
             $table->string('position');
 
             // optional for approval flow
             $table->enum('status', ['pending','approved','rejected'])->default('pending');
-            $table->boolean('is_verified')->default(false);
             $table->timestamps();
         });
     }
