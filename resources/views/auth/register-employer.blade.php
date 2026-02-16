@@ -52,6 +52,10 @@
             border-radius: 12px;
             z-index: 99999 !important;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -66,9 +70,21 @@
     </div>
 
     <main class="min-h-screen flex items-center justify-center px-4 py-6">
-        <!-- ✅ removed overflow-hidden so dropdown isn't clipped -->
         <div x-data="employerRegister()"
             class="w-full max-w-sm sm:max-w-md rounded-3xl border border-gray-200 bg-white shadow-lg">
+            <!-- ✅ Submit Loading Overlay (Employer) -->
+            <div x-cloak x-show="isSubmitting"
+                class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm"
+                aria-live="polite" aria-busy="true">
+                <div class="w-[92%] max-w-sm rounded-2xl bg-white shadow-xl border border-gray-200 p-5 text-center">
+                    <div
+                        class="mx-auto h-10 w-10 rounded-full border-4 border-gray-200 border-t-[#16A34A] animate-spin">
+                    </div>
+                    <p class="mt-4 text-sm font-semibold text-gray-900">Creating your employer account…</p>
+                    <p class="mt-1 text-xs text-gray-600">Please wait. Don’t close this tab.</p>
+                </div>
+            </div>
+
 
             {{-- Header --}}
             <div class="px-6 pt-6 pb-4 text-center">
@@ -99,7 +115,9 @@
 
             {{-- Body --}}
             <div class="px-6 pb-5">
-                <form id="empForm" method="POST" action="{{ route('employer.register.store') }}" class="space-y-3">
+                <form id="empForm" x-ref="empForm" @submit.prevent="submitForm" method="POST"
+                    action="{{ route('employer.register.store') }}" class="space-y-3">
+
                     @csrf
 
                     @if ($errors->any())
@@ -306,18 +324,29 @@
                                 Back
                             </button>
 
-                            <button type="submit" :disabled="!canSubmit"
-                                :class="canSubmit ? 'bg-[#16A34A] hover:bg-green-700' : 'bg-gray-300 cursor-not-allowed'"
-                                class="w-1/2 rounded-xl py-2.5 text-sm font-semibold text-white transition">
-                                Create Account
+                            <button type="submit" :disabled="!canSubmit || isSubmitting" :class="(!canSubmit || isSubmitting)
+        ? 'bg-gray-300 cursor-not-allowed'
+        : 'bg-[#16A34A] hover:bg-green-700'"
+                                class="w-1/2 rounded-xl py-2.5 text-sm font-semibold text-white transition inline-flex items-center justify-center gap-2">
+
+                                <svg x-show="isSubmitting" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+
+                                <span x-text="isSubmitting ? 'Creating…' : 'Create Account'"></span>
                             </button>
+
                         </div>
                     </div>
                 </form>
 
                 <p class="text-center text-sm text-gray-600 pt-3">
                     Already have an account?
-                    <a href="{{ route('employer.login') }}" class="font-semibold text-[#16A34A] hover:underline">Sign in</a>
+                    <a href="{{ route('employer.login') }}" class="font-semibold text-[#16A34A] hover:underline">Sign
+                        in</a>
                 </p>
             </div>
 
@@ -331,22 +360,21 @@
         </div>
     </main>
 
-    <!-- Intl Tel Input JS (✅ ONLY THIS, no utils.js script tag) -->
+    <!-- 1️⃣ AlpineJS Multi-Step Form -->
     <script>
         function employerRegister() {
             return {
                 step: 1,
                 showPass: false,
-
-                // password UI state
                 password: '',
                 confirmPassword: '',
+                isSubmitting: false,
 
                 refreshIcons() {
                     setTimeout(() => lucide.createIcons(), 0);
                 },
 
-                // password rules
+                // rules
                 get ruleLen() { return this.password.length >= 8; },
                 get ruleUpper() { return /[A-Z]/.test(this.password); },
                 get ruleLower() { return /[a-z]/.test(this.password); },
@@ -361,28 +389,41 @@
                 },
 
                 goNext() {
-                    const form = this.$root.querySelector('form')
+                    const form = this.$root.querySelector('form');
                     const required = {
                         1: ['company_name', 'company_email'],
                         2: ['company_address', 'company_contact'],
                         3: ['representative_name', 'position'],
-                    }
-                    const fields = required[this.step] || []
+                    };
 
-                    let ok = true
-                    fields.forEach((name) => {
-                        const el = form.querySelector(`[name="${name}"]`)
-                        if (!el || !el.value.trim()) ok = false
-                    })
-                    if (!ok) return
+                    let ok = true;
+                    (required[this.step] || []).forEach((name) => {
+                        const el = form.querySelector(`[name="${name}"]`);
+                        if (!el || !el.value.trim()) ok = false;
+                    });
 
-                    this.step = Math.min(4, this.step + 1)
-                    this.refreshIcons()
+                    if (!ok) return;
+
+                    this.step = Math.min(4, this.step + 1);
+                    this.refreshIcons();
+                },
+
+                submitForm() {
+                    // only allow submit when step 4 + valid
+                    if (this.step !== 4 || !this.canSubmit || this.isSubmitting) return;
+
+                    this.isSubmitting = true;
+                    this.refreshIcons();
+
+                    // submit real form
+                    this.$refs.empForm.submit();
                 }
             }
         }
     </script>
 
+
+    <!-- 2️⃣ IntlTelInput -->
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/intlTelInput.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -402,7 +443,6 @@
                 formatOnDisplay: true,
             });
 
-            // Try load utils
             let utilsReady = false;
             if (typeof iti.loadUtils === 'function') {
                 try {
@@ -436,6 +476,62 @@
             sync();
         });
     </script>
+
+
+
+    @if(session('showApprovalModal'))
+        <script>
+            window.__approval = { show: true };
+        </script>
+
+        <div x-data="{ open: false }" x-init="open = window.__approval.show; setTimeout(() => lucide.createIcons(), 0);"
+            x-show="open" x-cloak x-transition.opacity
+            class="fixed inset-0 z-[99998] flex items-center justify-center px-4">
+
+            <!-- backdrop -->
+            <div class="absolute inset-0 bg-black/40" @click="open=false"></div>
+
+            <!-- modal -->
+            <div class="relative w-full max-w-md rounded-3xl bg-white shadow-xl border border-gray-200 p-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="h-10 w-10 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center">
+                            <i data-lucide="clock" class="w-5 h-5 text-[#16A34A]"></i>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Registration submitted</h3>
+                            <p class="mt-1 text-sm text-gray-600">
+                                Please wait while the admin reviews and approves your employer account.
+                                Once approved, we will send an email notification.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- X -->
+                    <button type="button" @click="open=false"
+                        class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition">
+                        <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    </button>
+                </div>
+
+                <div class="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                    <p class="text-sm text-gray-700">
+                        You can close this window. We’ll notify you via email once approved.
+                    </p>
+                </div>
+
+                <div class="mt-6">
+                    <button type="button" @click="open=false; window.location.href='{{ route('home') }}'"
+                        class="w-full rounded-xl bg-[#16A34A] py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition">
+                        Back to Home
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    @endif
 
 
 

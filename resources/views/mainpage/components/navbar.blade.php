@@ -76,6 +76,8 @@
                 @endguest
 
                 @auth
+                    @if(auth()->user()->role === 'candidate')
+
                     <div x-data="{ open: false }" class="relative">
                         <button type="button" @click="open = !open" @keydown.escape.window="open = false"
                             class="flex items-center gap-2 rounded-xl border border-gray-200 bg-[white] px-3 py-2 hover:bg-gray-50 transition">
@@ -115,6 +117,7 @@
                             </form>
                         </div>
                     </div>
+                    @endif
                 @endauth
 
             </div>

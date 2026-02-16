@@ -1,13 +1,19 @@
+@php
+    $photo = optional(auth()->user()->candidateProfile)->photo_path;
+
+    $first = strtoupper(substr(auth()->user()->first_name ?? '', 0, 1));
+    $last  = strtoupper(substr(auth()->user()->last_name ?? '', 0, 1));
+@endphp
+
+
+
 <header class="sticky top-0 z-30 bg-white border-b border-gray-200">
     <div class="h-16 px-3 sm:px-6 lg:px-8 flex items-center gap-2 sm:gap-3">
 
         {{-- Mobile hamburger --}}
-        <button
-            type="button"
+        <button type="button"
             class="lg:hidden inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition"
-            @click="mobileSidebarOpen = true"
-            aria-label="Open sidebar"
-        >
+            @click="mobileSidebarOpen = true" aria-label="Open sidebar">
             <i data-lucide="menu" class="h-5 w-5 text-gray-700"></i>
         </button>
 
@@ -18,27 +24,15 @@
                     <i data-lucide="search" class="h-5 w-5"></i>
                 </span>
 
-                <input
-                    type="text"
-                    x-model="query"
-                    @input.debounce.200ms="onInput()"
-                    @focus="open = true; onInput()"
-                    @keydown.escape="close()"
-                    @keydown.arrow-down.prevent="move(1)"
-                    @keydown.arrow-up.prevent="move(-1)"
-                    @keydown.enter.prevent="pickActive()"
-                    placeholder="Search jobs, companies, or keywords…"
-                    class="w-full min-w-0 rounded-2xl border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300"
-                />
+                <input type="text" x-model="query" @input.debounce.200ms="onInput()" @focus="open = true; onInput()"
+                    @keydown.escape="close()" @keydown.arrow-down.prevent="move(1)" @keydown.arrow-up.prevent="move(-1)"
+                    @keydown.enter.prevent="pickActive()" placeholder="Search jobs, companies, or keywords…"
+                    class="w-full min-w-0 rounded-2xl border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300" />
 
                 {{-- Search Results Dropdown (responsive width) --}}
-                <div
-                    x-show="open && (loading || results.length)"
-                    x-transition.origin.top.left
-                    @click.outside="close()"
+                <div x-show="open && (loading || results.length)" x-transition.origin.top.left @click.outside="close()"
                     class="absolute left-0 z-50 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg
-                           w-[92vw] sm:w-full max-w-none lg:max-w-3xl"
-                >
+                           w-[92vw] sm:w-full max-w-none lg:max-w-3xl">
                     <div class="px-4 py-3 border-b border-gray-100">
                         <p class="text-xs text-gray-500" x-show="query.trim().length">
                             Showing results for: <span class="font-semibold text-gray-700" x-text="query"></span>
@@ -50,7 +44,8 @@
 
                     <div class="p-3" x-show="loading">
                         <div class="flex items-center gap-2 text-sm text-gray-600">
-                            <span class="h-4 w-4 rounded-full border-2 border-gray-200 border-t-gray-500 animate-spin"></span>
+                            <span
+                                class="h-4 w-4 rounded-full border-2 border-gray-200 border-t-gray-500 animate-spin"></span>
                             Searching...
                         </div>
                     </div>
@@ -58,15 +53,13 @@
                     <ul class="max-h-80 overflow-auto" x-show="!loading">
                         <template x-for="(item, idx) in results" :key="item.id">
                             <li>
-                                <button
-                                    type="button"
+                                <button type="button"
                                     class="w-full px-4 py-3 text-left flex items-start gap-3 hover:bg-gray-50"
-                                    :class="activeIndex === idx ? 'bg-gray-50' : ''"
-                                    @mouseenter="activeIndex = idx"
-                                    @click="select(item)"
-                                >
+                                    :class="activeIndex === idx ? 'bg-gray-50' : ''" @mouseenter="activeIndex = idx"
+                                    @click="select(item)">
                                     <div class="mt-0.5 shrink-0">
-                                        <div class="h-9 w-9 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center">
+                                        <div
+                                            class="h-9 w-9 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center">
                                             <i data-lucide="briefcase" class="h-4 w-4 text-gray-500"></i>
                                         </div>
                                     </div>
@@ -77,8 +70,7 @@
 
                                         <div class="flex flex-wrap items-center gap-2 mt-2">
                                             <span class="text-[11px] px-2 py-0.5 rounded-full border"
-                                                  :class="item.tagColor"
-                                                  x-text="item.tag"></span>
+                                                :class="item.tagColor" x-text="item.tag"></span>
                                             <span class="text-[11px] text-gray-500 truncate" x-text="item.meta"></span>
                                         </div>
                                     </div>
@@ -91,11 +83,9 @@
                         </template>
 
                         <li class="border-t border-gray-100">
-                            <button
-                                type="button"
+                            <button type="button"
                                 class="w-full px-4 py-3 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 flex items-center justify-between"
-                                @click="viewAll()"
-                            >
+                                @click="viewAll()">
                                 View all results
                                 <i data-lucide="chevron-right" class="h-4 w-4"></i>
                             </button>
@@ -110,28 +100,18 @@
 
             {{-- Bell --}}
             <div class="relative" x-data="notificationBell()" x-init="init()">
-                <button
-                    type="button"
-                    @click="toggle()"
+                <button type="button" @click="toggle()"
                     class="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition"
-                    aria-label="Notifications"
-                >
+                    aria-label="Notifications">
                     <i data-lucide="bell" class="h-5 w-5 text-gray-600"></i>
 
-                    <span
-                        x-show="unreadCount > 0"
-                        class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white"
-                    ></span>
+                    <span x-show="unreadCount > 0"
+                        class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white"></span>
                 </button>
 
                 {{-- Bell Dropdown (responsive width) --}}
-                <div
-                    x-show="open"
-                    x-transition.origin.top.right
-                    @click.outside="open = false"
-                    class="absolute right-0 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50
-                           w-[92vw] sm:w-[360px]"
-                >
+                <div x-show="open" x-transition.origin.top.right @click.outside="open = false" class="absolute right-0 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50
+                           w-[92vw] sm:w-[360px]">
                     <div class="px-4 py-3 border-b border-gray-100 flex items-start justify-between gap-3">
                         <div>
                             <p class="text-sm font-semibold text-gray-900">Notifications</p>
@@ -141,26 +121,19 @@
                             <p class="text-xs text-gray-500" x-show="unreadCount === 0">All caught up 🎉</p>
                         </div>
 
-                        <button
-                            type="button"
-                            class="text-xs font-semibold text-emerald-600 hover:text-emerald-700"
-                            x-show="unreadCount > 0"
-                            @click="markAllRead()"
-                        >
+                        <button type="button" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700"
+                            x-show="unreadCount > 0" @click="markAllRead()">
                             Mark all
                         </button>
                     </div>
 
                     <div class="max-h-96 overflow-auto">
                         <template x-for="n in notifications" :key="n.id">
-                            <button
-                                type="button"
-                                class="w-full text-left px-4 py-3 flex gap-3 hover:bg-gray-50"
-                                @click="openNotification(n)"
-                            >
+                            <button type="button" class="w-full text-left px-4 py-3 flex gap-3 hover:bg-gray-50"
+                                @click="openNotification(n)">
                                 <div class="mt-0.5 shrink-0">
                                     <div class="h-10 w-10 rounded-2xl flex items-center justify-center border"
-                                         :class="n.iconBg">
+                                        :class="n.iconBg">
                                         <i :data-lucide="n.icon" class="h-5 w-5" :class="n.iconColor"></i>
                                     </div>
                                 </div>
@@ -175,18 +148,16 @@
 
                                 <div class="pt-1 shrink-0">
                                     <span class="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500"
-                                          x-show="!n.read"></span>
+                                        x-show="!n.read"></span>
                                 </div>
                             </button>
                         </template>
                     </div>
 
                     <div class="border-t border-gray-100 p-2">
-                        <button
-                            type="button"
+                        <button type="button"
                             class="w-full rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                            @click="open = false"
-                        >
+                            @click="open = false">
                             Close
                             <i data-lucide="x" class="h-4 w-4"></i>
                         </button>
@@ -196,29 +167,26 @@
 
             {{-- Profile Dropdown --}}
             <div x-data="{ open: false }" class="relative">
-                <button type="button"
-                    @click="open = !open"
-                    @keydown.escape.window="open = false"
-                    class="flex items-center gap-2 sm:gap-3 rounded-2xl border border-gray-200 bg-white px-2 sm:px-3 py-2 hover:bg-gray-50 transition"
-                >
-                    <img
-                        src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=96&h=96&q=80"
-                        alt="Avatar"
-                        class="h-9 w-9 rounded-full object-cover ring-2 ring-gray-100"
-                    />
+                <button type="button" @click="open = !open" @keydown.escape.window="open = false"
+                    class="flex items-center gap-2 sm:gap-3 rounded-2xl border border-gray-200 bg-white px-2 sm:px-3 py-2 hover:bg-gray-50 transition">
+                    @if($photo)
+                        <img src="{{ asset('storage/' . $photo) }}" alt="Avatar"
+                            class="h-9 w-9 rounded-full object-cover ring-2 ring-gray-100" />
+                    @else
+                        <div
+                            class="h-9 w-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold ring-2 ring-gray-100">
+                            {{ $first }}{{ $last }}
+                        </div>
+                    @endif
                     <div class="hidden md:block text-left leading-tight">
-                        <p class="text-sm font-semibold text-gray-900">Keith Pelonio</p>
-                        <p class="text-xs text-gray-500">Senior UX Designer</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
                     </div>
                     <i data-lucide="chevron-down" class="hidden md:block h-4 w-4 text-gray-500"></i>
                 </button>
 
-                <div
-                    x-show="open"
-                    x-transition
-                    @click.outside="open = false"
-                    class="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50"
-                >
+                <div x-show="open" x-transition @click.outside="open = false"
+                    class="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50">
                     <a href="#" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <i data-lucide="user" class="h-4 w-4 text-gray-500"></i>
                         <span>My Profile</span>
@@ -262,7 +230,7 @@
                 { id: 10, title: "Delete Profile", subtitle: "Delete your account", tag: "Settings", tagColor: "border-red-200 bg-red-50 text-red-700", meta: "Danger zone" },
             ],
 
-            init() {},
+            init() { },
 
             onInput() {
                 const q = this.query.trim().toLowerCase();
