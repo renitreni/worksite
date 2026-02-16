@@ -13,7 +13,6 @@
         ['label' => 'Job Alerts', 'icon' => 'bell', 'href' => url('/candidate/job-alerts'), 'active' => $is('candidate/job-alerts')],
         ['label' => 'Messages', 'icon' => 'messages-square', 'href' => url('/candidate/messages'), 'active' => $is('candidate/messages')],
         ['label' => 'Meetings', 'icon' => 'calendar', 'href' => url('/candidate/meetings'), 'active' => $is('candidate/meetings')],
-        ['label' => 'Change Password', 'icon' => 'lock', 'href' => url('/candidate/change-password'), 'active' => $is('candidate/change-password')],
         ['label' => 'Delete Profile', 'icon' => 'trash-2', 'href' => url('/candidate/delete-profile'), 'active' => $is('candidate/delete-profile')],
     ];
 @endphp
