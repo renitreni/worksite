@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController; // employer/admin login can stay here
 use App\Http\Controllers\Candidate\CandidateAuthController;
 use App\Http\Controllers\Employer\EmployerAuthController;
+use App\Http\Controllers\Employer\EmployerController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Candidate\CandidateProfileController;
 use App\Http\Controllers\Candidate\ResumeController;
@@ -68,6 +69,12 @@ Route::middleware('guest')->prefix('employer')->name('employer.')->group(functio
 
     Route::get('/login', [EmployerAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [EmployerAuthController::class, 'login'])->name('login.store');
+});
+
+Route::middleware(['auth'])->prefix('employer')->name('employer.')->group(function () {
+    Route::get('/company-profile', [EmployerController::class, 'editProfile'])->name('company-profile');
+    Route::post('/company-profile', [EmployerController::class, 'updateProfile'])->name('company-profile.update');
+    Route::delete('/delete-account', [EmployerController::class, 'deleteAccount'])->name('delete-account');
 });
 
 Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
@@ -139,7 +146,7 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
 Route::prefix('employer')->name('employer.')->middleware(['auth', 'role:employer'])->group(function () {
     Route::view('/dashboard', 'employer.contents.dashboard')->name('dashboard');
 
-    Route::get('/company-profile', fn() => view('employer.contents.profile'))->name('company-profile');
+    // Route::get('/company-profile', fn() => view('employer.contents.profile'))->name('company-profile');
     Route::get('/analytics', fn() => view('employer.contents.analytics'))->name('analytics');
     Route::get('/subscription', fn() => view('employer.contents.subscription'))->name('subscription');
 

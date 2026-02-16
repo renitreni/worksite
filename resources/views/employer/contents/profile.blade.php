@@ -1,11 +1,28 @@
-
 @extends('employer.layout')
 
 @section('content')
-<div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow">
-    <h1 class="text-2xl font-semibold mb-6">Company Profile</h1>
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow space-y-6">
+    <h1 class="text-2xl font-semibold mb-4">Company Profile</h1>
 
-    <form>
+    {{-- Messages --}}
+    @if(session('success'))
+        <div class="p-3 bg-green-100 text-green-700 rounded shadow-sm">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="p-3 bg-red-100 text-red-700 rounded shadow-sm">{{ session('error') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="p-3 bg-red-100 text-red-700 rounded shadow-sm">
+            <ul class="list-disc pl-5">
+                @foreach($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- Update Profile Form --}}
+    <form action="{{ route('employer.company-profile.update') }}" method="POST" class="space-y-4">
+        @csrf
+
         {{-- Company Logo Placeholder --}}
         <div class="mb-6">
             <div class="mt-2 flex items-center gap-4">
@@ -22,48 +39,51 @@
             </div>
         </div>
 
-        {{-- Company Name --}}
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Company Name</label>
-            <input type="text" value="John Company" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-200">
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Company Name</label>
+                <input type="text" name="company_name" value="{{ old('company_name', $employerProfile->company_name) }}" required
+                       class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-100">
+            </div>
 
-        {{-- Description --}}
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Description</label>
-            <textarea rows="4" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-200" placeholder="Describe your company...">Lorem ipsum</textarea>
-        </div>
-
-        {{-- Contact Info --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" value="contact@company.com" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-200">
+                <input type="email" name="company_email" value="{{ old('company_email', $employerProfile->company_email) }}" required
+                       class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-100">
             </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700">Phone</label>
-                <input type="text" value="+63 912 345 6789" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-200">
+                <input type="text" name="company_contact" value="{{ old('company_contact', $employerProfile->company_contact) }}"
+                       class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-100">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Location</label>
+                <input type="text" name="company_address" value="{{ old('company_address', $employerProfile->company_address) }}"
+                       class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-100">
             </div>
         </div>
 
-        {{-- Location --}}
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Location</label>
-            <input type="text" value="Makati City, Philippines" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-200">
-        </div>
-
-        {{-- Website --}}
-        <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700">Website</label>
-            <input type="url" value="https://www.company.com" class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-200">
-        </div>
-
-        {{-- Save Button --}}
-        <div class="flex justify-end">
-            <button type="button" class="px-6 py-2 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition cursor-pointer">
+        {{-- Buttons Row --}}
+        <div class="flex flex-col md:flex-row md:justify-end gap-4 mt-4">
+            <button type="submit"
+                    class="px-6 py-3 bg-emerald-500 text-white font-semibold rounded-xl shadow hover:bg-emerald-600 transition">
                 Save Changes
             </button>
         </div>
+    </form>
+
+    {{-- Delete Account Form --}}
+    <form action="{{ route('employer.delete-account') }}" method="POST"
+          onsubmit="return confirm('Are you sure you want to delete your account?');"
+          class="flex justify-end mt-2">
+        @csrf
+        @method('DELETE')
+        <button type="submit"
+                class="px-6 py-3 bg-red-500 text-white font-semibold rounded-xl shadow hover:bg-red-600 transition">
+            Delete Account
+        </button>
     </form>
 </div>
 @endsection
