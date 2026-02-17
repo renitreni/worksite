@@ -48,7 +48,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="company_email" value="{{ old('company_email', $employerProfile->company_email) }}" required
+                <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required
                        class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-100">
             </div>
 
