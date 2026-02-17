@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,32 +14,33 @@ class AdminAuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => ['required','email'],
-            'password' => ['required'],
-        ]);
+{
+    $request->validate([
+        'email' => ['required','email'],
+        'password' => ['required'],
+    ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+   $ok = Auth::guard('admin')->attempt([
+    'email' => $request->email,
+    'password' => $request->password,
+    'is_active' => 1,
+], $request->boolean('remember'));
 
-        if (!$admin) {
-            return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
-        }
+if (! $ok) {
+    return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+}
 
-        if ((int) $admin->is_active === 0) {
-            return back()->withErrors(['email' => 'Your account is disabled.'])->onlyInput('email');
-        }
+$user = Auth::guard('admin')->user();
 
-        if (!Auth::guard('admin')->attempt($request->only('email','password'), $request->boolean('remember'))) {
-            return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
-        }
+if (! in_array($user->role, ['admin','superadmin'], true)) {
+    Auth::guard('admin')->logout();
+    return back()->withErrors(['email' => 'Not allowed.'])->onlyInput('email');
+}
 
-        $admin->forceFill(['last_login_at' => now()])->save();
+$request->session()->regenerate();
+return redirect()->route('admin.dashboard');
 
-        $request->session()->regenerate();
-
-        return redirect()->route('admin.dashboard');
-    }
+}
 
     public function logout(Request $request)
     {
@@ -51,5 +51,4 @@ class AdminAuthController extends Controller
 
         return redirect()->route('admin.login')->with('success', 'Logged out successfully.');
     }
-    
 }
