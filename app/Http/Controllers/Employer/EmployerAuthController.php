@@ -20,7 +20,9 @@ class EmployerAuthController extends Controller
     {
         $validated = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
-            'company_email' => ['required', 'email', 'max:255', 'unique:employer_profiles,company_email'],
+
+            // email belongs to users table now
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
 
             'company_address' => ['required', 'string', 'max:255'],
             'company_contact' => ['required', 'string', 'max:50'],
@@ -39,31 +41,29 @@ class EmployerAuthController extends Controller
 
         $phoneToSave = $validated['company_contact_e164'] ?: $validated['company_contact'];
 
-        // ✅ Create user (NO is_verified here)
         $user = User::create([
             'first_name' => $first,
             'last_name'  => $last,
             'name'       => $repName,
-            'email'      => $validated['company_email'],
+            'email'      => $validated['email'],
             'phone'      => $phoneToSave,
             'role'       => 'employer',
             'password'   => bcrypt($validated['password']),
         ]);
 
-        // ✅ Employer approval flow is here (status)
         EmployerProfile::create([
-            'user_id' => $user->id,
-            'company_name' => $validated['company_name'],
-            'company_email' => $validated['company_email'],
-            'company_address' => $validated['company_address'],
-            'company_contact' => $phoneToSave,
+            'user_id'             => $user->id,
+            'company_name'        => $validated['company_name'],
+            'company_address'     => $validated['company_address'],
+            'company_contact'     => $phoneToSave,
             'representative_name' => $validated['representative_name'],
-            'position' => $validated['position'],
-            'status' => 'pending', // ✅ pending by default
+            'position'            => $validated['position'],
+            'status'              => 'pending',
         ]);
 
         return redirect()->route('employer.register')->with('showApprovalModal', true);
     }
+
 
     public function showLogin()
     {
