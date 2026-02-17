@@ -26,10 +26,16 @@ class AdminUserController extends Controller
                     ->orWhere('email', 'like', "%{$q}%");
             });
         }
+        $archived = $request->query('archived', '0');
+
+if ($archived === '1') $query->whereNotNull('archived_at');
+else $query->whereNull('archived_at');
+
 
         $admins = $query->latest('id')->paginate(10)->withQueryString();
 
-        return view('adminpage.contents.admins.index', compact('admins', 'q'));
+        return view('adminpage.contents.admins.index', compact('admins', 'q', 'archived'));
+
     }
 
     public function create()
@@ -39,6 +45,7 @@ class AdminUserController extends Controller
 
     public function store(Request $request)
     {
+        
         $data = $request->validate([
             'first_name' => ['required', 'string', 'max:80'],
             'last_name'  => ['required', 'string', 'max:80'],
@@ -53,10 +60,33 @@ class AdminUserController extends Controller
             'email'      => $data['email'],
             'password'   => Hash::make($data['password']),
             'role'       => 'admin',
+            'is_active'  => true,
         ]);
+        
 
         return redirect()->route('admin.admins.index')->with('success', 'Admin created.');
     }
+public function archive(User $user)
+{
+    abort_if($user->role !== 'admin', 404);
+    abort_if(Auth::id() === $user->id, 403);
+
+    $user->archived_at = now();
+    $user->is_active = false;
+    $user->save();
+
+    return back()->with('success', 'Admin archived.');
+}
+
+public function restore(User $user)
+{
+    abort_if($user->role !== 'admin', 404);
+
+    $user->archived_at = null;
+    $user->save();
+
+    return back()->with('success', 'Admin restored.');
+}
 
     public function edit(User $user)
     {
@@ -66,24 +96,34 @@ class AdminUserController extends Controller
     }
 
     public function update(Request $request, User $user)
-    {
-        abort_if($user->role !== 'admin', 404);
+{
+    abort_if($user->role !== 'admin', 404);
 
-        $data = $request->validate([
-            'first_name' => ['required', 'string', 'max:80'],
-            'last_name'  => ['required', 'string', 'max:80'],
-            'email'      => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
-        ]);
+    $data = $request->validate([
+        'first_name' => ['required', 'string', 'max:80'],
+        'last_name'  => ['required', 'string', 'max:80'],
+        'email'      => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
 
-        $user->update([
-            'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
-            'name'       => $data['first_name'] . ' ' . $data['last_name'],
-            'email'      => $data['email'],
-        ]);
+        
+        'password'   => ['nullable', 'string', 'min:8', 'confirmed'],
+    ]);
 
-        return redirect()->route('admin.admins.index')->with('success', 'Admin updated.');
+    $user->first_name = $data['first_name'];
+    $user->last_name  = $data['last_name'];
+    $user->name       = $data['first_name'].' '.$data['last_name'];
+    $user->email      = $data['email'];
+
+   
+    if (!empty($data['password'])) {
+        $user->password = Hash::make($data['password']);
     }
+
+    $user->save();
+
+    return redirect()->route('admin.admins.index')->with('success', 'Admin updated.');
+}
+
+
 
     public function toggle(User $user)
     {
@@ -107,18 +147,19 @@ class AdminUserController extends Controller
         return back()->with('error', 'No status column found (add is_active or status).');
     }
 
-    public function resetPassword(Request $request, User $user)
-    {
-        abort_if($user->role !== 'admin', 404);
-        abort_if(Auth::id() === $user->id, 403);
+   public function resetPassword(Request $request, User $user)
+{
+    abort_if($user->role !== 'admin', 404);
+    abort_if(Auth::id() === $user->id, 403);
 
-        $data = $request->validate([
-            'password' => ['required', 'string', 'min:8'],
-        ]);
+    $data = $request->validate([
+        'password' => ['required','string','min:8'],
+    ]);
 
-        $user->password = Hash::make($data['password']);
-        $user->save();
+    $user->password = Hash::make($data['password']);
+    $user->save();
 
-        return back()->with('success', 'Password reset.');
-    }
+    return back()->with('success', 'Password updated.');
+}
+
 }

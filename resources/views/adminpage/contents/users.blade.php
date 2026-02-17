@@ -4,8 +4,7 @@
 
 @section('content')
 @php
-  // $users, $q, $role should come from UserController@index
-  // $role is expected to be: employer | candidate | null
+  // $users, $q, $role, $verified, $archived should come from UserController@index
 @endphp
 
 <div class="space-y-6">
@@ -33,6 +32,26 @@
           <option value="" {{ empty($role) ? 'selected' : '' }}>All roles</option>
           <option value="candidate" {{ ($role ?? '') === 'candidate' ? 'selected' : '' }}>Candidate</option>
           <option value="employer" {{ ($role ?? '') === 'employer' ? 'selected' : '' }}>Employer</option>
+        </select>
+
+        {{-- Candidate verification filter --}}
+        <select
+          name="verified"
+          class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+        >
+          <option value="" {{ empty($verified) ? 'selected' : '' }}>Candidate verification</option>
+          <option value="verified" {{ ($verified ?? '') === 'verified' ? 'selected' : '' }}>Verified</option>
+          <option value="unverified" {{ ($verified ?? '') === 'unverified' ? 'selected' : '' }}>Not verified</option>
+        </select>
+
+        {{-- Archived filter --}}
+        <select
+          name="archived"
+          class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
+        >
+          @php $arch = $archived ?? '0'; @endphp
+          <option value="0" {{ $arch === '0' ? 'selected' : '' }}>Active users</option>
+          <option value="1" {{ $arch === '1' ? 'selected' : '' }}>Archived users</option>
         </select>
 
         <button
@@ -84,24 +103,39 @@
                 {{ ucfirst($u->role) }}
               </td>
 
-              {{-- Status (ONE column only) --}}
+              {{-- Status (ONE column only): Employer approval OR Candidate active + verification --}}
               <td class="px-5 py-4">
                 @if($u->role === 'employer')
                   @php $status = optional($u->employerProfile)->status ?? 'pending'; @endphp
                   <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1
                     {{ $status === 'approved'
                         ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
-                        : 'bg-amber-50 text-amber-800 ring-amber-200' }}">
+                        : ($status === 'rejected'
+                            ? 'bg-rose-50 text-rose-700 ring-rose-200'
+                            : 'bg-amber-50 text-amber-800 ring-amber-200') }}">
                     {{ ucfirst($status) }}
                   </span>
                 @else
-                  @php $active = (bool) ($u->is_active ?? true); @endphp
-                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1
-                    {{ $active
-                        ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
-                        : 'bg-rose-50 text-rose-700 ring-rose-200' }}">
-                    {{ $active ? 'Active' : 'Disabled' }}
-                  </span>
+                  @php
+                    $active = (bool) ($u->is_active ?? true);
+                    $isVerified = !is_null($u->email_verified_at);
+                  @endphp
+
+                  <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1
+                      {{ $active
+                          ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+                          : 'bg-rose-50 text-rose-700 ring-rose-200' }}">
+                      {{ $active ? 'Active' : 'Disabled' }}
+                    </span>
+
+                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1
+                      {{ $isVerified
+                          ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+                          : 'bg-slate-50 text-slate-700 ring-slate-200' }}">
+                      {{ $isVerified ? 'Verified' : 'Not verified' }}
+                    </span>
+                  </div>
                 @endif
               </td>
 
@@ -109,46 +143,74 @@
                 {{ optional($u->created_at)->format('Y-m-d') ?? '—' }}
               </td>
 
-              {{-- Actions (UPDATED) --}}
+              {{-- Actions --}}
               <td class="px-5 py-4">
-  <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2">
 
-    {{-- Edit --}}
-    <a href="{{ route('admin.users.edit', $u) }}"
-       class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-      Edit
-    </a>
+                  {{-- View --}}
+                  <a href="{{ route('admin.users.show', $u) }}"
+                     class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    View
+                  </a>
 
-    {{-- Approve employer (only if employer + pending) --}}
-    @if($u->role === 'employer' && optional($u->employerProfile)->status === 'pending')
-      <form method="POST" action="{{ route('admin.users.approve', $u) }}"
-            onsubmit="return confirm('Approve this employer?')">
-        @csrf
-        @method('PATCH')
-        <button type="submit"
-          class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
-          Approve
-        </button>
-      </form>
-    @endif
+                  {{-- Edit --}}
+                  <a href="{{ route('admin.users.edit', $u) }}"
+                     class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    Edit
+                  </a>
 
-    {{-- Enable/Disable --}}
-    <form method="POST" action="{{ route('admin.users.toggle', $u) }}"
-          onsubmit="return confirm('{{ $u->is_active ? 'Disable' : 'Enable' }} this user?')">
-      @csrf
-      @method('PATCH')
-      <button type="submit"
-        class="rounded-xl px-3 py-2 text-xs font-semibold ring-1
-        {{ $u->is_active
-            ? 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'
-            : 'bg-emerald-600 text-white ring-emerald-600 hover:bg-emerald-700' }}">
-        {{ $u->is_active ? 'Disable' : 'Enable' }}
-      </button>
-    </form>
+                  {{-- Approve employer (treat missing profile as pending) --}}
+                  @if($u->role === 'employer' && (optional($u->employerProfile)->status ?? 'pending') === 'pending')
+                    <form method="POST" action="{{ route('admin.users.approve', $u) }}"
+                          onsubmit="return confirm('Approve this employer?')">
+                      @csrf
+                      @method('PATCH')
+                      <button type="submit"
+                        class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
+                        Approve
+                      </button>
+                    </form>
+                  @endif
 
-  </div>
-</td>
+                  {{-- Enable/Disable --}}
+                  <form method="POST" action="{{ route('admin.users.toggle', $u) }}"
+                        onsubmit="return confirm('{{ $u->is_active ? 'Disable' : 'Enable' }} this user?')">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit"
+                      class="rounded-xl px-3 py-2 text-xs font-semibold ring-1
+                      {{ $u->is_active
+                          ? 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'
+                          : 'bg-emerald-600 text-white ring-emerald-600 hover:bg-emerald-700' }}">
+                      {{ $u->is_active ? 'Disable' : 'Enable' }}
+                    </button>
+                  </form>
 
+                  {{-- Archive / Restore --}}
+                  @if(($archived ?? '0') === '0')
+                    <form method="POST" action="{{ route('admin.users.archive', $u) }}"
+                          onsubmit="return confirm('Archive this user?')">
+                      @csrf
+                      @method('PATCH')
+                      <button type="submit"
+                        class="rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white hover:bg-rose-700">
+                        Archive
+                      </button>
+                    </form>
+                  @else
+                    <form method="POST" action="{{ route('admin.users.restore', $u) }}"
+                          onsubmit="return confirm('Restore this user?')">
+                      @csrf
+                      @method('PATCH')
+                      <button type="submit"
+                        class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
+                        Restore
+                      </button>
+                    </form>
+                  @endif
+
+                </div>
+              </td>
             </tr>
           @empty
             <tr>
