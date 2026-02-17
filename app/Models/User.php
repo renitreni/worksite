@@ -39,6 +39,6 @@ class User extends Authenticatable
 
     public function employerProfile()
     {
-        return $this->hasOne(\App\Models\EmployerProfile::class);
+        return $this->hasOne(EmployerProfile::class);
     }
 }

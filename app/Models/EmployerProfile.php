@@ -15,6 +15,11 @@ class EmployerProfile extends Model
         'representative_name',
         'position',
         'status',
+        'is_verified', 
+    ];
+
+    protected $casts = [
+    'is_verified' => 'boolean',
     ];
 
     public function user()
