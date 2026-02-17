@@ -72,8 +72,16 @@ Route::middleware('guest')->prefix('employer')->name('employer.')->group(functio
 });
 
 Route::middleware(['auth'])->prefix('employer')->name('employer.')->group(function () {
-    Route::get('/company-profile', [EmployerProfileController::class, 'editProfile'])->name('company-profile');
-    Route::post('/company-profile', [EmployerProfileController::class, 'updateProfile'])->name('company-profile.update');
+    // ✅ View profile (default)
+    Route::get('/company-profile', [EmployerProfileController::class, 'show'])->name('company-profile');
+
+    // ✅ Edit form
+    Route::get('/company-profile/edit', [EmployerProfileController::class, 'edit'])->name('company-profile.edit');
+
+    // ✅ Save update
+    Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
+
+    // ✅ Delete employer account
     Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
 });
 

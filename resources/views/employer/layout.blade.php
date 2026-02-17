@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ config('app.name', 'WorkSITE') }} - Employer</title>
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ config('app.name', default: 'Worksite') }}</title>
+
+    <!-- Fonts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <style>[x-cloak]{display:none!important}</style>
-
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body class="bg-gray-100 text-gray-900 antialiased">
+<body class="font-['Inter',sans-serif] bg-gray-100 text-gray-900 antialiased">
     <div x-data="{ mobileSidebarOpen: false }" class="min-h-screen">
 
         {{-- Mobile overlay --}}
-        <div
-            x-show="mobileSidebarOpen"
-            x-transition.opacity
-            class="fixed inset-0 z-40 bg-black/40 lg:hidden"
-            @click="mobileSidebarOpen = false"
-            x-cloak
-        ></div>
+        <div x-show="mobileSidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-black/40 lg:hidden"
+            @click="mobileSidebarOpen = false" x-cloak></div>
 
         {{-- Sidebar (Desktop + Mobile Drawer) --}}
         @include('employer.components.sidebar')
@@ -46,8 +55,11 @@
 
     <style>
         input[type="password"]::-ms-reveal,
-        input[type="password"]::-ms-clear { display:none; }
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
     </style>
 
 </body>
+
 </html>
