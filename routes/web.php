@@ -73,20 +73,6 @@ Route::middleware('guest')->prefix('employer')->name('employer.')->group(functio
     Route::post('/login', [EmployerAuthController::class, 'login'])->name('login.store');
 });
 
-Route::middleware(['auth'])->prefix('employer')->name('employer.')->group(function () {
-    // ✅ View profile (default)
-    Route::get('/company-profile', [EmployerProfileController::class, 'show'])->name('company-profile');
-
-    // ✅ Edit form
-    Route::get('/company-profile/edit', [EmployerProfileController::class, 'edit'])->name('company-profile.edit');
-
-    // ✅ Save update
-    Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
-
-    // ✅ Delete employer account
-    Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
-});
-
 Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
     ->middleware('auth')
     ->name('employer.logout');
@@ -113,21 +99,21 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
     #Resume
     Route::get('/my-resume', [ResumeController::class, 'index'])->name('resume.index');
 
-        // Resume/CV file (single)
-        Route::post('/my-resume/resume-file', [ResumeController::class, 'uploadResume'])->name('resume.upload');
-        Route::delete('/my-resume/resume-file', [ResumeController::class, 'deleteResume'])->name('resume.delete');
+    // Resume/CV file (single)
+    Route::post('/my-resume/resume-file', [ResumeController::class, 'uploadResume'])->name('resume.upload');
+    Route::delete('/my-resume/resume-file', [ResumeController::class, 'deleteResume'])->name('resume.delete');
 
-        // Attachments (multiple)
-        Route::post('/my-resume/attachments', [ResumeController::class, 'uploadAttachments'])->name('resume.attachments.upload');
-        Route::delete('/my-resume/attachments/{attachment}', [ResumeController::class, 'deleteAttachment'])->name('resume.attachments.delete');
+    // Attachments (multiple)
+    Route::post('/my-resume/attachments', [ResumeController::class, 'uploadAttachments'])->name('resume.attachments.upload');
+    Route::delete('/my-resume/attachments/{attachment}', [ResumeController::class, 'deleteAttachment'])->name('resume.attachments.delete');
 
-        // Experience
-        Route::post('/my-resume/experience', [ResumeController::class, 'storeExperience'])->name('resume.exp.store');
-        Route::delete('/my-resume/experience/{experience}', [ResumeController::class, 'deleteExperience'])->name('resume.exp.delete');
+    // Experience
+    Route::post('/my-resume/experience', [ResumeController::class, 'storeExperience'])->name('resume.exp.store');
+    Route::delete('/my-resume/experience/{experience}', [ResumeController::class, 'deleteExperience'])->name('resume.exp.delete');
 
-        // Education
-        Route::post('/my-resume/education', [ResumeController::class, 'storeEducation'])->name('resume.edu.store');
-        Route::delete('/my-resume/education/{education}', [ResumeController::class, 'deleteEducation'])->name('resume.edu.delete');
+    // Education
+    Route::post('/my-resume/education', [ResumeController::class, 'storeEducation'])->name('resume.edu.store');
+    Route::delete('/my-resume/education/{education}', [ResumeController::class, 'deleteEducation'])->name('resume.edu.delete');
 
     Route::get('/my-applied-jobs', fn() => view('candidate.contents.my-applied-jobs'))->name('my-applied-jobs');
     Route::get('/shortlist-jobs', fn() => view('candidate.contents.shortlist-jobs'))->name('shortlist-jobs');
@@ -143,10 +129,21 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
 | EMPLOYER PAGES (AUTH + ROLE)
 |--------------------------------------------------------------------------
 */
-Route::prefix('employer')->name('employer.')->middleware(['auth', 'role:employer'])->group(function () {
+Route::middleware(['auth'])->prefix('employer')->name('employer.')->group(function () {
+
     Route::view('/dashboard', 'employer.contents.dashboard')->name('dashboard');
 
-    // Route::get('/company-profile', fn() => view('employer.contents.profile'))->name('company-profile');
+    // ✅ View profile (default)
+    Route::get('/company-profile', [EmployerProfileController::class, 'show'])->name('company-profile');
+
+    // ✅ Edit form
+    Route::get('/company-profile/edit', [EmployerProfileController::class, 'edit'])->name('company-profile.edit');
+
+    // ✅ Save update
+    Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
+
+    // ✅ Delete employer account
+    Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
     Route::get('/analytics', fn() => view('employer.contents.analytics'))->name('analytics');
     Route::get('/subscription', fn() => view('employer.contents.subscription'))->name('subscription');
 
@@ -216,8 +213,4 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/admins/{user}/archive', [AdminUserController::class, 'archive'])->name('admins.archive');
         Route::patch('/admins/{user}/restore', [AdminUserController::class, 'restore'])->name('admins.restore');
     });
-
 });
-
-
-
