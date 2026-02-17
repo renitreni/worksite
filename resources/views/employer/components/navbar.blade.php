@@ -11,9 +11,6 @@
             <i data-lucide="menu" class="h-5 w-5 text-gray-700"></i>
         </button>
 
-        {{-- Employer Portal Text --}}
-        <span class="ml-3 text-lg font-semibold text-gray-900">Employer Portal</span>
-
         {{-- Spacer --}}
         <div class="flex-1"></div>
 

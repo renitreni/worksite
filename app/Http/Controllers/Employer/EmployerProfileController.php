@@ -2,74 +2,115 @@
 
 namespace App\Http\Controllers\Employer;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Storage;
+use App\Models\Industry;
 
 class EmployerProfileController extends Controller
 {
-    /**
-     * Show the company profile edit form.
-     */
-    public function editProfile()
+    private function ensureProfile($user)
     {
-        $user = Auth::user();
-        if (!$user) abort(403, 'Unauthorized');
+        $profile = $user->employerProfile;
 
-        $employerProfile = $user->employerProfile;
-
-        if (!$employerProfile) {
-            $employerProfile = $user->employerProfile()->create([
-                'company_name'         => '',
-                'company_contact'      => '',
-                'company_address'      => '',
-                'representative_name'  => $user->name,
-                'position'             => '',
-                'status'               => 'pending',
+        if (!$profile) {
+            $profile = $user->employerProfile()->create([
+                'company_name' => '',
+                'company_contact' => '',
+                'company_address' => '',
+                'company_website' => '',
+                'description' => '',
+                'industries' => [], // JSON array
+                'total_profile_views' => 0,
+                'representative_name' => $user->name,
+                'position' => '',
+                'status' => 'pending',
             ]);
         }
 
-        // NOTE: email comes from users table now
-        $email = $user->email;
-
-        return view('employer.contents.profile', compact('employerProfile', 'email'));
+        return $profile;
     }
 
-    /**
-     * Update the company profile.
-     */
-
-    public function updateProfile(Request $request)
+    public function show()
     {
         $user = Auth::user();
-        $employerProfile = $user->employerProfile;
+        abort_if(!$user, 403);
 
-        if (!$employerProfile) {
-            return back()->with('error', 'Employer profile not found.');
-        }
+        $employerProfile = $this->ensureProfile($user);
+        $email = $user->email;
+
+        return view('employer.contents.profile.show', compact('employerProfile', 'email'));
+    }
+
+    public function edit()
+    {
+        $user = Auth::user();
+        abort_if(!$user, 403);
+
+        $employerProfile = $this->ensureProfile($user);
+        $email = $user->email;
+
+        // Admin-managed options list (but employer stores as JSON names)
+        $industries = Industry::where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('employer.contents.profile.edit', compact('employerProfile', 'email', 'industries'));
+    }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+        abort_if(!$user, 403);
+
+        $employerProfile = $this->ensureProfile($user);
 
         $validated = $request->validate([
             'company_name'    => ['required', 'string', 'max:255'],
             'email'           => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'company_contact' => ['nullable', 'string', 'max:50'],
             'company_address' => ['nullable', 'string', 'max:255'],
-            'representative_name' => ['nullable', 'string', 'max:255'],
-            'position'        => ['nullable', 'string', 'max:255'],
+            'company_website' => ['nullable', 'string', 'max:255'],
+            'description'     => ['nullable', 'string', 'max:2000'],
+
+            // ✅ multi-select from <select name="industries[]">
+            'industries'      => ['nullable', 'array', 'max:20'],
+            'industries.*'    => ['string', 'max:50'],
+
+            'logo'            => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'cover'           => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
-        DB::transaction(function () use ($user, $employerProfile, $validated) {
-            // update employer_profiles (NO email here)
+        DB::transaction(function () use ($user, $employerProfile, $validated, $request) {
+
+            $logoPath = $employerProfile->logo_path;
+            $coverPath = $employerProfile->cover_path;
+
+            if ($request->hasFile('logo')) {
+                if ($logoPath) Storage::disk('public')->delete($logoPath);
+                $logoPath = $request->file('logo')->store('employers/logos', 'public');
+            }
+
+            if ($request->hasFile('cover')) {
+                if ($coverPath) Storage::disk('public')->delete($coverPath);
+                $coverPath = $request->file('cover')->store('employers/covers', 'public');
+            }
+
             $employerProfile->update([
-                'company_name'        => $validated['company_name'],
-                'company_contact'     => $validated['company_contact'] ?? '',
-                'company_address'     => $validated['company_address'] ?? '',
-                'representative_name' => $validated['representative_name'] ?? $employerProfile->representative_name,
-                'position'            => $validated['position'] ?? $employerProfile->position,
+                'company_name'    => $validated['company_name'],
+                'company_contact' => $validated['company_contact'] ?? '',
+                'company_address' => $validated['company_address'] ?? '',
+                'company_website' => $validated['company_website'] ?? '',
+                'description'     => $validated['description'] ?? '',
+                'industries'      => $validated['industries'] ?? [],
+
+                'logo_path'       => $logoPath,
+                'cover_path'      => $coverPath,
             ]);
 
-            // update users.email
             $user->update([
                 'email' => $validated['email'],
             ]);
@@ -79,15 +120,12 @@ class EmployerProfileController extends Controller
             ->with('success', 'Profile updated successfully.');
     }
 
-
-    /**
-     * Delete employer account.
-     */
     public function deleteAccount()
     {
-        $employer = Auth::user();
+        $user = Auth::user();
+        abort_if(!$user, 403);
 
-        $employer->delete();
+        $user->delete();
         Auth::logout();
 
         return redirect('/')->with('success', 'Your account has been deleted.');
