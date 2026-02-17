@@ -1,7 +1,8 @@
 @php
   $items = [
     ['label'=>'Dashboard','href'=>route('admin.dashboard')],
-    ['label'=>'Users','href'=>route('admin.users')],
+    ['label'=>'Users','href'=>route('admin.users.index')],
+    ['label' => 'Admin Accounts', 'href' => route('admin.admins.index')],
     ['label'=>'Job Postings','href'=>route('admin.jobs')],
     ['label'=>'Categories / Skills / Locations','href'=>route('admin.taxonomy')],
     ['label'=>'Subscriptions & Payments','href'=>route('admin.billing')],
@@ -18,12 +19,7 @@
       'href'  => route('admin.jobs'),
       'tone'  => 'warn',
     ],
-    [
-      'label' => 'Employer approvals',
-      'value' => 6,
-      'href'  => route('admin.users'),
-      'tone'  => 'warn',
-    ],
+
     [
       'label' => 'Payments to verify',
       'value' => 4,
@@ -116,7 +112,7 @@
     Logout
   </button>
 </form>
-
+`
     </nav>
 
   </div>
