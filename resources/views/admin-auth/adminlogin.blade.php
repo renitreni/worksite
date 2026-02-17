@@ -58,7 +58,6 @@
             <p class="mt-1 text-sm text-white/80">Please sign in to manage the system.</p>
           </div>
 
-          {{-- Errors --}}
           @if ($errors->any())
             <div class="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-100">
               <ul class="list-disc pl-5">
@@ -69,7 +68,6 @@
             </div>
           @endif
 
-          {{-- Form (REAL AUTH) --}}
           <form class="mt-6 space-y-4" method="POST" action="{{ route('admin.login.submit') }}">
             @csrf
 
@@ -108,9 +106,26 @@
                 <button
                   id="togglePassBtn"
                   type="button"
-                  class="rounded-lg px-2 py-1 text-xs font-semibold text-white/80 hover:bg-white/10"
+                  class="rounded-lg px-2 py-1 text-white/80 hover:bg-white/10 flex items-center relative"
+                  aria-label="Toggle password visibility"
                 >
-                  Show
+                  <!-- OPEN EYE (visible password) -->
+                  <svg class="pw-eye h-4 w-4 transition-all duration-200 ease-out opacity-0 scale-90"
+                       xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+
+                  <!-- CLOSED EYE (hidden password) - default -->
+                  <svg class="pw-eyeoff h-4 w-4 transition-all duration-200 ease-out opacity-100 scale-100 absolute"
+                       xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.58 10.58A2 2 0 0 0 12 15a2 2 0 0 0 1.42-.58"/>
+                    <path d="M9.88 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a18.2 18.2 0 0 1-3.05 4.36"/>
+                    <path d="M6.61 6.61A16.8 16.8 0 0 0 2 12s3.5 7 10 7c1.6 0 3.05-.3 4.36-.83"/>
+                    <path d="M2 2l20 20"/>
+                  </svg>
                 </button>
               </div>
 
@@ -148,15 +163,35 @@
     </div>
   </div>
 
-  <script>
-    const passInput = document.getElementById('passwordInput');
-    const toggleBtn = document.getElementById('togglePassBtn');
+<script>
+  const passInput = document.getElementById('passwordInput');
+  const toggleBtn = document.getElementById('togglePassBtn');
 
-    toggleBtn?.addEventListener('click', () => {
-      const show = passInput.type === 'password';
-      passInput.type = show ? 'text' : 'password';
-      toggleBtn.textContent = show ? 'Hide' : 'Show';
-    });
-  </script>
+  toggleBtn?.addEventListener('click', () => {
+    // If currently hidden (password), make it visible (text)
+    const willShow = passInput.type === 'password';
+    passInput.type = willShow ? 'text' : 'password';
+
+    const eye = toggleBtn.querySelector('.pw-eye');      // open eye
+    const eyeOff = toggleBtn.querySelector('.pw-eyeoff'); // closed/slash
+
+    if (willShow) {
+      // Now VISIBLE -> show OPEN eye
+      eye.classList.add('opacity-100','scale-100');
+      eye.classList.remove('opacity-0','scale-90');
+
+      eyeOff.classList.add('opacity-0','scale-90');
+      eyeOff.classList.remove('opacity-100','scale-100');
+    } else {
+      // Now HIDDEN -> show CLOSED eye
+      eye.classList.add('opacity-0','scale-90');
+      eye.classList.remove('opacity-100','scale-100');
+
+      eyeOff.classList.add('opacity-100','scale-100');
+      eyeOff.classList.remove('opacity-0','scale-90');
+    }
+  });
+</script>
+
 </body>
 </html>

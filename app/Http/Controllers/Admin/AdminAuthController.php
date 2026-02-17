@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
 class AdminAuthController extends Controller
 {
     public function showLogin()
@@ -15,30 +14,37 @@ class AdminAuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+{
+    $request->validate([
+        'email' => ['required','email'],
+        'password' => ['required'],
+    ]);
 
-        // Only allow admins
-        $credentials['role'] = 'admin';
+   $ok = Auth::guard('admin')->attempt([
+    'email' => $request->email,
+    'password' => $request->password,
+    'is_active' => 1,
+], $request->boolean('remember'));
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+if (! $ok) {
+    return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+}
 
-            return redirect()->route('admin.dashboard')
-                ->with('success', 'Welcome back, Admin!');
-        }
+$user = Auth::guard('admin')->user();
 
-        return back()
-            ->withErrors(['email' => 'Invalid admin credentials.'])
-            ->withInput($request->only('email'));
-    }
+if (! in_array($user->role, ['admin','superadmin'], true)) {
+    Auth::guard('admin')->logout();
+    return back()->withErrors(['email' => 'Not allowed.'])->onlyInput('email');
+}
+
+$request->session()->regenerate();
+return redirect()->route('admin.dashboard');
+
+}
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

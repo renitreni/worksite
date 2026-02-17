@@ -7,6 +7,8 @@ use App\Http\Controllers\Candidate\CandidateAuthController;
 use App\Http\Controllers\Employer\EmployerAuthController;
 use App\Http\Controllers\Employer\EmployerProfileController;
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Candidate\CandidateProfileController;
 use App\Http\Controllers\Candidate\ResumeController;
 
@@ -89,17 +91,7 @@ Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
     ->middleware('auth')
     ->name('employer.logout');
 
-/*
-|--------------------------------------------------------------------------
-| AUTH - ADMIN (GUEST ONLY)
-|--------------------------------------------------------------------------
-*/
-Route::middleware('guest')->prefix('admin')->name('admin.')->group(function () {
-    // Optional: if you have admin login controller method
-    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
-    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
-});
+
 
 
 /*
@@ -168,16 +160,64 @@ Route::prefix('employer')->name('employer.')->middleware(['auth', 'role:employer
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN PAGES (AUTH + ROLE)
+| AUTH REDIRECT (DEFAULT LOGIN HANDLER)
 |--------------------------------------------------------------------------
+| Required by Laravel auth middleware.
+| Redirects unauthenticated users to admin login page.
 */
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
+Route::get('/login', function () {
+    return redirect()->route('admin.login');
+})->name('login');
 
-    Route::view('/users', 'adminpage.contents.users')->name('users');
-    Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
-    Route::view('/billing', 'adminpage.contents.billing')->name('billing');
-    Route::view('/reports', 'adminpage.contents.reports')->name('reports');
-    Route::view('/settings', 'adminpage.contents.settings')->name('settings');
-    Route::view('/taxonomy', 'adminpage.contents.taxonomy')->name('taxonomy');
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // ADMIN AUTH (GUEST ONLY)
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+    });
+
+    // ADMIN PANEL (AUTH ONLY)
+    Route::middleware('auth:admin')->group(function () {
+
+        // logout
+        Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+
+        // dashboard
+        Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
+
+        // Manage Users (admin + superadmin)
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
+        Route::patch('/users/{user}/approve', [UserController::class, 'approveEmployer'])->name('users.approve');
+        Route::patch('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
+        Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+
+        // other admin pages
+        Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
+        Route::view('/billing', 'adminpage.contents.billing')->name('billing');
+        Route::view('/reports', 'adminpage.contents.reports')->name('reports');
+        Route::view('/settings', 'adminpage.contents.settings')->name('settings');
+        Route::view('/taxonomy', 'adminpage.contents.taxonomy')->name('taxonomy');
+    });
+
+    // SUPERADMIN ONLY: Admin Accounts CRUD
+    Route::middleware(['auth:admin', 'role:superadmin'])->group(function () {
+        Route::get('/admins', [AdminUserController::class, 'index'])->name('admins.index');
+        Route::get('/admins/create', [AdminUserController::class, 'create'])->name('admins.create');
+        Route::post('/admins', [AdminUserController::class, 'store'])->name('admins.store');
+        Route::get('/admins/{user}/edit', [AdminUserController::class, 'edit'])->name('admins.edit');
+        Route::put('/admins/{user}', [AdminUserController::class, 'update'])->name('admins.update');
+        Route::patch('/admins/{user}/toggle', [AdminUserController::class, 'toggle'])->name('admins.toggle');
+        Route::post('/admins/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admins.reset_password');
+        Route::patch('/admins/{user}/archive', [AdminUserController::class, 'archive'])->name('admins.archive');
+        Route::patch('/admins/{user}/restore', [AdminUserController::class, 'restore'])->name('admins.restore');
+    });
+
 });
+
+
+

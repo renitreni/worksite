@@ -8,13 +8,16 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, string $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!Auth::check()) {
-            return redirect()->route('home');
+       
+        $user = Auth::guard('admin')->user();
+
+        if (!$user) {
+            abort(403);
         }
 
-        if (Auth::user()->role !== $role) {
+        if (!in_array($user->role, $roles, true)) {
             abort(403);
         }
 

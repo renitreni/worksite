@@ -1,13 +1,22 @@
 @php
+  $adminUser = Auth::guard('admin')->user();
+
   $items = [
     ['label'=>'Dashboard','href'=>route('admin.dashboard')],
-    ['label'=>'Users','href'=>route('admin.users')],
+    ['label'=>'Users','href'=>route('admin.users.index')],
     ['label'=>'Job Postings','href'=>route('admin.jobs')],
     ['label'=>'Categories / Skills / Locations','href'=>route('admin.taxonomy')],
     ['label'=>'Subscriptions & Payments','href'=>route('admin.billing')],
     ['label'=>'Reports','href'=>route('admin.reports')],
     ['label'=>'System Settings','href'=>route('admin.settings')],
   ];
+
+  // ✅ Only SUPERADMIN sees Admin Accounts
+  if ($adminUser && $adminUser->role === 'superadmin') {
+    array_splice($items, 2, 0, [
+      ['label' => 'Admin Accounts', 'href' => route('admin.admins.index')],
+    ]);
+  }
 
   $current = url()->current();
 
@@ -16,12 +25,6 @@
       'label' => 'Jobs pending review',
       'value' => 28,
       'href'  => route('admin.jobs'),
-      'tone'  => 'warn',
-    ],
-    [
-      'label' => 'Employer approvals',
-      'value' => 6,
-      'href'  => route('admin.users'),
       'tone'  => 'warn',
     ],
     [
@@ -116,7 +119,7 @@
     Logout
   </button>
 </form>
-
+`
     </nav>
 
   </div>
