@@ -23,18 +23,19 @@ class AdminAuthController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (!$admin) {
-            return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
-        }
-
-        if ((int) $admin->is_active === 0) {
-            return back()->withErrors(['email' => 'Your account is disabled.'])->onlyInput('email');
+        if ($admin && (int) $admin->is_active === 0) {
+            return back()
+                ->withErrors(['email' => 'Your account is disabled.'])
+                ->onlyInput('email');
         }
 
         if (!Auth::guard('admin')->attempt($request->only('email','password'), $request->boolean('remember'))) {
-            return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+            return back()
+                ->withErrors(['email' => 'Invalid credentials.'])
+                ->onlyInput('email');
         }
 
+        // update last login time (nice and matches your schema)
         $admin->forceFill(['last_login_at' => now()])->save();
 
         $request->session()->regenerate();
@@ -49,7 +50,8 @@ class AdminAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login')->with('success', 'Logged out successfully.');
+        return redirect()
+            ->route('admin.login')
+            ->with('success', 'Logged out successfully.');
     }
-    
 }
