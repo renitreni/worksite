@@ -41,7 +41,7 @@
   ];
 
   $actions = [
-    ['title'=>'Approve Employers', 'count'=>6, 'desc'=>'New employer registrations pending review', 'btn'=>'Review', 'href'=>route('admin.users')],
+    ['title'=>'Approve Employers', 'count'=>6, 'desc'=>'New employer registrations pending review', 'btn'=>'Review', ['label'=>'Users','href'=>route('admin.users.index')],],
     ['title'=>'Review Job Posts', 'count'=>$jobs['pending'], 'desc'=>'Jobs waiting for approval/rejection', 'btn'=>'Open Queue', 'href'=>route('admin.jobs')],
     ['title'=>'Verify Payments', 'count'=>$billing['pending_payments'], 'desc'=>'Pending payments to activate subscriptions', 'btn'=>'Verify', 'href'=>route('admin.billing')],
   ];
@@ -215,7 +215,7 @@
       </div>
 
       <a
-        href="{{ route('admin.users') }}"
+        href="{{ route('admin.users.index') }}"
         class="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
       >
         Manage Users
@@ -381,12 +381,13 @@
           <div class="text-sm font-semibold text-slate-900">Action Center</div>
           <div class="mt-1 text-xs text-slate-500">Items that need admin attention</div>
         </div>
-        <a href="{{ route('admin.users') }}" class="text-xs font-semibold text-emerald-700 hover:underline">Manage Users</a>
+        <a href="{{ route('admin.users.index') }}" class="text-xs font-semibold text-emerald-700 hover:underline">Manage Users</a>
       </div>
 
       <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         @foreach($actions as $a)
-          <a href="{{ $a['href'] }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">
+          <<a href="{{ $a['href'] ?? '#' }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">>
+ 
             <div class="text-xs text-slate-500">{{ $a['title'] }}</div>
             <div class="mt-2 text-3xl font-bold text-slate-900">{{ $a['count'] }}</div>
             <div class="mt-1 text-xs text-slate-600">{{ $a['desc'] }}</div>
