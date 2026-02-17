@@ -149,7 +149,7 @@
                                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                     <i data-lucide="mail" class="w-5 h-5"></i>
                                 </span>
-                                <input type="email" name="company_email" placeholder="hr@company.com" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                <input type="email" name="email" placeholder="hr@company.com" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -391,7 +391,7 @@
                 goNext() {
                     const form = this.$root.querySelector('form');
                     const required = {
-                        1: ['company_name', 'company_email'],
+                        1: ['company_name', 'email'],
                         2: ['company_address', 'company_contact'],
                         3: ['representative_name', 'position'],
                     };
