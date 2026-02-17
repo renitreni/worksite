@@ -10,17 +10,26 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, ...$roles)
     {
-       
-        $user = Auth::guard('admin')->user();
+        if (Auth::guard('admin')->check()) {
+            $user = Auth::guard('admin')->user();
 
-        if (!$user) {
-            abort(403);
+            if (!in_array($user->role, $roles, true)) {
+                abort(403);
+            }
+
+            return $next($request);
         }
 
-        if (!in_array($user->role, $roles, true)) {
-            abort(403);
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if (!in_array($user->role, $roles, true)) {
+                abort(403);
+            }
+
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect()->route('home');
     }
 }

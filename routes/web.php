@@ -129,7 +129,7 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
 | EMPLOYER PAGES (AUTH + ROLE)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->prefix('employer')->name('employer.')->group(function () {
+Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
 
     Route::view('/dashboard', 'employer.contents.dashboard')->name('dashboard');
 
