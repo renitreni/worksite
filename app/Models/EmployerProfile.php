@@ -21,6 +21,9 @@ class EmployerProfile extends Model
         'representative_name',
         'position',
         'status', // pending/approved/rejected
+        'rejection_reason',
+        'rejected_at',
+        'approved_at',
     ];
 
     protected $casts = [
