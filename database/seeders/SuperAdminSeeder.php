@@ -18,7 +18,7 @@ class SuperAdminSeeder extends Seeder
                 'name'       => 'Super Admin',
                 'password'   => Hash::make('ChangeMe123!'),
                 'role'       => 'superadmin',
-                'is_active'  => true,
+                'account_status'  => 'active',
             ]
         );
     }

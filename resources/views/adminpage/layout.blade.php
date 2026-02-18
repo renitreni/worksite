@@ -17,6 +17,10 @@
  <script defer src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+<style>
+  [x-cloak] { display: none !important; }
+</style>
+
 </head>
 
 <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif]">
