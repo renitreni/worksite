@@ -22,18 +22,21 @@
       <div>
         <label class="text-xs font-semibold text-slate-700">First name</label>
         <input name="first_name" value="{{ old('first_name', $user->first_name) }}"
+          autocomplete="given-name"
           class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
       </div>
 
       <div>
         <label class="text-xs font-semibold text-slate-700">Last name</label>
         <input name="last_name" value="{{ old('last_name', $user->last_name) }}"
+          autocomplete="family-name"
           class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
       </div>
 
       <div class="sm:col-span-2">
         <label class="text-xs font-semibold text-slate-700">Email</label>
         <input type="email" name="email" value="{{ old('email', $user->email) }}"
+          autocomplete="email"
           class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
       </div>
 
@@ -43,13 +46,13 @@
 
         <div class="relative mt-1">
           <input id="password" type="password" name="password"
+            autocomplete="new-password"
             class="w-full rounded-xl border border-slate-200 px-3 py-2 pr-11 text-sm focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
 
           <button type="button"
             class="absolute inset-y-0 right-3 flex items-center rounded-lg p-1 text-slate-500 hover:text-slate-700"
             aria-label="Toggle password visibility"
             onclick="togglePw('password', this)">
-            {{-- OPEN eye (visible password) --}}
             <svg class="pw-eye h-4 w-4 transition-all duration-200 ease-out opacity-0 scale-90"
                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -57,7 +60,6 @@
               <circle cx="12" cy="12" r="3"/>
             </svg>
 
-            {{-- CLOSED eye (hidden password) - default --}}
             <svg class="pw-eyeoff h-4 w-4 transition-all duration-200 ease-out opacity-100 scale-100 absolute"
                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -77,13 +79,13 @@
 
         <div class="relative mt-1">
           <input id="password_confirmation" type="password" name="password_confirmation"
+            autocomplete="new-password"
             class="w-full rounded-xl border border-slate-200 px-3 py-2 pr-11 text-sm focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
 
           <button type="button"
             class="absolute inset-y-0 right-3 flex items-center rounded-lg p-1 text-slate-500 hover:text-slate-700"
             aria-label="Toggle password visibility"
             onclick="togglePw('password_confirmation', this)">
-            {{-- OPEN eye (visible password) --}}
             <svg class="pw-eye h-4 w-4 transition-all duration-200 ease-out opacity-0 scale-90"
                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -91,7 +93,6 @@
               <circle cx="12" cy="12" r="3"/>
             </svg>
 
-            {{-- CLOSED eye (hidden password) - default --}}
             <svg class="pw-eyeoff h-4 w-4 transition-all duration-200 ease-out opacity-100 scale-100 absolute"
                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -124,21 +125,19 @@
 <script>
   function togglePw(inputId, btn) {
     const input = document.getElementById(inputId);
-    const eye = btn.querySelector('.pw-eye');       // open eye
-    const eyeOff = btn.querySelector('.pw-eyeoff'); // closed/slash
+    const eye = btn.querySelector('.pw-eye');
+    const eyeOff = btn.querySelector('.pw-eyeoff');
 
     const willShow = input.type === 'password';
     input.type = willShow ? 'text' : 'password';
 
     if (willShow) {
-      // Now VISIBLE -> show OPEN eye
       eye.classList.add('opacity-100','scale-100');
       eye.classList.remove('opacity-0','scale-90');
 
       eyeOff.classList.add('opacity-0','scale-90');
       eyeOff.classList.remove('opacity-100','scale-100');
     } else {
-      // Now HIDDEN -> show CLOSED eye
       eye.classList.add('opacity-0','scale-90');
       eye.classList.remove('opacity-100','scale-100');
 

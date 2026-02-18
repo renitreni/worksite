@@ -9,8 +9,8 @@
             'label' => 'Job Postings',
             'icon' => 'briefcase',
             'dropdown' => [
-                ['label' => 'Active Jobs', 'href' => url('/employer/job-postings/active')],
-                ['label' => 'Closed Jobs', 'href' => url('/employer/job-postings/closed')],
+                ['label' => 'Active Jobs', 'href' => route('employer.job-postings.index')],
+                ['label' => 'Closed Jobs', 'href' => route('employer.job-postings.closed')],
             ]
         ],
         [

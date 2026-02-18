@@ -1,4 +1,4 @@
-@extends('adminpage.layout')
+{{-- @extends('adminpage.layout')
 @section('title','Edit User')
 @section('page_title','Edit User')
 
@@ -80,4 +80,4 @@
     </form>
   </div>
 </div>
-@endsection
+@endsection --}}

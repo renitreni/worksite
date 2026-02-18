@@ -3,6 +3,7 @@ import './bootstrap'
 import 'notyf/notyf.min.css'
 import { Notyf } from 'notyf'
 
+
 // Create ONE Notyf instance for the whole app
 window.notyf = new Notyf({
   duration: 2200,

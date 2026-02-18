@@ -18,11 +18,9 @@
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
 
             {{-- Post Job button --}}
-            <button
-                type="button"
+            <button type="button"
                 class="hidden md:inline-flex items-center gap-2 rounded-2xl border border-emerald-500 bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 transition cursor-pointer"
-                @click="alert('Open Post Job modal (frontend-only)')"
-            >
+                onclick="window.location.href='{{ route('employer.job-postings.create', ['from' => 'navbar']) }}'">
                 <i data-lucide="plus" class="h-4 w-4"></i>
                 Post Job
             </button>
@@ -59,23 +57,25 @@
                         <i data-lucide="building" class="h-5 w-5 text-gray-400"></i>
                     </div>
                     <div class="hidden md:block text-left leading-tight">
-                        <p class="text-sm font-semibold text-gray-900">John Company</p>
+                        {{-- Use the company name from the authenticated user's profile --}}
+                        <p class="text-sm font-semibold text-gray-900">
+                            {{ auth()->user()->employerProfile->company_name ?? 'Your Company' }}
+                        </p>
                         <p class="text-xs text-gray-500">Verified Employer</p>
                     </div>
                     <i data-lucide="chevron-down" class="hidden md:block h-4 w-4 text-gray-500"></i>
                 </button>
-
                 <div
                     x-show="open"
                     x-transition
                     @click.outside="open = false"
                     class="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50"
                 >
-                    <a href="#" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50" @click="alert('Edit Company Profile')">
+                    <a href="{{ route('employer.company-profile') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <i data-lucide="user" class="h-4 w-4 text-gray-500"></i>
                         Company Profile
                     </a>
-                    <a href="#" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50" @click="alert('Manage Subscription/Plan')">
+                    <a href="{{ route('employer.subscription') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <i data-lucide="credit-card" class="h-4 w-4 text-gray-500"></i>
                         Subscription / Plan
                     </a>

@@ -14,33 +14,53 @@ class AdminAuthController extends Controller
     }
 
     public function login(Request $request)
-{
-    $request->validate([
-        'email' => ['required','email'],
-        'password' => ['required'],
-    ]);
+    {
+        $request->validate([
+            'email' => ['required','email'],
+            'password' => ['required'],
+        ]);
 
-   $ok = Auth::guard('admin')->attempt([
-    'email' => $request->email,
-    'password' => $request->password,
-    'is_active' => 1,
-], $request->boolean('remember'));
+        $ok = Auth::guard('admin')->attempt([
+            'email' => $request->email,
+            'password' => $request->password,
+        ], $request->boolean('remember'));
 
-if (! $ok) {
-    return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
-}
+        if (! $ok) {
+            return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+        }
 
-$user = Auth::guard('admin')->user();
+        $user = Auth::guard('admin')->user();
 
-if (! in_array($user->role, ['admin','superadmin'], true)) {
-    Auth::guard('admin')->logout();
-    return back()->withErrors(['email' => 'Not allowed.'])->onlyInput('email');
-}
+        // role gate
+        if (! in_array($user->role, ['admin','superadmin'], true)) {
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-$request->session()->regenerate();
-return redirect()->route('admin.dashboard');
+            return back()->withErrors(['email' => 'Not allowed.'])->onlyInput('email');
+        }
 
-}
+        // archived gate
+        if (!is_null($user->archived_at)) {
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors(['email' => 'Account is archived.'])->onlyInput('email');
+        }
+
+        // status gate
+        if (($user->account_status ?? 'active') !== 'active') {
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors(['email' => 'Account is not active.'])->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+        return redirect()->route('admin.dashboard');
+    }
 
     public function logout(Request $request)
     {

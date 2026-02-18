@@ -21,6 +21,9 @@ class EmployerProfile extends Model
         'representative_name',
         'position',
         'status', // pending/approved/rejected
+        'rejection_reason',
+        'rejected_at',
+        'approved_at',
     ];
 
     protected $casts = [
@@ -30,6 +33,11 @@ class EmployerProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function jobPosts()
+    {
+        return $this->hasMany(JobPost::class);
     }
 
     public function industry()

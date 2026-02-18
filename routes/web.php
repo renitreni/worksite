@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Candidate\CandidateProfileController;
 use App\Http\Controllers\Candidate\ResumeController;
-
+use App\Http\Controllers\Employer\JobController;
 
 
 /*
@@ -147,8 +147,22 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/analytics', fn() => view('employer.contents.analytics'))->name('analytics');
     Route::get('/subscription', fn() => view('employer.contents.subscription'))->name('subscription');
 
-    Route::get('/job-postings/active', fn() => view('employer.contents.job-postings.active'))->name('job-postings.active');
-    Route::get('/job-postings/closed', fn() => view('employer.contents.job-postings.closed'))->name('job-postings.closed');
+    // Job listings (all or active)
+    Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
+
+    // Job creation
+    Route::get('/job-postings/create', [JobController::class, 'create'])->name('job-postings.create');
+    Route::post('/job-postings', [JobController::class, 'store'])->name('job-postings.store');
+
+    // Closed jobs
+    Route::get('/job-postings/closed', [JobController::class, 'closed'])->name('job-postings.closed');
+    Route::put('/job-postings/{job}/reopen', [JobController::class, 'reopen'])->name('job-postings.reopen');
+
+    // Job details / edit / update / delete
+    Route::get('/job-postings/{job}', [JobController::class, 'show'])->name('job-postings.show');
+    Route::get('/job-postings/{job}/edit', [JobController::class, 'edit'])->name('job-postings.edit');
+    Route::put('/job-postings/{job}', [JobController::class, 'update'])->name('job-postings.update');
+    Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
 
     Route::get('/applicants/all', fn() => view('employer.contents.applicants.all'))->name('applicants.all');
     Route::get('/applicants/shortlisted', fn() => view('employer.contents.applicants.shortlisted'))->name('applicants.shortlisted');
@@ -174,8 +188,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
     });
 
-    // ADMIN PANEL (AUTH ONLY)
-    Route::middleware('auth:admin')->group(function () {
+    // ADMIN PANEL (AUTH ONLY + ACTIVE ACCOUNT)
+    Route::middleware(['auth:admin', 'active:admin'])->group(function () {
 
         // logout
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
@@ -183,15 +197,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // dashboard
         Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
 
-        // Manage Users (admin + superadmin)
+        // Manage Users (candidate/employer)
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+
+        // Status controls
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
-        Route::patch('/users/{user}/approve', [UserController::class, 'approveEmployer'])->name('users.approve');
+
+        // If you want explicit status set (active|disabled|hold), enable this:
+        Route::patch('/users/{user}/status', [UserController::class, 'setStatus'])->name('users.status');
+
+        // Archive controls
         Route::patch('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
         Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+
+        // Employer approval workflow (MODAL endpoints)
+        Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
+        Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
 
         // other admin pages
         Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
@@ -201,14 +225,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::view('/taxonomy', 'adminpage.contents.taxonomy')->name('taxonomy');
     });
 
-    // SUPERADMIN ONLY: Admin Accounts CRUD
-    Route::middleware(['auth:admin', 'role:superadmin'])->group(function () {
+    // SUPERADMIN ONLY: Admin Accounts CRUD (AUTH + ACTIVE + ROLE)
+    Route::middleware(['auth:admin', 'active:admin', 'role:superadmin'])->group(function () {
         Route::get('/admins', [AdminUserController::class, 'index'])->name('admins.index');
         Route::get('/admins/create', [AdminUserController::class, 'create'])->name('admins.create');
         Route::post('/admins', [AdminUserController::class, 'store'])->name('admins.store');
         Route::get('/admins/{user}/edit', [AdminUserController::class, 'edit'])->name('admins.edit');
         Route::put('/admins/{user}', [AdminUserController::class, 'update'])->name('admins.update');
+
+        // If your AdminUserController uses account_status too:
         Route::patch('/admins/{user}/toggle', [AdminUserController::class, 'toggle'])->name('admins.toggle');
+        
+        Route::patch('/admins/{user}/status', [AdminUserController::class, 'setStatus'])->name('admins.status');
+
         Route::post('/admins/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admins.reset_password');
         Route::patch('/admins/{user}/archive', [AdminUserController::class, 'archive'])->name('admins.archive');
         Route::patch('/admins/{user}/restore', [AdminUserController::class, 'restore'])->name('admins.restore');
