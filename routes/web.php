@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Candidate\CandidateProfileController;
 use App\Http\Controllers\Candidate\ResumeController;
-
+use App\Http\Controllers\Employer\JobController;
 
 
 /*
@@ -147,8 +147,22 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/analytics', fn() => view('employer.contents.analytics'))->name('analytics');
     Route::get('/subscription', fn() => view('employer.contents.subscription'))->name('subscription');
 
-    Route::get('/job-postings/active', fn() => view('employer.contents.job-postings.active'))->name('job-postings.active');
-    Route::get('/job-postings/closed', fn() => view('employer.contents.job-postings.closed'))->name('job-postings.closed');
+    // Job listings (all or active)
+    Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
+
+    // Job creation
+    Route::get('/job-postings/create', [JobController::class, 'create'])->name('job-postings.create');
+    Route::post('/job-postings', [JobController::class, 'store'])->name('job-postings.store');
+
+    // Closed jobs
+    Route::get('/job-postings/closed', [JobController::class, 'closed'])->name('job-postings.closed');
+    Route::put('/job-postings/{job}/reopen', [JobController::class, 'reopen'])->name('job-postings.reopen');
+
+    // Job details / edit / update / delete
+    Route::get('/job-postings/{job}', [JobController::class, 'show'])->name('job-postings.show');
+    Route::get('/job-postings/{job}/edit', [JobController::class, 'edit'])->name('job-postings.edit');
+    Route::put('/job-postings/{job}', [JobController::class, 'update'])->name('job-postings.update');
+    Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
 
     Route::get('/applicants/all', fn() => view('employer.contents.applicants.all'))->name('applicants.all');
     Route::get('/applicants/shortlisted', fn() => view('employer.contents.applicants.shortlisted'))->name('applicants.shortlisted');

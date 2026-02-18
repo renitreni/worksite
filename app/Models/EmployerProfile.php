@@ -32,6 +32,11 @@ class EmployerProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function jobPosts()
+    {
+        return $this->hasMany(JobPost::class);
+    }
+
     public function industry()
     {
         return $this->belongsTo(\App\Models\Industry::class);
