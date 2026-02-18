@@ -174,8 +174,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
     });
 
-    // ADMIN PANEL (AUTH ONLY)
-    Route::middleware('auth:admin')->group(function () {
+    // ADMIN PANEL (AUTH ONLY + ACTIVE ACCOUNT)
+    Route::middleware(['auth:admin', 'active:admin'])->group(function () {
 
         // logout
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
@@ -183,15 +183,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // dashboard
         Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
 
-        // Manage Users (admin + superadmin)
+        // Manage Users (candidate/employer)
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+
+        // Status controls
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
-        Route::patch('/users/{user}/approve', [UserController::class, 'approveEmployer'])->name('users.approve');
+
+        // If you want explicit status set (active|disabled|hold), enable this:
+        Route::patch('/users/{user}/status', [UserController::class, 'setStatus'])->name('users.status');
+
+        // Archive controls
         Route::patch('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
         Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
+
+        // Employer approval workflow (MODAL endpoints)
+        Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
+        Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
 
         // other admin pages
         Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
@@ -201,14 +211,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::view('/taxonomy', 'adminpage.contents.taxonomy')->name('taxonomy');
     });
 
-    // SUPERADMIN ONLY: Admin Accounts CRUD
-    Route::middleware(['auth:admin', 'role:superadmin'])->group(function () {
+    // SUPERADMIN ONLY: Admin Accounts CRUD (AUTH + ACTIVE + ROLE)
+    Route::middleware(['auth:admin', 'active:admin', 'role:superadmin'])->group(function () {
         Route::get('/admins', [AdminUserController::class, 'index'])->name('admins.index');
         Route::get('/admins/create', [AdminUserController::class, 'create'])->name('admins.create');
         Route::post('/admins', [AdminUserController::class, 'store'])->name('admins.store');
         Route::get('/admins/{user}/edit', [AdminUserController::class, 'edit'])->name('admins.edit');
         Route::put('/admins/{user}', [AdminUserController::class, 'update'])->name('admins.update');
+
+        // If your AdminUserController uses account_status too:
         Route::patch('/admins/{user}/toggle', [AdminUserController::class, 'toggle'])->name('admins.toggle');
+        
+        Route::patch('/admins/{user}/status', [AdminUserController::class, 'setStatus'])->name('admins.status');
+
         Route::post('/admins/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admins.reset_password');
         Route::patch('/admins/{user}/archive', [AdminUserController::class, 'archive'])->name('admins.archive');
         Route::patch('/admins/{user}/restore', [AdminUserController::class, 'restore'])->name('admins.restore');
