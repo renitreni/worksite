@@ -65,12 +65,12 @@
 
                 @guest
                     <button type="button" id="loginBtnDesktop" class="px-4 py-2 rounded-lg font-medium text-[#16A34A] border border-[#16A34A]
-                                  transition hover:bg-[#16A34A] hover:text-white">
+                                  transition hover:bg-[#16A34A] hover:text-white cursor-pointer">
                         Login
                     </button>
 
                     <button type="button" id="registerBtnDesktop" class="px-4 py-2 rounded-lg font-semibold text-white bg-[#16A34A]
-                                  transition hover:scale-105 hover:bg-green-600 shadow-sm">
+                                  transition hover:scale-105 hover:bg-green-600 shadow-sm cursor-pointer">
                         Register
                     </button>
                 @endguest
