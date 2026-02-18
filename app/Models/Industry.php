@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Industry extends Model
 {
-    protected $fillable = ['name', 'is_active', 'sort_order'];
+    protected $fillable = ['name', 'image', 'is_active', 'sort_order'];
 
     public function employerProfiles()
     {
