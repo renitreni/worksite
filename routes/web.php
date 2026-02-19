@@ -12,6 +12,11 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Candidate\CandidateProfileController;
 use App\Http\Controllers\Candidate\ResumeController;
 use App\Http\Controllers\Employer\JobController;
+use App\Http\Controllers\Candidate\JobBrowseController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Candidate\SavedJobController;
+use App\Http\Controllers\Candidate\JobReportController;
+use App\Http\Controllers\Candidate\AgencyController;
 
 
 /*
@@ -20,7 +25,7 @@ use App\Http\Controllers\Employer\JobController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', fn() => view('main'))->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::view('/search-jobs', 'mainpage.search-jobs-page.search-jobs')
     ->name('search-jobs');
@@ -36,6 +41,20 @@ Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
 
 Route::view('/agency-details', 'mainpage.agency-details-page.agency.show')
     ->name('agency.details');
+
+Route::get('/jobs', [JobBrowseController::class, 'index'])->name('jobs.index');
+Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show');
+Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
+    ->name('agency.jobs');
+Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])
+    ->name('agencies.show');
+
+Route::get('/agencies/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
+    ->name('agencies.jobs');
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | AUTH - CANDIDATE (GUEST ONLY)  
@@ -95,6 +114,20 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
     Route::put('/profile/password', [CandidateProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/email/verify', [CandidateProfileController::class, 'verifyEmailCode'])->name('profile.email.verify');
     Route::post('/profile/email/resend', [CandidateProfileController::class, 'resendEmailCode'])->name('profile.email.resend');
+    // Save/Unsave
+    Route::post('/jobs/{job}/save', [SavedJobController::class, 'toggle'])
+        ->name('jobs.save');
+
+    // Optional saved list
+    Route::get('/saved-jobs', [SavedJobController::class, 'index'])
+        ->name('candidate.saved.index');
+
+    // Report
+    Route::get('/jobs/{job}/report', [JobReportController::class, 'create'])
+        ->name('jobs.report');
+
+    Route::post('/jobs/{job}/report', [JobReportController::class, 'store'])
+        ->name('jobs.report.store');
 
     #Resume
     Route::get('/my-resume', [ResumeController::class, 'index'])->name('resume.index');
@@ -235,7 +268,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // If your AdminUserController uses account_status too:
         Route::patch('/admins/{user}/toggle', [AdminUserController::class, 'toggle'])->name('admins.toggle');
-        
+
         Route::patch('/admins/{user}/status', [AdminUserController::class, 'setStatus'])->name('admins.status');
 
         Route::post('/admins/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admins.reset_password');

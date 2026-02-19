@@ -21,7 +21,7 @@ class User extends Authenticatable
         'role',
         'account_status', // active | disabled | hold
         'archived_at',
-        'is_active', 
+        'is_active',
     ];
 
     protected $hidden = [
@@ -43,5 +43,21 @@ class User extends Authenticatable
     public function employerProfile()
     {
         return $this->hasOne(EmployerProfile::class);
+    }
+
+    public function savedJobs()
+    {
+        return $this->hasMany(\App\Models\SavedJob::class);
+    }
+
+    public function savedJobPosts()
+    {
+        return $this->belongsToMany(\App\Models\JobPost::class, 'saved_jobs', 'user_id', 'job_post_id')
+            ->withTimestamps();
+    }
+
+    public function jobReports()
+    {
+        return $this->hasMany(\App\Models\JobReport::class);
     }
 }
