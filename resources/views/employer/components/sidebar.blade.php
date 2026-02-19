@@ -2,25 +2,25 @@
 @php
     $is = fn ($path) => request()->is($path);
 
+    $jobLinks = [
+        ['label' => 'Active Jobs', 'href' => route('employer.job-postings.index')],
+        ['label' => 'Closed Jobs', 'href' => route('employer.job-postings.closed')],
+    ];
+
     $items = [
         ['label' => 'Dashboard', 'icon' => 'layout-dashboard', 'href' => route('employer.dashboard'), 'active' => $is('employer/dashboard')],
         ['label' => 'Company Profile', 'icon' => 'user', 'href' => url('/employer/company-profile'), 'active' => $is('employer/company-profile')],
         [
             'label' => 'Job Postings',
             'icon' => 'briefcase',
-            'dropdown' => [
-                ['label' => 'Active Jobs', 'href' => route('employer.job-postings.index')],
-                ['label' => 'Closed Jobs', 'href' => route('employer.job-postings.closed')],
-            ]
+            'dropdown' => $jobLinks,
+            'active' => collect($jobLinks)->contains(fn($link) => request()->is(parse_url($link['href'], PHP_URL_PATH))) // parent is active if any child matches
         ],
         [
             'label' => 'Applicants',
             'icon' => 'users',
-            'dropdown' => [
-                ['label' => 'All Applicants', 'href' => url('/employer/applicants/all')],
-                ['label' => 'Shortlisted', 'href' => url('/employer/applicants/shortlisted')],
-                ['label' => 'Rejected', 'href' => url('/employer/applicants/rejected')],
-            ]
+            'href' => route('employer.applicants.index'),
+            'active' => request()->is('employer/applicants*') 
         ],
         ['label' => 'Analytics', 'icon' => 'bar-chart-2', 'href' => url('/employer/analytics')],
         ['label' => 'Subscription / Plan', 'icon' => 'credit-card', 'href' => url('/employer/subscription')],
@@ -36,7 +36,7 @@
         @foreach ($items as $item)
             @if(isset($item['dropdown']))
                 {{-- Dropdown --}}
-                <div x-data="{ open: false }">
+                <div x-data="{ open: {{ ($item['active'] ?? false) ? 'true' : 'false' }} }">
                     <button @click="open = !open" class="group flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer">
                         <i data-lucide="{{ $item['icon'] }}" class="h-5 w-5 text-gray-400 group-hover:text-gray-600"></i>
                         <span class="flex-1 text-left">{{ $item['label'] }}</span>
@@ -45,7 +45,8 @@
                     <div x-show="open" x-transition class="ml-7 mt-1 space-y-1">
                         @foreach ($item['dropdown'] as $sub)
                             <a href="{{ $sub['href'] }}"
-                               class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition">
+                            class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition
+                                    {{ request()->is(parse_url($sub['href'], PHP_URL_PATH)) ? 'bg-gray-100 text-gray-900' : '' }}">
                                 {{ $sub['label'] }}
                             </a>
                         @endforeach
@@ -54,7 +55,8 @@
             @else
                 {{-- Single link --}}
                 <a href="{{ $item['href'] }}"
-                   class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition">
+                   class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
+                          {{ ($item['active'] ?? false) ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
                     <i data-lucide="{{ $item['icon'] }}" class="h-5 w-5 text-gray-400 group-hover:text-gray-600"></i>
                     <span>{{ $item['label'] }}</span>
                 </a>

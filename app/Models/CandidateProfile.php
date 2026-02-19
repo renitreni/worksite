@@ -24,10 +24,12 @@ class CandidateProfile extends Model
         'current_salary',
         'contact_number',
         'contact_e164',
+        'status',
     ];
 
     protected $casts = [
         'birth_date' => 'date',
+        'status' => 'string',
     ];
 
     public function user()

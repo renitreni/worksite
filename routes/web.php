@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Candidate\CandidateProfileController;
 use App\Http\Controllers\Candidate\ResumeController;
 use App\Http\Controllers\Employer\JobController;
-
+use App\Http\Controllers\Employer\ApplicantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,40 +133,38 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
 
     Route::view('/dashboard', 'employer.contents.dashboard')->name('dashboard');
 
-    // ✅ View profile (default)
+    // Company profile
     Route::get('/company-profile', [EmployerProfileController::class, 'show'])->name('company-profile');
-
-    // ✅ Edit form
     Route::get('/company-profile/edit', [EmployerProfileController::class, 'edit'])->name('company-profile.edit');
-
-    // ✅ Save update
     Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
-
-    // ✅ Delete employer account
     Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
+
     Route::get('/analytics', fn() => view('employer.contents.analytics'))->name('analytics');
     Route::get('/subscription', fn() => view('employer.contents.subscription'))->name('subscription');
 
-    // Job listings (all or active)
+    // Job postings
     Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
-
-    // Job creation
     Route::get('/job-postings/create', [JobController::class, 'create'])->name('job-postings.create');
     Route::post('/job-postings', [JobController::class, 'store'])->name('job-postings.store');
-
-    // Closed jobs
     Route::get('/job-postings/closed', [JobController::class, 'closed'])->name('job-postings.closed');
     Route::put('/job-postings/{job}/reopen', [JobController::class, 'reopen'])->name('job-postings.reopen');
-
-    // Job details / edit / update / delete
     Route::get('/job-postings/{job}', [JobController::class, 'show'])->name('job-postings.show');
     Route::get('/job-postings/{job}/edit', [JobController::class, 'edit'])->name('job-postings.edit');
     Route::put('/job-postings/{job}', [JobController::class, 'update'])->name('job-postings.update');
     Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
 
-    Route::get('/applicants/all', fn() => view('employer.contents.applicants.all'))->name('applicants.all');
-    Route::get('/applicants/shortlisted', fn() => view('employer.contents.applicants.shortlisted'))->name('applicants.shortlisted');
-    Route::get('/applicants/rejected', fn() => view('employer.contents.applicants.rejected'))->name('applicants.rejected');
+    // Unified applicant route with optional status filter
+    Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
+    // Route::get('/{candidate}', [ApplicantController::class, 'show'])->name('aplicants.show'); // view applicant
+
+    // Status updates
+    Route::put('/{candidate}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
+    Route::put('/{candidate}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
+    Route::put('/{candidate}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
+    Route::put('/{candidate}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
+
+    Route::get('/applicants/export', [ApplicantController::class, 'export'])->name('applicants.export');
+
 });
 
 /*
