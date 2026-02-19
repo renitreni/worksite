@@ -2,7 +2,7 @@
 @extends('employer.layout')
 
 @section('content')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="space-y-6">
         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             {{-- Top header --}}
             <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white">

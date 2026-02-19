@@ -1,15 +1,12 @@
 @extends('employer.layout')
 
 @section('content')
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="space-y-6">
         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
 
             {{-- Flash --}}
-            @if(session('success'))
-                <div class="m-6 sm:m-8 rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-emerald-800">
-                    {{ session('success') }}
-                </div>
-            @endif
+            <x-toast type="success" :message="session('success')" />
+f
 
             {{-- Header --}}
             <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white">

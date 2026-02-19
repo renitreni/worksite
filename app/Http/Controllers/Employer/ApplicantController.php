@@ -59,7 +59,7 @@ class ApplicantController extends Controller
         if (in_array($candidate->status, ['new', 'shortlisted'])) {
             $candidate->update(['status' => 'rejected']);
         }
-        return back()->with('success', 'Applicant rejected.');
+        return back()->with('error', 'Applicant rejected.');
     }
 
     public function export(Request $request)

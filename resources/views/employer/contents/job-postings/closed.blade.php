@@ -1,7 +1,7 @@
 @extends('employer.layout')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-6 py-8">
+<div class="space-y-6">
 
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -17,11 +17,8 @@
     </div>
 
     {{-- Flash --}}
-    @if(session('success'))
-        <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-800">
-            {{ session('success') }}
-        </div>
-    @endif
+    <x-toast type="success" :message="session('success')" />
+
 
     @if(session('error'))
         <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800">

@@ -225,7 +225,7 @@ class JobController extends Controller
         $job->update(['status' => 'closed']);
 
         return redirect()->route('employer.job-postings.index')
-            ->with('success', 'Job closed successfully.');
+            ->with('info', 'Job closed successfully.');
     }
 
     public function reopen(JobPost $job)
