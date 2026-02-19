@@ -23,10 +23,10 @@ class DatabaseSeeder extends Seeder
         // ]);
 
          $this->call([
-            SuperAdminSeeder::class,
-            IndustrySeeder::class,
-            UserSeeder::class,
-            SuperAdminSeeder::class
+            // SuperAdminSeeder::class,
+            // IndustrySeeder::class,
+            // UserSeeder::class,
+            CandidateSeeder::class,
         ]);
         
     }

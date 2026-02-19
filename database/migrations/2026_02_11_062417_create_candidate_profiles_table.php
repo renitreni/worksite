@@ -11,10 +11,8 @@ return new class extends Migration
         Schema::create('candidate_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-
             $table->string('contact_number')->nullable(); // raw input
             $table->string('contact_e164')->nullable();   // +639xxxxxxxxx
-
             $table->timestamps();
         });
     }
