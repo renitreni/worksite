@@ -19,7 +19,7 @@
 
             {{-- Post Job button --}}
             <button type="button"
-                class="hidden md:inline-flex items-center gap-2 rounded-2xl border border-emerald-500 bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 transition cursor-pointer"
+                class="hidden md:inline-flex items-center gap-2 rounded-2xl border border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600 transition cursor-pointer"
                 onclick="window.location.href='{{ route('employer.job-postings.create', ['from' => 'navbar']) }}'">
                 <i data-lucide="plus" class="h-4 w-4"></i>
                 Post Job

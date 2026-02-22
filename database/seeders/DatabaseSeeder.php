@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             SuperAdminSeeder::class,
             IndustrySeeder::class,
             UserSeeder::class,
-            SuperAdminSeeder::class
+            CandidateSeeder::class,
         ]);
         
     }
