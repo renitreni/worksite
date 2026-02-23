@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Employer;
 
 use App\Http\Controllers\Controller;
 use App\Models\JobPost;
+use App\Models\LocationSuggestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
+use App\Models\City;
+use App\Models\Area;
+use Illuminate\Support\Facades\Log;
+use App\Models\Country;
 
 class JobController extends Controller
 {
@@ -32,28 +37,166 @@ class JobController extends Controller
         }
     }
 
+    /**
+     * Loads dropdown lists from DB/config (NO external API calls).
+     */
     private function taxonomies(): array
     {
+        // Industries
         $industries = \App\Models\Industry::where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->pluck('name');
+            ->pluck('name')
+            ->values()
+            ->toArray();
 
-        // Replace with DB later
-        $skills     = ['Welding', 'Driving', 'Caregiving', 'Cooking', 'Cleaning'];
-        $countries  = ['Saudi Arabia', 'UAE', 'Qatar', 'Kuwait', 'Japan'];
-        $cities     = ['Riyadh', 'Dubai', 'Doha', 'Kuwait City', 'Tokyo'];
-        $areas      = ['Downtown', 'Industrial Area', 'Business District'];
+        // Skills
+        if (Schema::hasTable('skills')) {
+            $skillsQ = \App\Models\Skill::query();
+            if (Schema::hasColumn('skills', 'is_active')) {
+                $skillsQ->where('is_active', true);
+            }
+            $skills = $skillsQ->orderBy('name')->pluck('name')->values()->toArray();
+        } else {
+            $skills = ['Welding', 'Driving', 'Caregiving', 'Cooking', 'Cleaning'];
+        }
 
-        $currencies = Cache::remember('currency_list', now()->addDays(30), function () {
-            $res = Http::timeout(10)->get('https://openexchangerates.org/api/currencies.json');
-            if (!$res->ok()) return ['PHP' => 'Philippine Peso', 'USD' => 'US Dollar'];
-            $data = $res->json();
-            asort($data);
-            return $data;
-        });
+        // Countries from config
+        $countries = collect(config('countries', []))
+            ->pluck('name')
+            ->filter()
+            ->values()
+            ->toArray();
+
+        // ✅ Start empty, will be loaded by AJAX
+        $cities = [];
+        $areas  = [];
+
+        $currencies = config('currencies', []);
+        asort($currencies);
 
         return compact('industries', 'skills', 'countries', 'cities', 'areas', 'currencies');
+    }
+
+    /**
+     * Normalize city/area values when select uses "__custom__".
+     * Returns [$city, $area]
+     */
+
+
+    public function citiesByCountry(Request $request)
+    {
+        $countryName = $request->query('country');
+        if (!$countryName) return response()->json([]);
+
+        // Find country by name
+        $country = Country::query()
+            ->where('name', $countryName)
+            ->first();
+
+        if (!$country) {
+            return response()->json([]); // country not found in DB
+        }
+
+        $q = City::query()->where('country_id', $country->id);
+
+        if (Schema::hasColumn('cities', 'is_active')) {
+            $q->where('is_active', true);
+        }
+
+        return response()->json(
+            $q->orderBy('sort_order')
+                ->orderBy('name')
+                ->pluck('name')
+                ->values()
+        );
+    }
+
+    public function areasByCity(Request $request)
+    {
+        $countryName = $request->query('country');
+        $cityName = $request->query('city');
+
+        if (!$countryName || !$cityName) return response()->json([]);
+
+        $country = Country::query()
+            ->where('name', $countryName)
+            ->first();
+
+        if (!$country) return response()->json([]);
+
+        // Find the city under that country
+        $city = City::query()
+            ->where('country_id', $country->id)
+            ->where('name', $cityName)
+            ->first();
+
+        if (!$city) return response()->json([]);
+
+        $areasQ = Area::query()->where('city_id', $city->id);
+
+        if (Schema::hasColumn('areas', 'is_active')) {
+            $areasQ->where('is_active', true);
+        }
+
+        return response()->json(
+            $areasQ->orderBy('sort_order')
+                ->orderBy('name')
+                ->pluck('name')
+                ->values()
+        );
+    }
+    private function normalizeCityArea(Request $request): array
+    {
+        $city = $request->input('city');
+        $area = $request->input('area');
+
+        if ($city === '__custom__') {
+            $city = trim((string) $request->input('city_custom', ''));
+        }
+        if ($area === '__custom__') {
+            $area = trim((string) $request->input('area_custom', ''));
+        }
+
+        $city = $city !== '' ? $city : null;
+        $area = $area !== '' ? $area : null;
+
+        return [$city, $area];
+    }
+
+    /**
+     * Create/update location suggestion when user typed custom city/area.
+     */
+    private function maybeCreateLocationSuggestion(Request $request, string $country, ?string $city, ?string $area): void
+    {
+        // Only create if employer used custom option
+        $usedCustom = ($request->input('city') === '__custom__') || ($request->input('area') === '__custom__');
+        if (!$usedCustom) return;
+
+        $country = trim($country);
+        if ($country === '') return;
+
+        // Only if there is something to suggest
+        if (!$city && !$area) return;
+
+        $suggestion = LocationSuggestion::firstOrCreate(
+            [
+                'country' => $country,
+                'city'    => $city,
+                'area'    => $area,
+            ],
+            [
+                'count'  => 0,
+                'status' => 'pending',
+            ]
+        );
+
+        $suggestion->increment('count');
+
+        // If previously ignored, push back to pending when someone suggests again
+        if ($suggestion->status === 'ignored') {
+            $suggestion->update(['status' => 'pending']);
+        }
     }
 
     // ----------------------------
@@ -105,8 +248,14 @@ class JobController extends Controller
             'skills.*' => 'string|max:255',
 
             'country' => 'required|string|max:255',
+
+            // dropdown values (may be "__custom__")
             'city' => 'nullable|string|max:255',
             'area' => 'nullable|string|max:255',
+
+            // typed values (required only when dropdown is "__custom__")
+            'city_custom' => 'nullable|required_if:city,__custom__|string|max:255',
+            'area_custom' => 'nullable|required_if:area,__custom__|string|max:255',
 
             'min_experience_years' => 'nullable|integer|min:0|max:60',
 
@@ -132,9 +281,21 @@ class JobController extends Controller
             'placement_fee_currency' => 'nullable|string|max:10',
         ]);
 
+        // Normalize city/area if "__custom__"
+        [$city, $area] = $this->normalizeCityArea($request);
+        $validated['city'] = $city;
+        $validated['area'] = $area;
+
+        // Create/update suggestion if custom typed
+        $this->maybeCreateLocationSuggestion($request, (string) $validated['country'], $city, $area);
+
+        // Skills -> CSV
         $validated['skills'] = implode(',', $validated['skills']);
         $validated['posted_at'] = now();
         $validated['status'] = 'open';
+
+        // Clean extra fields not in job_posts table (if job_posts doesn't have these)
+        unset($validated['city_custom'], $validated['area_custom']);
 
         $profile->jobPosts()->create($validated);
 
@@ -177,8 +338,14 @@ class JobController extends Controller
             'skills.*' => 'string|max:255',
 
             'country' => 'required|string|max:255',
+
+            // dropdown values (may be "__custom__")
             'city' => 'nullable|string|max:255',
             'area' => 'nullable|string|max:255',
+
+            // typed values (required only when dropdown is "__custom__")
+            'city_custom' => 'nullable|required_if:city,__custom__|string|max:255',
+            'area_custom' => 'nullable|required_if:area,__custom__|string|max:255',
 
             'min_experience_years' => 'nullable|integer|min:0|max:60',
 
@@ -206,7 +373,19 @@ class JobController extends Controller
             'status' => 'nullable|in:open,closed',
         ]);
 
+        // Normalize city/area if "__custom__"
+        [$city, $area] = $this->normalizeCityArea($request);
+        $validated['city'] = $city;
+        $validated['area'] = $area;
+
+        // Create/update suggestion if custom typed
+        $this->maybeCreateLocationSuggestion($request, (string) $validated['country'], $city, $area);
+
+        // Skills -> CSV
         $validated['skills'] = implode(',', $validated['skills']);
+
+        // Remove fields not in job_posts table
+        unset($validated['city_custom'], $validated['area_custom']);
 
         $job->update($validated);
 
