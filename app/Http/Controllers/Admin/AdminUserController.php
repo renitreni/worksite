@@ -12,31 +12,30 @@ use Illuminate\Validation\Rule;
 class AdminUserController extends Controller
 {
     public function index(Request $request)
-    {
-        $q = trim((string) $request->query('q', ''));
-        $archived = $request->query('archived', '0');
+{
+    $q = trim((string) $request->query('q', ''));
+    $archived = (string) $request->query('archived', '0'); // 0 active, 1 archived
 
-        $query = User::query()->whereIn('role', ['admin', 'superadmin']);
-
-        if ($q !== '') {
-            $query->where(function ($sub) use ($q) {
-                $sub->where('name', 'like', "%{$q}%")
-                    ->orWhere('first_name', 'like', "%{$q}%")
-                    ->orWhere('last_name', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%");
+    $admins = User::query()
+        ->whereIn('role', ['admin', 'superadmin'])
+        ->when($archived === '1', fn ($qr) => $qr->whereNotNull('archived_at'))
+        ->when($archived !== '1', fn ($qr) => $qr->whereNull('archived_at'))
+        ->when($q !== '', function ($qr) use ($q) {
+            $qr->where(function ($w) use ($q) {
+                $w->where('name', 'like', "%{$q}%")
+                  ->orWhere('email', 'like', "%{$q}%")
+                  ->orWhere('first_name', 'like', "%{$q}%")
+                  ->orWhere('last_name', 'like', "%{$q}%")
+                  ->orWhereRaw("concat(first_name,' ',last_name) like ?", ["%{$q}%"]);
             });
-        }
+        })
+        ->latest('id')
+        ->paginate(10)
+        ->withQueryString();
 
-        if ($archived === '1') {
-            $query->whereNotNull('archived_at');
-        } else {
-            $query->whereNull('archived_at');
-        }
-
-        $admins = $query->latest('id')->paginate(10)->withQueryString();
-
-        return view('adminpage.contents.admins.index', compact('admins', 'q', 'archived'));
-    }
+    // ✅ IMPORTANT: return admins view, not users view
+    return view('adminpage.contents.admins.index', compact('admins', 'q', 'archived'));
+}
 
     public function create()
     {
@@ -163,4 +162,6 @@ class AdminUserController extends Controller
 
         return back()->with('success', 'Password updated.');
     }
+
+    
 }

@@ -41,9 +41,9 @@ class User extends Authenticatable
     }
 
     public function employerProfile()
-    {
-        return $this->hasOne(EmployerProfile::class);
-    }
+{
+    return $this->hasOne(\App\Models\EmployerProfile::class);
+}
 
     public function savedJobs()
     {

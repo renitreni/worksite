@@ -219,13 +219,21 @@ Route::get('/login', function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    // ADMIN AUTH (GUEST ONLY)
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN AUTH (GUEST ONLY)
+    |--------------------------------------------------------------------------
+    */
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
     });
 
-    // ADMIN PANEL (AUTH ONLY + ACTIVE ACCOUNT)
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN PANEL (AUTH + ACTIVE)
+    |--------------------------------------------------------------------------
+    */
     Route::middleware(['auth:admin', 'active:admin'])->group(function () {
 
         // logout
@@ -234,27 +242,36 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // dashboard
         Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
 
-        // Manage Users (candidate/employer)
+        /*
+        |--------------------------------------------------------------------------
+        | MANAGE USERS (Candidates + Employers)
+        |--------------------------------------------------------------------------
+        */
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
 
+        Route::patch('/users/{user}/subscription', [UserController::class, 'updateSubscription'])
+            ->name('users.subscription');
+
         // Status controls
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
-
-        // If you want explicit status set (active|disabled|hold), enable this:
         Route::patch('/users/{user}/status', [UserController::class, 'setStatus'])->name('users.status');
 
         // Archive controls
         Route::patch('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
         Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
 
-        // Employer approval workflow (MODAL endpoints)
+        // Employer approval workflow
         Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
         Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
 
-        // other admin pages
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN STATIC PAGES
+        |--------------------------------------------------------------------------
+        */
         Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
         Route::view('/billing', 'adminpage.contents.billing')->name('billing');
         Route::view('/reports', 'adminpage.contents.reports')->name('reports');
@@ -262,29 +279,33 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Manage Categories / Skills / Locations (Standardized Taxonomy)
+        | INDUSTRIES (Job Categories)
         |--------------------------------------------------------------------------
-        | - Job categories: industries (with image after migration)
-        | - Skills: skills
-        | - Locations: countries -> cities -> areas (barangays)
-        | - Location Suggestions: location_suggestions (status + counts)
         */
-
-        // Industries (Job Categories)
         Route::get('/industries', [IndustryController::class, 'index'])->name('industries.index');
         Route::post('/industries', [IndustryController::class, 'store'])->name('industries.store');
         Route::get('/industries/{industry}/edit', [IndustryController::class, 'edit'])->name('industries.edit');
         Route::put('/industries/{industry}', [IndustryController::class, 'update'])->name('industries.update');
         Route::delete('/industries/{industry}', [IndustryController::class, 'destroy'])->name('industries.destroy');
+        Route::patch('/industries/{industry}/meta', [IndustryController::class, 'updateMeta'])->name('industries.meta');
 
-        // Skills
+        /*
+        |--------------------------------------------------------------------------
+        | SKILLS
+        |--------------------------------------------------------------------------
+        */
         Route::get('/skills', [SkillController::class, 'index'])->name('skills.index');
         Route::post('/skills', [SkillController::class, 'store'])->name('skills.store');
         Route::get('/skills/{skill}/edit', [SkillController::class, 'edit'])->name('skills.edit');
         Route::put('/skills/{skill}', [SkillController::class, 'update'])->name('skills.update');
         Route::delete('/skills/{skill}', [SkillController::class, 'destroy'])->name('skills.destroy');
+        Route::patch('/skills/{skill}/meta', [SkillController::class, 'updateMeta'])->name('skills.meta');
 
-        // Locations (Countries -> Cities -> Areas)
+        /*
+        |--------------------------------------------------------------------------
+        | LOCATIONS (Countries → Cities → Areas)
+        |--------------------------------------------------------------------------
+        */
         Route::prefix('locations')->name('locations.')->group(function () {
 
             // Countries
@@ -293,23 +314,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/countries/{country}/edit', [CountryController::class, 'edit'])->name('countries.edit');
             Route::put('/countries/{country}', [CountryController::class, 'update'])->name('countries.update');
             Route::delete('/countries/{country}', [CountryController::class, 'destroy'])->name('countries.destroy');
+            Route::patch('/countries/{country}/meta', [CountryController::class, 'updateMeta'])->name('countries.meta');
 
-            // Cities under a Country
+            // Cities
             Route::get('/countries/{country}/cities', [CityController::class, 'index'])->name('cities.index');
             Route::post('/countries/{country}/cities', [CityController::class, 'store'])->name('cities.store');
             Route::get('/countries/{country}/cities/{city}/edit', [CityController::class, 'edit'])->name('cities.edit');
             Route::put('/countries/{country}/cities/{city}', [CityController::class, 'update'])->name('cities.update');
             Route::delete('/countries/{country}/cities/{city}', [CityController::class, 'destroy'])->name('cities.destroy');
+            Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
 
-            // Areas under a City
+            // Areas
             Route::get('/countries/{country}/cities/{city}/areas', [AreaController::class, 'index'])->name('areas.index');
             Route::post('/countries/{country}/cities/{city}/areas', [AreaController::class, 'store'])->name('areas.store');
             Route::get('/countries/{country}/cities/{city}/areas/{area}/edit', [AreaController::class, 'edit'])->name('areas.edit');
             Route::put('/countries/{country}/cities/{city}/areas/{area}', [AreaController::class, 'update'])->name('areas.update');
             Route::delete('/countries/{country}/cities/{city}/areas/{area}', [AreaController::class, 'destroy'])->name('areas.destroy');
+            Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
         });
 
-        // Location Suggestions
+        /*
+        |--------------------------------------------------------------------------
+        | LOCATION SUGGESTIONS
+        |--------------------------------------------------------------------------
+        */
         Route::get('/location-suggestions', [LocationSuggestionController::class, 'index'])
             ->name('location_suggestions.index');
 
@@ -319,34 +347,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/location-suggestions/{suggestion}', [LocationSuggestionController::class, 'destroy'])
             ->name('location_suggestions.destroy');
 
-        
-        // Quick meta updates (active + sort_order) — nice-to-have #5
-Route::patch('/industries/{industry}/meta', [IndustryController::class, 'updateMeta'])->name('industries.meta');
-Route::patch('/skills/{skill}/meta', [SkillController::class, 'updateMeta'])->name('skills.meta');
-
-Route::prefix('locations')->name('locations.')->group(function () {
-    Route::patch('/countries/{country}/meta', [CountryController::class, 'updateMeta'])->name('countries.meta');
-    Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
-    Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
-});
-
-// Location suggestions approve flow — must-do #4
-Route::patch('/location-suggestions/{suggestion}/approve', [LocationSuggestionController::class, 'approve'])
-    ->name('location_suggestions.approve');
+        Route::patch('/location-suggestions/{suggestion}/approve', [LocationSuggestionController::class, 'approve'])
+            ->name('location_suggestions.approve');
     });
 
-    // SUPERADMIN ONLY: Admin Accounts CRUD (AUTH + ACTIVE + ROLE)
+    /*
+    |--------------------------------------------------------------------------
+    | SUPERADMIN ONLY — ADMIN ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
     Route::middleware(['auth:admin', 'active:admin', 'role:superadmin'])->group(function () {
+
         Route::get('/admins', [AdminUserController::class, 'index'])->name('admins.index');
         Route::get('/admins/create', [AdminUserController::class, 'create'])->name('admins.create');
         Route::post('/admins', [AdminUserController::class, 'store'])->name('admins.store');
         Route::get('/admins/{user}/edit', [AdminUserController::class, 'edit'])->name('admins.edit');
         Route::put('/admins/{user}', [AdminUserController::class, 'update'])->name('admins.update');
 
-        // If your AdminUserController uses account_status too:
         Route::patch('/admins/{user}/toggle', [AdminUserController::class, 'toggle'])->name('admins.toggle');
         Route::patch('/admins/{user}/status', [AdminUserController::class, 'setStatus'])->name('admins.status');
-
         Route::post('/admins/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admins.reset_password');
         Route::patch('/admins/{user}/archive', [AdminUserController::class, 'archive'])->name('admins.archive');
         Route::patch('/admins/{user}/restore', [AdminUserController::class, 'restore'])->name('admins.restore');
