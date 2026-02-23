@@ -191,9 +191,15 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/job-postings/{job}/edit', [JobController::class, 'edit'])->name('job-postings.edit');
     Route::put('/job-postings/{job}', [JobController::class, 'update'])->name('job-postings.update');
     Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
+    Route::get('/geo/cities', [JobController::class, 'citiesByCountry'])
+        ->name('geo.cities');
+
+    Route::get('/geo/areas', [JobController::class, 'areasByCity'])
+        ->name('geo.areas');
 
     // Unified applicant route with optional status filter
     Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
+
     // Route::get('/{candidate}', [ApplicantController::class, 'show'])->name('aplicants.show'); // view applicant
 
     // Status updates
@@ -203,7 +209,6 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::put('/{candidate}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
 
     Route::get('/applicants/export', [ApplicantController::class, 'export'])->name('applicants.export');
-
 });
 
 /*
@@ -346,9 +351,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::delete('/location-suggestions/{suggestion}', [LocationSuggestionController::class, 'destroy'])
             ->name('location_suggestions.destroy');
-
+        // Location suggestions approve flow — must-do #4
         Route::patch('/location-suggestions/{suggestion}/approve', [LocationSuggestionController::class, 'approve'])
             ->name('location_suggestions.approve');
+
+
+        // Quick meta updates (active + sort_order) — nice-to-have #5
+        Route::patch('/industries/{industry}/meta', [IndustryController::class, 'updateMeta'])->name('industries.meta');
+        Route::patch('/skills/{skill}/meta', [SkillController::class, 'updateMeta'])->name('skills.meta');
+
+        Route::prefix('locations')->name('locations.')->group(function () {
+            Route::patch('/countries/{country}/meta', [CountryController::class, 'updateMeta'])->name('countries.meta');
+            Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
+            Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
+        });
+
+      
     });
 
     /*

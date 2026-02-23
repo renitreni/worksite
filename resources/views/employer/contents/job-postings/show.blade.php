@@ -6,7 +6,6 @@
 
             {{-- Flash --}}
             <x-toast type="success" :message="session('success')" />
-f
 
             {{-- Header --}}
             <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white">

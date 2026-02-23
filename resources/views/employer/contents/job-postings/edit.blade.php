@@ -1,3 +1,4 @@
+{{-- resources/views/employer/contents/job-postings/edit.blade.php --}}
 @extends('employer.layout')
 
 @section('content')
@@ -29,8 +30,12 @@
                     ->all();
 
                 $oldSkills = old('skills', $selectedSkills);
-                if (!is_array($oldSkills))
-                    $oldSkills = $selectedSkills;
+                if (!is_array($oldSkills)) $oldSkills = $selectedSkills;
+
+                // Old values for cascading dropdown init
+                $oldCountry = old('country', $job->country);
+                $oldCity    = old('city', $job->city);
+                $oldArea    = old('area', $job->area);
             @endphp
 
             <form action="{{ route('employer.job-postings.update', $job->id) }}" method="POST"
@@ -102,6 +107,7 @@
                     <h2 class="text-base font-semibold text-slate-900">Location & Compensation</h2>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {{-- Country --}}
                         <div>
                             <label for="country" class="block text-sm font-medium text-slate-700">Country <span
                                     class="text-red-500">*</span></label>
@@ -125,17 +131,16 @@
                             @error('country') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                         </div>
 
-                        <div>
+                        {{-- City (AJAX loaded) --}}
+                        <div x-data="{ useCustomCity: {{ old('city_custom') ? 'true' : 'false' }} }">
                             <label for="city" class="block text-sm font-medium text-slate-700">City</label>
                             <div class="mt-2 relative">
                                 <select name="city" id="city"
+                                    @change="useCustomCity = ($event.target.value === '__custom__')"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
                                     <option value="">Select City</option>
-                                    @foreach(($cities ?? []) as $city)
-                                        <option value="{{ $city }}" {{ old('city', $job->city) == $city ? 'selected' : '' }}>
-                                            {{ $city }}
-                                        </option>
-                                    @endforeach
+                                    {{-- options will be filled by JS --}}
+                                    <option value="__custom__" :selected="useCustomCity">Other (type manually)</option>
                                 </select>
                                 <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -144,20 +149,30 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
+
+                            <div x-show="useCustomCity" x-cloak class="mt-3">
+                                <label for="city_custom" class="block text-xs font-semibold text-slate-600">
+                                    Enter City (will be sent for admin approval)
+                                </label>
+                                <input type="text" name="city_custom" id="city_custom" value="{{ old('city_custom') }}"
+                                    placeholder="Type city..."
+                                    class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                @error('city_custom') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            </div>
+
                             @error('city') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                         </div>
 
-                        <div>
+                        {{-- Area (AJAX loaded) --}}
+                        <div x-data="{ useCustomArea: {{ old('area_custom') ? 'true' : 'false' }} }">
                             <label for="area" class="block text-sm font-medium text-slate-700">Area</label>
                             <div class="mt-2 relative">
                                 <select name="area" id="area"
+                                    @change="useCustomArea = ($event.target.value === '__custom__')"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
                                     <option value="">Select Area</option>
-                                    @foreach(($areas ?? []) as $area)
-                                        <option value="{{ $area }}" {{ old('area', $job->area) == $area ? 'selected' : '' }}>
-                                            {{ $area }}
-                                        </option>
-                                    @endforeach
+                                    {{-- options will be filled by JS --}}
+                                    <option value="__custom__" :selected="useCustomArea">Other (type manually)</option>
                                 </select>
                                 <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -166,6 +181,17 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
+
+                            <div x-show="useCustomArea" x-cloak class="mt-3">
+                                <label for="area_custom" class="block text-xs font-semibold text-slate-600">
+                                    Enter Area (will be sent for admin approval)
+                                </label>
+                                <input type="text" name="area_custom" id="area_custom" value="{{ old('area_custom') }}"
+                                    placeholder="Type area..."
+                                    class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                @error('area_custom') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            </div>
+
                             @error('area') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -181,9 +207,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-700">
-                                Salary Range (optional)
-                            </label>
+                            <label class="block text-sm font-medium text-slate-700">Salary Range (optional)</label>
 
                             <div class="mt-2 grid grid-cols-2 gap-3">
                                 {{-- Salary Min --}}
@@ -211,7 +235,6 @@
                             @error('salary_min') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                             @error('salary_max') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                         </div>
-
 
                         <div>
                             <label for="salary_currency" class="block text-sm font-medium text-slate-700">Currency</label>
@@ -256,12 +279,9 @@
                             <div class="mt-2 relative">
                                 <select name="gender" id="gender"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="both" {{ old('gender', $job->gender) == 'both' ? 'selected' : '' }}>Both
-                                    </option>
-                                    <option value="male" {{ old('gender', $job->gender) == 'male' ? 'selected' : '' }}>Male
-                                    </option>
-                                    <option value="female" {{ old('gender', $job->gender) == 'female' ? 'selected' : '' }}>
-                                        Female</option>
+                                    <option value="both" {{ old('gender', $job->gender) == 'both' ? 'selected' : '' }}>Both</option>
+                                    <option value="male" {{ old('gender', $job->gender) == 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ old('gender', $job->gender) == 'female' ? 'selected' : '' }}>Female</option>
                                 </select>
                                 <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -304,10 +324,8 @@
                             <div class="mt-2 relative">
                                 <select name="status" id="status"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="open" {{ old('status', $job->status) == 'open' ? 'selected' : '' }}>Open
-                                    </option>
-                                    <option value="closed" {{ old('status', $job->status) == 'closed' ? 'selected' : '' }}>
-                                        Closed</option>
+                                    <option value="open" {{ old('status', $job->status) == 'open' ? 'selected' : '' }}>Open</option>
+                                    <option value="closed" {{ old('status', $job->status) == 'closed' ? 'selected' : '' }}>Closed</option>
                                 </select>
                                 <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -329,16 +347,14 @@
                     </div>
 
                     <div>
-                        <label for="job_qualifications" class="block text-sm font-medium text-slate-700">Job
-                            Qualifications</label>
+                        <label for="job_qualifications" class="block text-sm font-medium text-slate-700">Job Qualifications</label>
                         <textarea name="job_qualifications" id="job_qualifications" rows="4"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('job_qualifications', $job->job_qualifications) }}</textarea>
                         @error('job_qualifications') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label for="additional_information" class="block text-sm font-medium text-slate-700">Additional
-                            Information</label>
+                        <label for="additional_information" class="block text-sm font-medium text-slate-700">Additional Information</label>
                         <textarea name="additional_information" id="additional_information" rows="4"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('additional_information', $job->additional_information) }}</textarea>
                         @error('additional_information') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
@@ -346,8 +362,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="principal_employer" class="block text-sm font-medium text-slate-700">Principal /
-                                Employer</label>
+                            <label for="principal_employer" class="block text-sm font-medium text-slate-700">Principal / Employer</label>
                             <input type="text" name="principal_employer" id="principal_employer"
                                 value="{{ old('principal_employer', $job->principal_employer) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
@@ -355,8 +370,7 @@
                         </div>
 
                         <div>
-                            <label for="dmw_registration_no" class="block text-sm font-medium text-slate-700">DMW
-                                Reg/Accreditation No.</label>
+                            <label for="dmw_registration_no" class="block text-sm font-medium text-slate-700">DMW Reg/Accreditation No.</label>
                             <input type="text" name="dmw_registration_no" id="dmw_registration_no"
                                 value="{{ old('dmw_registration_no', $job->dmw_registration_no) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
@@ -365,19 +379,16 @@
                     </div>
 
                     <div>
-                        <label for="principal_employer_address" class="block text-sm font-medium text-slate-700">Principal /
-                            Employer Address</label>
+                        <label for="principal_employer_address" class="block text-sm font-medium text-slate-700">Principal / Employer Address</label>
                         <input type="text" name="principal_employer_address" id="principal_employer_address"
                             value="{{ old('principal_employer_address', $job->principal_employer_address) }}"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                        @error('principal_employer_address') <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                        @enderror
+                        @error('principal_employer_address') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
-                            <label for="placement_fee" class="block text-sm font-medium text-slate-700">Placement Fee
-                                (optional)</label>
+                            <label for="placement_fee" class="block text-sm font-medium text-slate-700">Placement Fee (optional)</label>
                             <div class="mt-2 relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold"
                                     id="feeSymbol">₱</span>
@@ -389,8 +400,7 @@
                         </div>
 
                         <div>
-                            <label for="placement_fee_currency" class="block text-sm font-medium text-slate-700">Placement
-                                Fee Currency</label>
+                            <label for="placement_fee_currency" class="block text-sm font-medium text-slate-700">Placement Fee Currency</label>
                             <div class="mt-2 relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -414,15 +424,12 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            @error('placement_fee_currency') <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                            @enderror
+                            @error('placement_fee_currency') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
 
-                @php
-                    $backUrl = url()->previous();
-                @endphp
+                @php $backUrl = url()->previous(); @endphp
 
                 <div class="pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
                     <a href="{{ $backUrl }}"
@@ -438,6 +445,7 @@
         </div>
     </div>
 
+    {{-- Currency symbol switcher --}}
     <script>
         (function () {
             const symbolMap = {
@@ -465,6 +473,109 @@
 
             if (salaryCurrency) salaryCurrency.addEventListener("change", () => setSymbol("salary_currency", "salarySymbol"));
             if (feeCurrency) feeCurrency.addEventListener("change", () => setSymbol("placement_fee_currency", "feeSymbol"));
+        })();
+    </script>
+
+    {{-- Country -> City -> Area (AJAX) --}}
+    <script>
+        (function () {
+            const countryEl = document.getElementById('country');
+            const cityEl = document.getElementById('city');
+            const areaEl = document.getElementById('area');
+
+            if (!countryEl || !cityEl || !areaEl) return;
+
+            const oldCountry = @json($oldCountry);
+            const oldCity = @json($oldCity);
+            const oldArea = @json($oldArea);
+
+            function resetSelect(selectEl, placeholder) {
+                const customOpt = Array.from(selectEl.options).find(o => o.value === '__custom__');
+                selectEl.innerHTML = '';
+                selectEl.appendChild(new Option(placeholder, ''));
+
+                if (customOpt) {
+                    selectEl.appendChild(new Option(customOpt.text, '__custom__'));
+                }
+            }
+
+            function fillSelect(selectEl, items, selectedValue) {
+                const customOpt = Array.from(selectEl.options).find(o => o.value === '__custom__');
+                if (customOpt) customOpt.remove();
+
+                (items || []).forEach(name => {
+                    const opt = new Option(name, name);
+                    if (selectedValue && selectedValue === name) opt.selected = true;
+                    selectEl.appendChild(opt);
+                });
+
+                if (customOpt) selectEl.appendChild(customOpt);
+            }
+
+            async function fetchJson(url) {
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('Geo API failed:', res.status, url, text);
+                    return [];
+                }
+
+                const ct = res.headers.get('content-type') || '';
+                if (!ct.includes('application/json')) {
+                    const text = await res.text();
+                    console.error('Geo API not JSON:', ct, url, text);
+                    return [];
+                }
+
+                return await res.json();
+            }
+
+            async function loadCities(country, selectedCity = null) {
+                resetSelect(cityEl, 'Select City');
+                resetSelect(areaEl, 'Select Area');
+                if (!country) return;
+
+                const url = `{{ route('employer.geo.cities') }}?country=${encodeURIComponent(country)}`;
+                const cities = await fetchJson(url);
+                fillSelect(cityEl, cities, selectedCity);
+            }
+
+            async function loadAreas(country, city, selectedArea = null) {
+                resetSelect(areaEl, 'Select Area');
+                if (!country || !city) return;
+
+                const url = `{{ route('employer.geo.areas') }}?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}`;
+                const areas = await fetchJson(url);
+                fillSelect(areaEl, areas, selectedArea);
+            }
+
+            countryEl.addEventListener('change', async () => {
+                await loadCities(countryEl.value);
+            });
+
+            cityEl.addEventListener('change', async () => {
+                const country = countryEl.value;
+                const city = cityEl.value;
+
+                if (city === '__custom__' || !city) {
+                    resetSelect(areaEl, 'Select Area');
+                    return;
+                }
+
+                await loadAreas(country, city);
+            });
+
+            // init on load (for edit page)
+            (async function init() {
+                if (oldCountry) {
+                    await loadCities(oldCountry, oldCity);
+
+                    if (oldCity && oldCity !== '__custom__') {
+                        await loadAreas(oldCountry, oldCity, oldArea);
+                    }
+                }
+            })();
         })();
     </script>
 @endsection
