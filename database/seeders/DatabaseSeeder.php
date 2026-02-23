@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             IndustrySeeder::class,
             UserSeeder::class,
             CandidateSeeder::class,
+            CountrySeeder::class,
         ]);
         
     }

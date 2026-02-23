@@ -10,7 +10,7 @@
           <div class="w-10 h-10 rounded-xl bg-[#16A34A]/30 flex items-center justify-center border border-white/10">
             <i data-lucide="briefcase" class="w-5 h-5 text-white"></i>
           </div>
-          <span class="text-2xl font-bold tracking-tight">Worksite</span>
+          <span class="text-2xl font-bold tracking-tight">Jobabroad</span>
         </div>
 
         <p class="mt-4 text-white/70 leading-relaxed max-w-md">
@@ -124,7 +124,7 @@
     <!-- BOTTOM -->
     <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
       <div class="text-white/60 text-sm">
-        © 2026 Worksite. All rights reserved. Built with passion for connecting talent with opportunities.
+        © 2026 Developed by Smart Inbox Technology. All rights reserved.
       </div>
 
       <!-- Back to top -->
