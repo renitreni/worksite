@@ -27,9 +27,11 @@ class EmployerProfile extends Model
     ];
 
     protected $casts = [
-        'industries' => 'array',
-    ];
-
+    'rejected_at' => 'datetime',
+    'approved_at' => 'datetime',
+    'starts_at' => 'datetime',
+    'ends_at' => 'datetime',
+];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -44,4 +46,56 @@ class EmployerProfile extends Model
     {
         return $this->belongsTo(\App\Models\Industry::class);
     }
+    public function isExpired(): bool
+{
+    return $this->ends_at && now()->greaterThan($this->ends_at);
+}
+
+public function effectivePlan(): string
+{
+    // If not active or expired → basic/free
+    if ($this->subscription_status !== 'active') {
+        return 'basic';
+    }
+
+    if ($this->isExpired()) {
+        return 'basic';
+    }
+
+    return $this->plan ?: 'basic';
+}
+
+public function can(string $feature): bool
+{
+    $plan = $this->effectivePlan();
+
+    $matrix = [
+        'basic' => [
+            'post_job' => false,
+            'view_candidate_full' => false,
+            'download_cv' => false,
+            'message_candidate' => false,
+        ],
+        'standard' => [
+            'post_job' => true,
+            'view_candidate_full' => false,
+            'download_cv' => false,
+            'message_candidate' => false,
+        ],
+        'gold' => [
+            'post_job' => true,
+            'view_candidate_full' => true,
+            'download_cv' => false,
+            'message_candidate' => false,
+        ],
+        'platinum' => [
+            'post_job' => true,
+            'view_candidate_full' => true,
+            'download_cv' => true,
+            'message_candidate' => true,
+        ],
+    ];
+
+    return (bool) data_get($matrix, "{$plan}.{$feature}", false);
+}
 }

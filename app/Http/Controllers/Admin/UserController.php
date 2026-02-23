@@ -11,50 +11,73 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
-    {
-        $q = trim((string) $request->query('q', ''));
-        $role = $request->query('role');               // employer|candidate|null
-        $verified = $request->query('verified');       // verified|unverified|null
-        $archived = $request->query('archived', '0');  // '0' default
+  public function index(Request $request)
+{
+    $q = trim((string) $request->query('q', ''));
+    $role = trim((string) $request->query('role', ''));               // employer|candidate|''
+    $verified = trim((string) $request->query('verified', ''));       // verified|unverified|''
+    $archived = (string) $request->query('archived', '0');            // 0|1
 
-        $query = User::query()
-            ->whereIn('role', ['employer', 'candidate'])
-            ->with('employerProfile');
+    $sub_plan = trim((string) $request->query('sub_plan', ''));
+    $sub_status = trim((string) $request->query('sub_status', ''));
 
-        // archived filter
-        if ($archived === '1') {
-            $query->whereNotNull('archived_at');
-        } else {
-            $query->whereNull('archived_at');
-        }
+    $query = User::query()
+        ->whereIn('role', ['employer', 'candidate'])
+        ->with('employerProfile');
 
-        // role filter
-        if ($role && in_array($role, ['employer', 'candidate'], true)) {
-            $query->where('role', $role);
-        }
+    // archived filter
+    if ($archived === '1') {
+        $query->whereNotNull('archived_at');
+    } else {
+        $query->whereNull('archived_at');
+    }
 
-        // verified filter (candidates only)
-        if ($verified === 'verified') {
-            $query->where('role', 'candidate')->whereNotNull('email_verified_at');
-        } elseif ($verified === 'unverified') {
-            $query->where('role', 'candidate')->whereNull('email_verified_at');
-        }
+    // role filter
+    if (in_array($role, ['employer', 'candidate'], true)) {
+        $query->where('role', $role);
+    }
 
-        // search
-        if ($q !== '') {
-            $query->where(function ($sub) use ($q) {
-                $sub->where('name', 'like', "%{$q}%")
-                    ->orWhere('first_name', 'like', "%{$q}%")
-                    ->orWhere('last_name', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%");
+    // verified filter (ONLY for candidates, and DO NOT override employer selection)
+    if (in_array($verified, ['verified', 'unverified'], true)) {
+
+        // if role explicitly employer, ignore verified filter
+        if ($role !== 'employer') {
+            $query->where(function ($w) use ($verified) {
+                $w->where('role', 'candidate')
+                  ->when($verified === 'verified', fn ($q2) => $q2->whereNotNull('email_verified_at'))
+                  ->when($verified === 'unverified', fn ($q2) => $q2->whereNull('email_verified_at'));
             });
         }
-
-        $users = $query->latest('id')->paginate(10)->withQueryString();
-
-        return view('adminpage.contents.users', compact('users', 'q', 'role', 'verified', 'archived'));
     }
+
+    // search
+    if ($q !== '') {
+        $query->where(function ($sub) use ($q) {
+            $sub->where('name', 'like', "%{$q}%")
+                ->orWhere('first_name', 'like', "%{$q}%")
+                ->orWhere('last_name', 'like', "%{$q}%")
+                ->orWhere('email', 'like', "%{$q}%")
+                ->orWhereRaw("concat(first_name,' ',last_name) like ?", ["%{$q}%"])
+                ->orWhereRaw("concat(last_name,' ',first_name) like ?", ["%{$q}%"]);
+        });
+    }
+
+    // subscription filters (employer only)
+    if ($sub_plan !== '' || $sub_status !== '') {
+        $query->where('role', 'employer')
+              ->whereHas('employerProfile', function ($ep) use ($sub_plan, $sub_status) {
+                  if ($sub_plan !== '') $ep->where('plan', $sub_plan);
+                  if ($sub_status !== '') $ep->where('subscription_status', $sub_status);
+              });
+    }
+
+    $users = $query->latest('id')->paginate(10)->withQueryString();
+
+    // ✅ IMPORTANT: match your actual blade file
+    return view('adminpage.contents.users', compact(
+    'users', 'q', 'role', 'verified', 'archived', 'sub_plan', 'sub_status'
+));
+}
 
     public function show(User $user)
     {
@@ -256,4 +279,53 @@ class UserController extends Controller
 
         return back()->with('success', 'Employer rejected successfully.');
     }
+    public function updateSubscription(Request $request, User $user)
+{
+    abort_unless($user->role === 'employer', 404);
+
+    $data = $request->validate([
+        'plan' => ['nullable', Rule::in(['standard', 'gold', 'platinum'])],
+        'subscription_status' => ['nullable', Rule::in(['active', 'expired', 'suspended', 'none'])],
+        'starts_at' => ['nullable', 'date'],
+        'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+        'suspended_reason' => ['nullable', 'string', 'max:5000'],
+        'also_hold_account' => ['nullable', 'boolean'],
+    ]);
+
+    $ep = $user->employerProfile;
+    if (!$ep) {
+        return back()->with('error', 'Employer profile not found.');
+    }
+
+    // Update fields (keep previous if not provided)
+    $ep->plan = $data['plan'] ?? $ep->plan;
+    $ep->subscription_status = $data['subscription_status'] ?? $ep->subscription_status;
+    $ep->starts_at = $data['starts_at'] ?? $ep->starts_at;
+    $ep->ends_at = $data['ends_at'] ?? $ep->ends_at;
+    $ep->suspended_reason = $data['suspended_reason'] ?? $ep->suspended_reason;
+
+   
+    if ($ep->ends_at && now()->greaterThan($ep->ends_at)) {
+        $ep->subscription_status = 'expired';
+
+        if (empty($ep->suspended_reason)) {
+            $ep->suspended_reason = 'expired';
+        }
+    }
+
+    
+    if (($ep->subscription_status === 'active') && empty($ep->ends_at)) {
+        $ep->subscription_status = 'none';
+    }
+
+    $ep->save();
+
+    
+    if ($request->boolean('also_hold_account')) {
+        $user->account_status = 'hold';
+        $user->save();
+    }
+
+    return back()->with('success', 'Subscription updated.');
+}
 }
