@@ -1,57 +1,40 @@
 @php
+  use Illuminate\Support\Facades\Auth;
+
   $adminUser = Auth::guard('admin')->user();
 
+  // Base sidebar items
   $items = [
-    ['label'=>'Dashboard','href'=>route('admin.dashboard')],
-    ['label'=>'Users','href'=>route('admin.users.index')],
-    ['label'=>'Job Postings','href'=>route('admin.jobs')],
-    ['label'=>'Categories / Skills / Locations','href'=>route('admin.taxonomy')],
-    ['label'=>'Subscriptions & Payments','href'=>route('admin.billing')],
-    ['label'=>'Reports','href'=>route('admin.reports')],
-    ['label'=>'System Settings','href'=>route('admin.settings')],
+    ['label' => 'Dashboard', 'route' => 'admin.dashboard'],
+    ['label' => 'Users', 'route' => 'admin.users.index'],
+    ['label' => 'Job Postings', 'route' => 'admin.jobs'],
+
+    // NEW: Manage Lists (replace old taxonomy page)
+    ['label' => 'Industries', 'route' => 'admin.industries.index', 'active' => 'admin.industries.*'],
+    ['label' => 'Skills', 'route' => 'admin.skills.index', 'active' => 'admin.skills.*'],
+    ['label' => 'Locations', 'route' => 'admin.locations.countries.index', 'active' => 'admin.locations.*'],
+    ['label' => 'Location Suggestions', 'route' => 'admin.location_suggestions.index', 'active' => 'admin.location_suggestions.*'],
+
+    ['label' => 'Subscriptions & Payments', 'route' => 'admin.billing'],
+    ['label' => 'Reports', 'route' => 'admin.reports'],
+    ['label' => 'System Settings', 'route' => 'admin.settings'],
   ];
 
   // ✅ Only SUPERADMIN sees Admin Accounts
-  if ($adminUser && $adminUser->role === 'superadmin') {
+  if ($adminUser && ($adminUser->role ?? null) === 'superadmin') {
+    // Insert after Users (index 2 if Dashboard=0, Users=1)
     array_splice($items, 2, 0, [
-      ['label' => 'Admin Accounts', 'href' => route('admin.admins.index')],
+      ['label' => 'Admin Accounts', 'route' => 'admin.admins.index', 'active' => 'admin.admins.*'],
     ]);
   }
 
-  $current = url()->current();
-
-  $alerts = [
-    [
-      'label' => 'Jobs pending review',
-      'value' => 28,
-      'href'  => route('admin.jobs'),
-      'tone'  => 'warn',
-    ],
-    [
-      'label' => 'Payments to verify',
-      'value' => 4,
-      'href'  => route('admin.billing'),
-      'tone'  => 'bad',
-    ],
-    [
-      'label' => 'Expired subscriptions',
-      'value' => 14,
-      'href'  => route('admin.billing'),
-      'tone'  => 'bad',
-    ],
-  ];
-
-  $badge = function(string $tone): string {
-    return match($tone){
-      'good' => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-      'warn' => 'bg-amber-50 text-amber-800 ring-amber-200',
-      'bad'  => 'bg-rose-50 text-rose-700 ring-rose-200',
-      default=> 'bg-slate-100 text-slate-700 ring-slate-200',
-    };
+  $isActive = function(array $it): bool {
+    $pattern = $it['active'] ?? ($it['route'] . '*');
+    return request()->routeIs($pattern);
   };
 @endphp
 
-{{-- Mobile sidebar --}}
+{{-- Mobile overlay --}}
 <div
   x-show="sidebarOpen"
   x-transition.opacity
@@ -60,6 +43,7 @@
   aria-hidden="true"
 ></div>
 
+{{-- Mobile sidebar --}}
 <aside
   x-show="sidebarOpen"
   x-transition:enter="transition ease-out duration-200"
@@ -93,9 +77,10 @@
     <nav class="flex-1 overflow-y-auto px-3 py-4">
       <div class="space-y-1">
         @foreach($items as $it)
-          @php $active = str_starts_with($current, $it['href']); @endphp
+          @php $active = $isActive($it); @endphp
+
           <a
-            href="{{ $it['href'] }}"
+            href="{{ route($it['route']) }}"
             @click="sidebarOpen = false"
             class="block rounded-xl px-4 py-3 text-sm font-semibold
             {{ $active
@@ -110,16 +95,15 @@
       <div class="my-5 border-t border-slate-200"></div>
 
       <form method="POST" action="{{ route('admin.logout') }}">
-  @csrf
-  <button
-    type="submit"
-    @click="sidebarOpen = false"
-    class="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50"
-  >
-    Logout
-  </button>
-</form>
-`
+        @csrf
+        <button
+          type="submit"
+          @click="sidebarOpen = false"
+          class="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          Logout
+        </button>
+      </form>
     </nav>
 
   </div>
@@ -138,10 +122,10 @@
   <nav class="px-3 flex-1 overflow-y-auto">
     <div class="space-y-1">
       @foreach($items as $it)
-        @php $active = str_starts_with($current, $it['href']); @endphp
+        @php $active = $isActive($it); @endphp
 
         <a
-          href="{{ $it['href'] }}"
+          href="{{ route($it['route']) }}"
           class="block rounded-xl px-4 py-3 text-sm font-semibold
           {{ $active
               ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
@@ -190,11 +174,10 @@
       el.style.transform = 'translateY(-6px)';
       el.style.transition = 'opacity .15s ease, transform .15s ease';
 
-      // simple color mapping
-      let bg = '#0f172a'; // slate-900 default
-      if (type === 'success') bg = '#059669'; // emerald-600
-      if (type === 'warning') bg = '#d97706'; // amber-600
-      if (type === 'error') bg = '#e11d48'; // rose-600
+      let bg = '#0f172a';
+      if (type === 'success') bg = '#059669';
+      if (type === 'warning') bg = '#d97706';
+      if (type === 'error') bg = '#e11d48';
       el.style.background = bg;
 
       root.appendChild(el);
@@ -212,7 +195,6 @@
     }
 
     window.toast = function (type, message) {
-      // Preferred: Notyf (if you load it in admin layout)
       if (window.notyf && typeof window.notyf.open === 'function') {
         window.notyf.open({ type: type || 'info', message: String(message || '') });
         return;
