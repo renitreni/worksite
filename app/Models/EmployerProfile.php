@@ -6,37 +6,40 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmployerProfile extends Model
 {
-    protected $table = 'employer_profiles';
+
     protected $fillable = [
         'user_id',
-        'industry_id',
         'company_name',
         'company_address',
         'company_contact',
         'company_website',
         'description',
-        'industries',
         'logo_path',
         'cover_path',
         'total_profile_views',
         'representative_name',
         'position',
-        'status', // pending/approved/rejected
-        'rejection_reason',
-        'rejected_at',
-        'approved_at',
     ];
 
-    protected $casts = [
-        'industries' => 'array',  
-        'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
-        'rejected_at' => 'datetime',
-        'approved_at' => 'datetime',
-    ];
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function verification()
+    {
+        return $this->hasOne(EmployerVerification::class);
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(EmployerSubscription::class);
+    }
+
+    public function industries()
+    {
+        return $this->belongsToMany(Industry::class, 'employer_industries')
+            ->withTimestamps();
     }
 
     public function jobPosts()
@@ -44,27 +47,40 @@ class EmployerProfile extends Model
         return $this->hasMany(JobPost::class);
     }
 
-    public function industry()
-    {
-        return $this->belongsTo(\App\Models\Industry::class);
-    }
+    /**
+     * Subscription helpers (reads from employer_subscriptions table)
+     */
     public function isExpired(): bool
     {
-        return $this->ends_at && now()->greaterThan($this->ends_at);
+        $sub = $this->subscription;
+
+        if (!$sub || !$sub->ends_at) {
+            return false;
+        }
+
+        return now()->greaterThan($sub->ends_at);
     }
 
     public function effectivePlan(): string
     {
-        // If not active or expired → basic/free
-        if ($this->subscription_status !== 'active') {
+        $sub = $this->subscription;
+
+        // No subscription row yet → basic
+        if (!$sub) {
             return 'basic';
         }
 
+        // Not active → basic
+        if ($sub->subscription_status !== 'active') {
+            return 'basic';
+        }
+
+        // Expired → basic
         if ($this->isExpired()) {
             return 'basic';
         }
 
-        return $this->plan ?: 'basic';
+        return $sub->plan ?: 'basic';
     }
 
     public function can(string $feature): bool

@@ -31,7 +31,11 @@ class EmployerSubscription extends Model
         'activated_at' => 'datetime',
         'suspended_at' => 'datetime',
     ];
-
+  
+   public function employerProfile()
+    {
+        return $this->belongsTo(EmployerProfile::class);
+   }
     public function employer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'employer_id');
