@@ -16,7 +16,7 @@ class SubscriptionController extends Controller
 
         $subs = EmployerSubscription::query()
             ->with(['employer:id,name,email', 'plan:id,name,code,price'])
-            ->when($status !== '', fn($qr) => $qr->where('status', $status))
+            ->when($status !== '', fn($qr) => $qr->where('subscription_status', $status))
             ->when($q !== '', function($qr) use ($q) {
                 $qr->whereHas('employer', function($e) use ($q) {
                     $e->where('name', 'like', "%{$q}%")
@@ -32,14 +32,15 @@ class SubscriptionController extends Controller
 
     public function activate(EmployerSubscription $subscription)
     {
-        // Manual activate (optional). Uses your 30-day rule.
         DB::transaction(function () use ($subscription) {
             $subscription->update([
-                'status' => EmployerSubscription::STATUS_ACTIVE,
+                'subscription_status' => EmployerSubscription::STATUS_ACTIVE,
                 'starts_at' => now(),
                 'ends_at' => now()->addDays(30),
-                'activated_by_admin_id' => auth('admin')->id(),
-                'activated_at' => now(),
+
+                // keep these ONLY if your table actually has these columns
+                // 'activated_by_admin_id' => auth('admin')->id(),
+                // 'activated_at' => now(),
             ]);
         });
 
@@ -53,10 +54,12 @@ class SubscriptionController extends Controller
         ]);
 
         $subscription->update([
-            'status' => EmployerSubscription::STATUS_SUSPENDED,
-            'suspended_by_admin_id' => auth('admin')->id(),
-            'suspended_at' => now(),
-            'suspend_reason' => $data['reason'],
+            'subscription_status' => EmployerSubscription::STATUS_SUSPENDED,
+
+            // keep these ONLY if your table actually has these columns
+            // 'suspended_by_admin_id' => auth('admin')->id(),
+            // 'suspended_at' => now(),
+            // 'suspend_reason' => $data['reason'],
         ]);
 
         return back()->with('warning', 'Subscription suspended.');
@@ -70,7 +73,7 @@ class SubscriptionController extends Controller
             ->with(['employer:id,name,email', 'plan:id,name,code,price'])
             ->whereNotNull('ends_at')
             ->where('ends_at', '<', now())
-            ->whereIn('status', [
+            ->whereIn('subscription_status', [
                 EmployerSubscription::STATUS_ACTIVE,
                 EmployerSubscription::STATUS_EXPIRED,
             ])
@@ -84,21 +87,13 @@ class SubscriptionController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Optional: auto-mark as expired when viewing list
+        // Optional: auto-mark as expired (ONLY if you want this behavior)
         foreach ($subs as $s) {
-            if ($s->status !== EmployerSubscription::STATUS_EXPIRED) {
-                $s->update(['status' => EmployerSubscription::STATUS_EXPIRED]);
+            if ($s->subscription_status !== EmployerSubscription::STATUS_EXPIRED) {
+                $s->update(['subscription_status' => EmployerSubscription::STATUS_EXPIRED]);
             }
         }
 
         return view('adminpage.contents.subscriptions.subscriptions.expired', compact('subs', 'q'));
-    }
-
-    public function sendExpiredReminder(EmployerSubscription $subscription)
-    {
-        // Stub: implement notification/email later
-        // Requirement: reminders for expired plans :contentReference[oaicite:3]{index=3}
-
-        return back()->with('info', 'Reminder queued (stub).');
     }
 }

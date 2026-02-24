@@ -12,9 +12,16 @@ class AgencyController extends Controller
 {
     public function jobs(EmployerProfile $employerProfile)
     {
+        // ✅ optional: block unapproved agencies
+        $employerProfile->loadMissing('verification');
+        if (!$employerProfile->verification || $employerProfile->verification->status !== 'approved') {
+            abort(404);
+        }
+
         $jobs = $employerProfile->jobPosts()
             ->where('status', 'open')
-            ->latest()
+            ->orderByDesc('posted_at')
+            ->orderByDesc('created_at')
             ->paginate(9);
 
         $featuredJobs = JobPost::query()
@@ -34,6 +41,12 @@ class AgencyController extends Controller
 
     public function show(EmployerProfile $employerProfile)
     {
+        // ✅ optional: block unapproved agencies
+        $employerProfile->loadMissing('verification');
+        if (!$employerProfile->verification || $employerProfile->verification->status !== 'approved') {
+            abort(404);
+        }
+
         // ✅ Views count: authenticated only + once per day per user
         if (Auth::check()) {
             $userId = Auth::id();
@@ -47,7 +60,6 @@ class AgencyController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // insertOrIgnore returns number of inserted rows
             if ($inserted > 0) {
                 $employerProfile->increment('total_profile_views');
             }
@@ -60,15 +72,15 @@ class AgencyController extends Controller
             ->orderByDesc('created_at')
             ->paginate(6);
 
-        // count open jobs
         $openJobsCount = $employerProfile->jobPosts()
             ->where('status', 'open')
             ->count();
 
-        // load relations
+        // ✅ load correct relations (pivot industries, not industry)
         $employerProfile->load([
             'user:id,name,email',
-            'industry:id,name',
+            'industries:id,name',     // ✅ MANY industries via pivot
+            'verification:id,employer_profile_id,status',
         ]);
 
         return view('mainpage.agency-details-page.agency.show', [

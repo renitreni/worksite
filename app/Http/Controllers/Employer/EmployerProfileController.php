@@ -22,13 +22,24 @@ class EmployerProfileController extends Controller
                 'company_address' => '',
                 'company_website' => '',
                 'description' => '',
-                'industries' => [], // JSON array
                 'total_profile_views' => 0,
                 'representative_name' => $user->name,
                 'position' => '',
-                'status' => 'pending',
+                // ✅ status removed (now in employer_verifications)
             ]);
         }
+
+        // ✅ ensure verification row exists (pending by default)
+        $profile->verification()->firstOrCreate(
+            ['employer_profile_id' => $profile->id],
+            [
+                'status' => 'pending',
+                'approved_at' => null,
+                'rejected_at' => null,
+                'rejection_reason' => null,
+                'suspended_reason' => null,
+            ]
+        );
 
         return $profile;
     }
@@ -39,6 +50,7 @@ class EmployerProfileController extends Controller
         abort_if(!$user, 403);
 
         $employerProfile = $this->ensureProfile($user);
+        $employerProfile->load('industries');
         $email = $user->email;
 
         return view('employer.contents.profile.show', compact('employerProfile', 'email'));
@@ -50,9 +62,9 @@ class EmployerProfileController extends Controller
         abort_if(!$user, 403);
 
         $employerProfile = $this->ensureProfile($user);
+        $employerProfile->load('industries');
         $email = $user->email;
 
-        // Admin-managed options list (but employer stores as JSON names)
         $industries = Industry::where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
@@ -76,9 +88,8 @@ class EmployerProfileController extends Controller
             'company_website' => ['nullable', 'string', 'max:255'],
             'description'     => ['nullable', 'string', 'max:2000'],
 
-            // ✅ multi-select from <select name="industries[]">
             'industries'      => ['nullable', 'array', 'max:20'],
-            'industries.*'    => ['string', 'max:50'],
+            'industries.*'    => ['integer', 'exists:industries,id'],
 
             'logo'            => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'cover'           => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
@@ -105,11 +116,11 @@ class EmployerProfileController extends Controller
                 'company_address' => $validated['company_address'] ?? '',
                 'company_website' => $validated['company_website'] ?? '',
                 'description'     => $validated['description'] ?? '',
-                'industries'      => $validated['industries'] ?? [],
-
                 'logo_path'       => $logoPath,
                 'cover_path'      => $coverPath,
             ]);
+
+            $employerProfile->industries()->sync($validated['industries'] ?? []);
 
             $user->update([
                 'email' => $validated['email'],

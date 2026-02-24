@@ -38,8 +38,7 @@ class EmployerProfile extends Model
 
     public function industries()
     {
-        return $this->belongsToMany(Industry::class, 'employer_industries')
-            ->withTimestamps();
+        return $this->belongsToMany(Industry::class, 'employer_industries')->withTimestamps();
     }
 
     public function jobPosts()

@@ -37,7 +37,7 @@ class EmployerAuthController extends Controller
         $repName = trim($validated['representative_name']);
         $parts = preg_split('/\s+/', $repName);
         $first = $parts[0] ?? $repName;
-        $last = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
+        $last  = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
 
         $phoneToSave = $validated['company_contact_e164'] ?: $validated['company_contact'];
 
@@ -49,21 +49,36 @@ class EmployerAuthController extends Controller
             'phone'      => $phoneToSave,
             'role'       => 'employer',
             'password'   => bcrypt($validated['password']),
+            'account_status' => 'active', // or 'hold' if you want default hold
         ]);
 
-        EmployerProfile::create([
+        // ✅ Create employer profile (NO status here anymore)
+        $profile = EmployerProfile::create([
             'user_id'             => $user->id,
             'company_name'        => $validated['company_name'],
             'company_address'     => $validated['company_address'],
             'company_contact'     => $phoneToSave,
+            'company_website'     => null,
+            'description'         => null,
+            'logo_path'           => null,
+            'cover_path'          => null,
             'representative_name' => $validated['representative_name'],
             'position'            => $validated['position'],
-            'status'              => 'pending',
         ]);
 
-        return redirect()->route('employer.register')->with('showApprovalModal', true);
-    }
+        // ✅ Create verification row (status now lives here)
+        $profile->verification()->create([
+            'status' => 'pending',
+            'approved_at' => null,
+            'rejected_at' => null,
+            'rejection_reason' => null,
+            'suspended_reason' => null,
+        ]);
 
+        return redirect()
+            ->route('employer.register')
+            ->with('showApprovalModal', true);
+    }
 
     public function showLogin()
     {
@@ -96,13 +111,28 @@ class EmployerAuthController extends Controller
                 ->onlyInput('email');
         }
 
-        // ✅ Approval check using status
-        if ($profile->status !== 'approved') {
-            $msg = match ($profile->status) {
-                'pending' => 'Your employer account is still pending admin approval. Please wait.',
-                'rejected' => 'Your employer account was rejected. Please contact admin/support.',
-                default => 'Your employer account is not approved yet. Please wait for admin approval.',
+        // ✅ approval check now via verification table
+        $status = $profile->verification?->status ?? 'pending';
+
+        if ($status !== 'approved') {
+            $msg = match ($status) {
+                'pending'   => 'Your employer account is still pending admin approval. Please wait.',
+                'rejected'  => 'Your employer account was rejected. Please contact admin/support.',
+                'suspended' => 'Your employer account is suspended. Please contact admin/support.',
+                default     => 'Your employer account is not approved yet. Please wait for admin approval.',
             };
+
+            return back()
+                ->withErrors(['email' => $msg])
+                ->onlyInput('email');
+        }
+
+        // ✅ optional: also block disabled/hold at user level
+        $accStatus = $user->account_status ?? 'active';
+        if ($accStatus !== 'active') {
+            $msg = $accStatus === 'hold'
+                ? 'Your account is currently on hold. Please contact support.'
+                : 'Your account is disabled. Please contact support.';
 
             return back()
                 ->withErrors(['email' => $msg])
