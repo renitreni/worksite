@@ -50,6 +50,8 @@ class JobPost extends Model
         'apply_until' => 'date',
     ];
 
+
+
     public function employerProfile()
     {
         return $this->belongsTo(EmployerProfile::class);
@@ -58,6 +60,11 @@ class JobPost extends Model
     public function applications()
     {
         return $this->hasMany(JobApplication::class, 'job_post_id');
+    }
+
+    public function candidatesProfile()
+    {
+        return $this->hasManyThrough(CandidateProfile::class, JobApplication::class, 'job_post_id', 'id', 'id', 'candidate_profile_id');
     }
 
     public function saves()

@@ -7,19 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 class JobApplication extends Model
 {
     protected $fillable = [
-        'job_post_id', // foreign key to JobPost
-        'candidate_id', // foreign key to candidate/user
+        'job_post_id',
+        'candidate_id',
+        'full_name',
+        'email',
+        'phone',
         'cover_letter',
-        'status', // e.g., applied, shortlisted, rejected
+        'cover_letter_file_path',
+        'status',
     ];
 
     public function jobPost()
     {
-        return $this->belongsTo(JobPost::class);
+        return $this->belongsTo(\App\Models\JobPost::class, 'job_post_id');
     }
 
-    public function candidate()
+    public function candidateProfile()
     {
-        return $this->belongsTo(User::class, 'candidate_id');
+        return $this->belongsTo(\App\Models\CandidateProfile::class, 'candidate_id');
     }
 }
