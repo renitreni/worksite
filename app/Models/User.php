@@ -41,9 +41,9 @@ class User extends Authenticatable
     }
 
     public function employerProfile()
-{
-    return $this->hasOne(\App\Models\EmployerProfile::class);
-}
+    {
+        return $this->hasOne(\App\Models\EmployerProfile::class);
+    }
 
     public function savedJobs()
     {
@@ -59,5 +59,10 @@ class User extends Authenticatable
     public function jobReports()
     {
         return $this->hasMany(\App\Models\JobReport::class);
+    }
+
+    public function candidateResume()
+    {
+        return $this->hasOne(\App\Models\CandidateResume::class, 'user_id', 'id');
     }
 }

@@ -18,6 +18,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Candidate\SavedJobController;
 use App\Http\Controllers\Candidate\JobReportController;
 use App\Http\Controllers\Candidate\AgencyController;
+use App\Http\Controllers\Candidate\JobApplicationController;
 use App\Http\Controllers\Admin\IndustryController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\CountryController;
@@ -154,6 +155,8 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
     Route::post('/my-resume/education', [ResumeController::class, 'storeEducation'])->name('resume.edu.store');
     Route::delete('/my-resume/education/{education}', [ResumeController::class, 'deleteEducation'])->name('resume.edu.delete');
 
+    Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'store'])
+        ->name('jobs.apply');
     Route::get('/my-applied-jobs', fn() => view('candidate.contents.my-applied-jobs'))->name('my-applied-jobs');
     Route::get('/shortlist-jobs', fn() => view('candidate.contents.shortlist-jobs'))->name('shortlist-jobs');
     Route::get('/following-employers', fn() => view('candidate.contents.following-employers'))->name('following-employers');
@@ -198,17 +201,19 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
         ->name('geo.areas');
 
     // Unified applicant route with optional status filter
-    Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
+
 
     // Route::get('/{candidate}', [ApplicantController::class, 'show'])->name('aplicants.show'); // view applicant
 
     // Status updates
-    Route::put('/{candidate}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
-    Route::put('/{candidate}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
-    Route::put('/{candidate}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
-    Route::put('/{candidate}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
-
+    Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
     Route::get('/applicants/export', [ApplicantController::class, 'export'])->name('applicants.export');
+    Route::get('/applicants/{application}', [ApplicantController::class, 'show'])->name('applicants.show');
+
+    Route::put('/applicants/{application}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
+    Route::put('/applicants/{application}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
+    Route::put('/applicants/{application}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
+    Route::put('/applicants/{application}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
 });
 
 /*

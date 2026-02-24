@@ -36,4 +36,19 @@ class CandidateProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function applications()
+    {
+        return $this->hasMany(\App\Models\JobApplication::class, 'candidate_id', 'user_id');
+    }
+
+    public function jobPosts()
+    {
+        return $this->belongsToMany(
+            JobPost::class,
+            'job_applications',
+            'candidate_profile_id',
+            'job_post_id'
+        )->withTimestamps();
+    }
 }
