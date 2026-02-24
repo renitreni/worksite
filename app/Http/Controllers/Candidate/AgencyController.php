@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Candidate;
 use App\Http\Controllers\Controller;
 use App\Models\EmployerProfile;
 use App\Models\JobPost;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AgencyController extends Controller
 {
@@ -23,7 +21,6 @@ class AgencyController extends Controller
             ->orderByDesc('posted_at')
             ->orderByDesc('created_at')
             ->paginate(9);
-
         $featuredJobs = JobPost::query()
             ->with(['employerProfile:id,company_name'])
             ->where('status', 'open')

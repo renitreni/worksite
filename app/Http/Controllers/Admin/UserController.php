@@ -5,98 +5,85 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\EmployerProfile;
-use App\Models\EmployerVerification;
-use App\Models\EmployerSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
-    {
-        // ✅ Force default role=candidate on first visit
-        if (!$request->has('role')) {
-            return redirect()->route('admin.users.index', array_merge(
-                $request->query(), // keep other query strings (q, archived, etc.)
-                ['role' => 'employer']
-            ));
-        }
+  public function index(Request $request)
+{
+    $q = trim((string) $request->query('q', ''));
+    $role = trim((string) $request->query('role', ''));               // employer|candidate|''
+    $verified = trim((string) $request->query('verified', ''));       // verified|unverified|''
+    $archived = (string) $request->query('archived', '0');            // 0|1
 
-        $q = trim((string) $request->query('q', ''));
-        $role = trim((string) $request->query('role', 'candidate')); // candidate|employer
-        if (!in_array($role, ['candidate', 'employer'], true)) $role = 'candidate';
+    $sub_plan = trim((string) $request->query('sub_plan', ''));
+    $sub_status = trim((string) $request->query('sub_status', ''));
 
-        $verified = trim((string) $request->query('verified', ''));
-        $archived = (string) $request->query('archived', '0');
+    $query = User::query()
+        ->whereIn('role', ['employer', 'candidate'])
+        ->with('employerProfile');
 
-        $sub_plan = trim((string) $request->query('sub_plan', ''));
-        $sub_status = trim((string) $request->query('sub_status', ''));
-
-        $query = User::query()
-            ->whereIn('role', ['employer', 'candidate'])
-            ->where('role', $role) // ✅ always filtered by role
-            ->with([
-                'employerProfile.verification',
-                'employerProfile.subscription',
-                'employerProfile.industries',
-            ]);
-
-        // archived filter
-        if ($archived === '1') {
-            $query->whereNotNull('archived_at');
-        } else {
-            $query->whereNull('archived_at');
-        }
-
-        // candidate verified filter only when role=candidate
-        if ($role === 'candidate' && in_array($verified, ['verified', 'unverified'], true)) {
-            $query->when($verified === 'verified', fn($q2) => $q2->whereNotNull('email_verified_at'))
-                ->when($verified === 'unverified', fn($q2) => $q2->whereNull('email_verified_at'));
-        }
-
-        // search
-        if ($q !== '') {
-            $query->where(function ($sub) use ($q) {
-                $sub->where('name', 'like', "%{$q}%")
-                    ->orWhere('first_name', 'like', "%{$q}%")
-                    ->orWhere('last_name', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%")
-                    ->orWhereRaw("concat(first_name,' ',last_name) like ?", ["%{$q}%"])
-                    ->orWhereRaw("concat(last_name,' ',first_name) like ?", ["%{$q}%"]);
-            });
-        }
-
-        // subscription filters (only when role=employer)
-        if ($role === 'employer' && ($sub_plan !== '' || $sub_status !== '')) {
-            $query->whereHas('employerProfile.subscription', function ($s) use ($sub_plan, $sub_status) {
-                if ($sub_plan !== '') $s->where('plan', $sub_plan);
-                if ($sub_status !== '') $s->where('subscription_status', $sub_status);
-            });
-        }
-
-        $users = $query->latest('id')->paginate(10)->withQueryString();
-
-        return view('adminpage.contents.users', compact(
-            'users',
-            'q',
-            'role',
-            'verified',
-            'archived',
-            'sub_plan',
-            'sub_status'
-        ));
+    // archived filter
+    if ($archived === '1') {
+        $query->whereNotNull('archived_at');
+    } else {
+        $query->whereNull('archived_at');
     }
+
+    // role filter
+    if (in_array($role, ['employer', 'candidate'], true)) {
+        $query->where('role', $role);
+    }
+
+    // verified filter (ONLY for candidates, and DO NOT override employer selection)
+    if (in_array($verified, ['verified', 'unverified'], true)) {
+
+        // if role explicitly employer, ignore verified filter
+        if ($role !== 'employer') {
+            $query->where(function ($w) use ($verified) {
+                $w->where('role', 'candidate')
+                  ->when($verified === 'verified', fn ($q2) => $q2->whereNotNull('email_verified_at'))
+                  ->when($verified === 'unverified', fn ($q2) => $q2->whereNull('email_verified_at'));
+            });
+        }
+    }
+
+    // search
+    if ($q !== '') {
+        $query->where(function ($sub) use ($q) {
+            $sub->where('name', 'like', "%{$q}%")
+                ->orWhere('first_name', 'like', "%{$q}%")
+                ->orWhere('last_name', 'like', "%{$q}%")
+                ->orWhere('email', 'like', "%{$q}%")
+                ->orWhereRaw("concat(first_name,' ',last_name) like ?", ["%{$q}%"])
+                ->orWhereRaw("concat(last_name,' ',first_name) like ?", ["%{$q}%"]);
+        });
+    }
+
+    // subscription filters (employer only)
+    if ($sub_plan !== '' || $sub_status !== '') {
+        $query->where('role', 'employer')
+              ->whereHas('employerProfile', function ($ep) use ($sub_plan, $sub_status) {
+                  if ($sub_plan !== '') $ep->where('plan', $sub_plan);
+                  if ($sub_status !== '') $ep->where('subscription_status', $sub_status);
+              });
+    }
+
+    $users = $query->latest('id')->paginate(10)->withQueryString();
+
+    // ✅ IMPORTANT: match your actual blade file
+    return view('adminpage.contents.users', compact(
+    'users', 'q', 'role', 'verified', 'archived', 'sub_plan', 'sub_status'
+));
+}
 
     public function show(User $user)
     {
         abort_if(!in_array($user->role, ['employer', 'candidate'], true), 404);
 
-        $user->load([
-            'employerProfile.verification',
-            'employerProfile.subscription',
-            'employerProfile.industries',
-        ]);
+        $user->load('employerProfile');
 
         return view('adminpage.contents.users-show', compact('user'));
     }
@@ -105,11 +92,7 @@ class UserController extends Controller
     {
         abort_if(!in_array($user->role, ['employer', 'candidate'], true), 404);
 
-        $user->load([
-            'employerProfile.verification',
-            'employerProfile.subscription',
-            'employerProfile.industries',
-        ]);
+        $user->load('employerProfile');
 
         return view('adminpage.contents.users-edit', compact('user'));
     }
@@ -123,9 +106,7 @@ class UserController extends Controller
             'last_name'        => ['required', 'string', 'max:255'],
             'email'            => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone'            => ['nullable', 'string', 'max:50'],
-
-            // employer verification status (NEW location)
-            'employer_status'  => ['nullable', Rule::in(['pending', 'approved', 'rejected', 'suspended'])],
+            'employer_status'  => ['nullable', Rule::in(['pending', 'approved', 'rejected'])],
         ]);
 
         $user->update([
@@ -136,41 +117,22 @@ class UserController extends Controller
             'phone'      => $data['phone'] ?? null,
         ]);
 
-        // employer verification update (now in employer_verifications table)
         if ($user->role === 'employer' && !empty($data['employer_status'])) {
-
             $profile = EmployerProfile::firstOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'company_name'        => '—',
-                    'company_address'     => '—',
-                    'company_contact'     => '—',
-                    'company_website'     => null,
-                    'description'         => null,
-                    'representative_name' => '—',
-                    'position'            => '—',
+                    'company_name'         => '—',
+                    'company_email'        => $user->email,
+                    'company_address'      => '—',
+                    'company_contact'      => '—',
+                    'representative_name'  => '—',
+                    'position'             => '—',
+                    'status'               => 'pending',
                 ]
             );
 
-            $payload = ['status' => $data['employer_status']];
-
-            if ($data['employer_status'] === 'approved') {
-                $payload['approved_at'] = now();
-                $payload['rejected_at'] = null;
-                $payload['rejection_reason'] = null;
-                $payload['suspended_reason'] = null;
-            }
-
-            if ($data['employer_status'] === 'rejected') {
-                // keep reason unchanged here; use reject() method to set reason
-                $payload['rejected_at'] = now();
-                $payload['approved_at'] = null;
-            }
-
-            $profile->verification()->updateOrCreate(
-                ['employer_profile_id' => $profile->id],
-                $payload
-            );
+            $profile->status = $data['employer_status'];
+            $profile->save();
         }
 
         return redirect()
@@ -178,6 +140,9 @@ class UserController extends Controller
             ->with('success', 'User updated.');
     }
 
+    /**
+     * Archive user: sets archived_at and disables via account_status.
+     */
     public function archive(User $user)
     {
         abort_if(!in_array($user->role, ['employer', 'candidate'], true), 404);
@@ -189,21 +154,31 @@ class UserController extends Controller
         return back()->with('success', 'User archived.');
     }
 
+    /**
+     * Restore user: clears archived_at and optionally re-activates.
+     */
     public function restore(User $user)
     {
         abort_if(!in_array($user->role, ['employer', 'candidate'], true), 404);
 
         $user->archived_at = null;
+
+        // If you want restore to bring them back online:
         $user->account_status = 'active';
+
         $user->save();
 
         return back()->with('success', 'User restored.');
     }
 
+    /**
+     * Toggle active/disabled for candidate/employer only.
+     */
     public function toggle(User $user)
     {
         abort_if(!in_array($user->role, ['employer', 'candidate'], true), 404);
 
+        // Safety: prevent disabling yourself if you ever reuse this for admins
         $currentAdminId = Auth::guard('admin')->id();
         abort_if($currentAdminId && $user->id === $currentAdminId, 403);
 
@@ -214,6 +189,9 @@ class UserController extends Controller
         return back()->with('success', 'User status updated.');
     }
 
+    /**
+     * Set explicit status: active|disabled|hold
+     */
     public function setStatus(Request $request, User $user)
     {
         abort_if(!in_array($user->role, ['employer', 'candidate'], true), 404);
@@ -228,6 +206,9 @@ class UserController extends Controller
         return back()->with('success', 'User status updated.');
     }
 
+    /**
+     * Approve employer (kept for compatibility). Calls approve().
+     */
     public function approveEmployer(User $user)
     {
         return $this->approve($user);
@@ -240,27 +221,24 @@ class UserController extends Controller
         $profile = EmployerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
-                'representative_name' => '—',
-                'position'            => '—',
+                'company_name'         => '—',
+                'company_email'        => $user->email,
+                'company_address'      => '—',
+                'company_contact'      => '—',
+                'representative_name'  => '—',
+                'position'             => '—',
+                'status'               => 'pending',
             ]
         );
 
-        $profile->verification()->updateOrCreate(
-            ['employer_profile_id' => $profile->id],
-            [
-                'status' => 'approved',
-                'approved_at' => now(),
-                'rejected_at' => null,
-                'rejection_reason' => null,
-                'suspended_reason' => null,
-            ]
-        );
+        $profile->update([
+            'status'           => 'approved',
+            'rejection_reason' => null,
+            'rejected_at'      => null,
+            'approved_at'      => now(),
+        ]);
 
+        // Approved employers should be active
         $user->account_status = 'active';
         $user->save();
 
@@ -278,152 +256,76 @@ class UserController extends Controller
         $profile = EmployerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
-                'representative_name' => '—',
-                'position'            => '—',
+                'company_name'         => '—',
+                'company_email'        => $user->email,
+                'company_address'      => '—',
+                'company_contact'      => '—',
+                'representative_name'  => '—',
+                'position'             => '—',
+                'status'               => 'pending',
             ]
         );
 
-        $profile->verification()->updateOrCreate(
-            ['employer_profile_id' => $profile->id],
-            [
-                'status' => 'rejected',
-                'rejection_reason' => $request->reason,
-                'rejected_at' => now(),
-                'approved_at' => null,
-            ]
-        );
+        $profile->update([
+            'status'            => 'rejected',
+            'rejection_reason'  => $request->reason,
+            'rejected_at'       => now(),
+            'approved_at'       => null,
+        ]);
 
+        // Rejected employers should not be active
         $user->account_status = 'hold';
         $user->save();
 
         return back()->with('success', 'Employer rejected successfully.');
     }
-
-    public function suspend(User $user, Request $request)
-    {
-        abort_unless($user->role === 'employer', 404);
-
-        $data = $request->validate([
-            'suspended_reason' => ['required', 'string', 'min:3', 'max:2000'],
-            'also_hold_account' => ['nullable', 'boolean'],
-        ]);
-
-        $profile = EmployerProfile::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
-                'representative_name' => '—',
-                'position'            => '—',
-            ]
-        );
-
-        $profile->verification()->updateOrCreate(
-            ['employer_profile_id' => $profile->id],
-            [
-                'status'           => 'suspended',
-                'suspended_reason' => $data['suspended_reason'],
-                'approved_at'      => null,
-                'rejected_at'      => null,
-                'rejection_reason' => null,
-            ]
-        );
-
-        // Optional: hold account
-        if ($request->boolean('also_hold_account')) {
-            $user->account_status = 'hold';
-            $user->save();
-        }
-
-        return back()->with('success', 'Employer suspended.');
-    }
-
-    public function unsuspend(User $user)
-    {
-        abort_unless($user->role === 'employer', 404);
-
-        $profile = EmployerProfile::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
-                'representative_name' => '—',
-                'position'            => '—',
-            ]
-        );
-
-        // Unsuspend back to "approved" by default (you can change to "pending" if you prefer)
-        $profile->verification()->updateOrCreate(
-            ['employer_profile_id' => $profile->id],
-            [
-                'status'           => 'approved',
-                'suspended_reason' => null,
-                'approved_at'      => now(),
-                'rejected_at'      => null,
-                'rejection_reason' => null,
-            ]
-        );
-
-        // Bring account back active (optional)
-        if (($user->account_status ?? 'active') === 'hold') {
-            $user->account_status = 'active';
-            $user->save();
-        }
-
-        return back()->with('success', 'Employer unsuspended.');
-    }
-
     public function updateSubscription(Request $request, User $user)
-    {
-        abort_unless($user->role === 'employer', 404);
+{
+    abort_unless($user->role === 'employer', 404);
 
-        $data = $request->validate([
-            'plan' => ['nullable', Rule::in(['standard', 'gold', 'platinum'])],
-            'subscription_status' => ['required', Rule::in(['inactive', 'active', 'expired', 'canceled'])],
-            'starts_at' => ['nullable', 'date'],
-            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
-            'also_hold_account' => ['nullable', 'boolean'],
-        ]);
+    $data = $request->validate([
+        'plan' => ['nullable', Rule::in(['standard', 'gold', 'platinum'])],
+        'subscription_status' => ['nullable', Rule::in(['active', 'expired', 'suspended', 'none'])],
+        'starts_at' => ['nullable', 'date'],
+        'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+        'suspended_reason' => ['nullable', 'string', 'max:5000'],
+        'also_hold_account' => ['nullable', 'boolean'],
+    ]);
 
-        $ep = $user->employerProfile;
-
-        if (!$ep) {
-            return back()->with('error', 'Employer profile not found.');
-        }
-
-        // update subscription table (NEW)
-        $sub = $ep->subscription()->updateOrCreate(
-            ['employer_profile_id' => $ep->id],
-            [
-                'plan' => $data['plan'] ?? null,
-                'subscription_status' => $data['subscription_status'],
-                'starts_at' => $data['starts_at'] ?? null,
-                'ends_at' => $data['ends_at'] ?? null,
-            ]
-        );
-
-        // auto expire if ends_at passed
-        if ($sub->ends_at && now()->greaterThan($sub->ends_at)) {
-            $sub->subscription_status = 'expired';
-            $sub->save();
-        }
-
-        if ($request->boolean('also_hold_account')) {
-            $user->account_status = 'hold';
-            $user->save();
-        }
-
-        return back()->with('success', 'Subscription updated.');
+    $ep = $user->employerProfile;
+    if (!$ep) {
+        return back()->with('error', 'Employer profile not found.');
     }
+
+    // Update fields (keep previous if not provided)
+    $ep->plan = $data['plan'] ?? $ep->plan;
+    $ep->subscription_status = $data['subscription_status'] ?? $ep->subscription_status;
+    $ep->starts_at = $data['starts_at'] ?? $ep->starts_at;
+    $ep->ends_at = $data['ends_at'] ?? $ep->ends_at;
+    $ep->suspended_reason = $data['suspended_reason'] ?? $ep->suspended_reason;
+
+   
+    if ($ep->ends_at && now()->greaterThan($ep->ends_at)) {
+        $ep->subscription_status = 'expired';
+
+        if (empty($ep->suspended_reason)) {
+            $ep->suspended_reason = 'expired';
+        }
+    }
+
+    
+    if (($ep->subscription_status === 'active') && empty($ep->ends_at)) {
+        $ep->subscription_status = 'none';
+    }
+
+    $ep->save();
+
+    
+    if ($request->boolean('also_hold_account')) {
+        $user->account_status = 'hold';
+        $user->save();
+    }
+
+    return back()->with('success', 'Subscription updated.');
+}
 }
