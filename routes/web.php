@@ -25,7 +25,9 @@ use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\LocationSuggestionController;
-
+use App\Http\Controllers\Admin\SubscriptionPlanController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\SubscriptionController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -46,18 +48,14 @@ Route::view('/search-industries', 'mainpage.search-jobs-page.search-industries')
 Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
     ->name('search-country');
 
-Route::view('/agency-details', 'mainpage.agency-details-page.agency.show')
-    ->name('agency.details');
 
 Route::get('/jobs', [JobBrowseController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show');
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
     ->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])
-    ->name('agencies.show');
+    ->name('agency.details');
 
-Route::get('/agencies/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
-    ->name('agencies.jobs');
 
 
 
@@ -277,6 +275,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
         Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
 
+        // Suspension controls
+        Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
+        Route::patch('/users/{user}/unsuspend', [UserController::class, 'unsuspend'])->name('users.unsuspend');
+
         /*
         |--------------------------------------------------------------------------
         | ADMIN STATIC PAGES
@@ -286,6 +288,33 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::view('/billing', 'adminpage.contents.billing')->name('billing');
         Route::view('/reports', 'adminpage.contents.reports')->name('reports');
         Route::view('/settings', 'adminpage.contents.settings')->name('settings');
+
+        /*
+        |--------------------------------------------------------------------------
+        | ✅ SUBSCRIPTION & PAYMENT MANAGEMENT
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+
+            // Plans (CRUD)
+            Route::resource('plans', SubscriptionPlanController::class);
+
+            // Payments
+            Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+            Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+            Route::post('payments/{payment}/complete', [PaymentController::class, 'markCompleted'])->name('payments.complete');
+            Route::post('payments/{payment}/fail', [PaymentController::class, 'markFailed'])->name('payments.fail');
+
+            // Employer Subscriptions
+            Route::get('/', [SubscriptionController::class, 'index'])->name('index');
+            Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired');
+
+            Route::post('{subscription}/activate', [SubscriptionController::class, 'activate'])->name('activate');
+            Route::post('{subscription}/suspend', [SubscriptionController::class, 'suspend'])->name('suspend');
+
+            // Expired reminders
+            Route::post('{subscription}/remind', [SubscriptionController::class, 'sendExpiredReminder'])->name('remind');
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -356,12 +385,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::delete('/location-suggestions/{suggestion}', [LocationSuggestionController::class, 'destroy'])
             ->name('location_suggestions.destroy');
-        // Location suggestions approve flow — must-do #4
+
+        // Location suggestions approve flow
         Route::patch('/location-suggestions/{suggestion}/approve', [LocationSuggestionController::class, 'approve'])
             ->name('location_suggestions.approve');
 
-
-        // Quick meta updates (active + sort_order) — nice-to-have #5
+        // Quick meta updates
         Route::patch('/industries/{industry}/meta', [IndustryController::class, 'updateMeta'])->name('industries.meta');
         Route::patch('/skills/{skill}/meta', [SkillController::class, 'updateMeta'])->name('skills.meta');
 
@@ -370,8 +399,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
             Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
         });
-
-      
     });
 
     /*
