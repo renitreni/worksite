@@ -1,27 +1,39 @@
-<div id="jobs" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="text-lg font-extrabold text-gray-900">Listed Jobs</h2>
             <p class="mt-1 text-sm text-gray-600">All openings posted by this agency.</p>
         </div>
+
+        {{-- UI only --}}
+        <div class="flex gap-2">
+            <button class="px-4 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-semibold">
+                Latest
+            </button>
+            <button class="px-4 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-semibold">
+                Full-time
+            </button>
+        </div>
     </div>
 
-    {{-- GRID --}}
-    <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
-        @forelse($jobs as $job)
-            <div>
-                @include('components.job-card', ['job' => $job])
-            </div>
-        @empty
-            <div class="col-span-full rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
-                <p class="font-semibold text-gray-800">No open jobs right now.</p>
-                <p class="text-sm text-gray-600 mt-1">Check again later for new opportunities.</p>
-            </div>
-        @endforelse
+    <div class="mt-5 space-y-4">
+        @foreach($jobs as $job)
+            @include('mainpage.agency-details-page.agency.partials._job-card', ['job' => $job])
+        @endforeach
     </div>
 
-    {{-- Pagination --}}
-    <div class="mt-8">
-        {{ $jobs->links() }}
+    {{-- ONE ROW Pagination ( < 1 2 3 > ) --}}
+    <div class="mt-8 flex items-center justify-center gap-2">
+        <button class="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 flex items-center justify-center">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+
+        <button class="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 font-semibold">1</button>
+        <button class="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 font-semibold">2</button>
+        <button class="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 font-semibold">3</button>
+
+        <button class="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 flex items-center justify-center">
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
     </div>
 </div>
