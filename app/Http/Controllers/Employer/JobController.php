@@ -21,26 +21,9 @@ class JobController extends Controller
     // ----------------------------
     private function requireApprovedEmployerProfile()
     {
-        $user = Auth::user();
-        abort_if(!$user, 403);
+        $profile = Auth::user()->employerProfile;
 
-        $profile = $user->employerProfile;
-
-        if (!$profile) {
-            abort(403, 'Employer profile not found.');
-        }
-
-        // ✅ status is now in employer_verifications table
-        $verification = $profile->verification; // assumes EmployerProfile has verification() relation
-
-        // optional: ensure row exists (so you don't get null always)
-        if (!$verification) {
-            $verification = $profile->verification()->create([
-                'status' => 'pending',
-            ]);
-        }
-
-        if ($verification->status !== 'approved') {
+        if (!$profile || $profile->status !== 'approved') {
             abort(403, 'Employer not approved.');
         }
 
@@ -49,13 +32,11 @@ class JobController extends Controller
 
     private function requireOwner(JobPost $job)
     {
-        // safety: load relation if missing
-        $job->loadMissing('employerProfile');
-
-        if (!$job->employerProfile || $job->employerProfile->user_id !== Auth::id()) {
+        if ($job->employerProfile->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
     }
+
     /**
      * Loads dropdown lists from DB/config (NO external API calls).
      */
