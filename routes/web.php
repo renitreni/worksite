@@ -24,7 +24,9 @@ use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\LocationSuggestionController;
-
+use App\Http\Controllers\Admin\SubscriptionPlanController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\SubscriptionController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -284,6 +286,33 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
+        | ✅ SUBSCRIPTION & PAYMENT MANAGEMENT
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+
+            // Plans (CRUD)
+            Route::resource('plans', SubscriptionPlanController::class);
+
+            // Payments
+            Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+            Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+            Route::post('payments/{payment}/complete', [PaymentController::class, 'markCompleted'])->name('payments.complete');
+            Route::post('payments/{payment}/fail', [PaymentController::class, 'markFailed'])->name('payments.fail');
+
+            // Employer Subscriptions
+            Route::get('/', [SubscriptionController::class, 'index'])->name('index');
+            Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired');
+
+            Route::post('{subscription}/activate', [SubscriptionController::class, 'activate'])->name('activate');
+            Route::post('{subscription}/suspend', [SubscriptionController::class, 'suspend'])->name('suspend');
+
+            // Expired reminders
+            Route::post('{subscription}/remind', [SubscriptionController::class, 'sendExpiredReminder'])->name('remind');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
         | INDUSTRIES (Job Categories)
         |--------------------------------------------------------------------------
         */
@@ -351,12 +380,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::delete('/location-suggestions/{suggestion}', [LocationSuggestionController::class, 'destroy'])
             ->name('location_suggestions.destroy');
-        // Location suggestions approve flow — must-do #4
+
+        // Location suggestions approve flow
         Route::patch('/location-suggestions/{suggestion}/approve', [LocationSuggestionController::class, 'approve'])
             ->name('location_suggestions.approve');
 
-
-        // Quick meta updates (active + sort_order) — nice-to-have #5
+        // Quick meta updates
         Route::patch('/industries/{industry}/meta', [IndustryController::class, 'updateMeta'])->name('industries.meta');
         Route::patch('/skills/{skill}/meta', [SkillController::class, 'updateMeta'])->name('skills.meta');
 
@@ -365,8 +394,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
             Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
         });
-
-      
     });
 
     /*
