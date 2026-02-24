@@ -66,7 +66,7 @@
         function carousel(total) {
             return {
                 total,
-                showArrows: total > 1,
+                showArrows: total > 4,
 
                 pause: false,
                 speed: 0.6,
@@ -80,7 +80,7 @@
                     this.el = this.$refs.carousel;
 
                     // 0-1 cards: no duplication / no animation
-                    if (this.total <= 1) {
+                    if (this.total <= 3) {
                         this.showArrows = false;
                         this.$nextTick(() => {
                             if (window.lucide) lucide.createIcons();
