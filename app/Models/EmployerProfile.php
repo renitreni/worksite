@@ -37,6 +37,21 @@ class EmployerProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function verification()
+    {
+        return $this->hasOne(EmployerVerification::class);
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(EmployerSubscription::class);
+    }
+
+    public function industries()
+    {
+        return $this->belongsToMany(Industry::class, 'employer_industries')->withTimestamps();
+    }
+
     public function jobPosts()
     {
         return $this->hasMany(JobPost::class);
@@ -99,3 +114,4 @@ public function can(string $feature): bool
     return (bool) data_get($matrix, "{$plan}.{$feature}", false);
 }
 }
+
