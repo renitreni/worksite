@@ -1,4 +1,4 @@
-<section class="bg-gray-50 py-16">
+<section class="py-16">
     <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Header --}}
         <div class="text-center mb-12">
