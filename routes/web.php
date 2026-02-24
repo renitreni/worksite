@@ -45,14 +45,18 @@ Route::view('/search-industries', 'mainpage.search-jobs-page.search-industries')
 Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
     ->name('search-country');
 
+Route::view('/agency-details', 'mainpage.agency-details-page.agency.show')
+    ->name('agency.details');
 
 Route::get('/jobs', [JobBrowseController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show');
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
     ->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])
-    ->name('agency.details');
+    ->name('agencies.show');
 
+Route::get('/agencies/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
+    ->name('agencies.jobs');
 
 
 
@@ -268,10 +272,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
         Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
 
-        // Suspension controls
-        Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
-        Route::patch('/users/{user}/unsuspend', [UserController::class, 'unsuspend'])->name('users.unsuspend');
-
         /*
         |--------------------------------------------------------------------------
         | ADMIN STATIC PAGES
@@ -365,6 +365,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
             Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
         });
+
+      
     });
 
     /*
