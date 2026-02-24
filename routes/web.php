@@ -45,18 +45,14 @@ Route::view('/search-industries', 'mainpage.search-jobs-page.search-industries')
 Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
     ->name('search-country');
 
-Route::view('/agency-details', 'mainpage.agency-details-page.agency.show')
-    ->name('agency.details');
 
 Route::get('/jobs', [JobBrowseController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show');
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
     ->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])
-    ->name('agencies.show');
+    ->name('agency.details');
 
-Route::get('/agencies/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
-    ->name('agencies.jobs');
 
 
 
@@ -365,8 +361,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
             Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
         });
-
-      
     });
 
     /*
