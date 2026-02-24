@@ -61,11 +61,36 @@
     ],
 
     [
-      'label' => 'Subscriptions & Payments',
-      'route' => 'admin.billing',
-      'icon'  => 'credit-card',
-      'active'=> 'admin.billing*',
+  'label' => 'Subscriptions & Payments',
+  'icon'  => 'credit-card',
+  'active'=> 'admin.subscriptions.*',
+  'children' => [
+    [
+      'label' => 'Plans',
+      'route' => 'admin.subscriptions.plans.index',
+      'icon'  => 'package',
+      'active'=> 'admin.subscriptions.plans.*',
     ],
+    [
+      'label' => 'Payments',
+      'route' => 'admin.subscriptions.payments.index',
+      'icon'  => 'receipt',
+      'active'=> 'admin.subscriptions.payments.*',
+    ],
+    [
+      'label' => 'Subscriptions',
+      'route' => 'admin.subscriptions.index',
+      'icon'  => 'repeat',
+      'active'=> 'admin.subscriptions.index|admin.subscriptions.activate|admin.subscriptions.suspend',
+    ],
+    [
+      'label' => 'Expired',
+      'route' => 'admin.subscriptions.expired',
+      'icon'  => 'calendar-x',
+      'active'=> 'admin.subscriptions.expired|admin.subscriptions.remind',
+    ],
+  ],
+],
     [
       'label' => 'Reports',
       'route' => 'admin.reports',
