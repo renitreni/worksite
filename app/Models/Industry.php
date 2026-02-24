@@ -8,8 +8,9 @@ class Industry extends Model
 {
     protected $fillable = ['name', 'image', 'is_active', 'sort_order'];
 
-    public function employerProfiles()
+     public function employerProfiles()
     {
-        return $this->hasMany(\App\Models\EmployerProfile::class);
+        return $this->belongsToMany(EmployerProfile::class, 'employer_industries')
+            ->withTimestamps();
     }
 }
