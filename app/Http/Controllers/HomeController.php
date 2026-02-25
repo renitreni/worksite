@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\JobPost;
+use App\Models\EmployerProfile;
 
 class HomeController extends Controller
 {

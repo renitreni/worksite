@@ -4,41 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EmployerSubscription extends Model
 {
-    public const STATUS_PENDING   = 'pending_activation';
-    public const STATUS_ACTIVE    = 'active';
-    public const STATUS_SUSPENDED = 'suspended';
-    public const STATUS_EXPIRED   = 'expired';
+    // Status constants (can match your enum in DB)
+    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_ACTIVE   = 'active';
+    public const STATUS_EXPIRED  = 'expired';
+    public const STATUS_CANCELED = 'canceled';
 
     protected $fillable = [
-        'employer_id',
+        'employer_profile_id',
         'plan_id',
-        'status',
+        'subscription_status',
         'starts_at',
         'ends_at',
-        'activated_by_admin_id',
-        'activated_at',
-        'suspended_by_admin_id',
-        'suspended_at',
-        'suspend_reason',
     ];
 
     protected $casts = [
-        'starts_at'    => 'datetime',
-        'ends_at'      => 'datetime',
-        'activated_at' => 'datetime',
-        'suspended_at' => 'datetime',
+        'starts_at' => 'datetime',
+        'ends_at'   => 'datetime',
     ];
-  
-   public function employerProfile()
+
+    // Relationships
+    public function employerProfile(): BelongsTo
     {
         return $this->belongsTo(EmployerProfile::class);
-   }
-    public function employer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'employer_id');
     }
 
     public function plan(): BelongsTo
@@ -46,19 +38,15 @@ class EmployerSubscription extends Model
         return $this->belongsTo(SubscriptionPlan::class, 'plan_id');
     }
 
-    public function activatedBy(): BelongsTo
+    public function payments(): HasMany
     {
-        return $this->belongsTo(User::class, 'activated_by_admin_id');
+        return $this->hasMany(Payment::class, 'subscription_id');
     }
 
-    public function suspendedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'suspended_by_admin_id');
-    }
-
+    // Helper functions
     public function isActive(): bool
     {
-        return $this->status === self::STATUS_ACTIVE;
+        return $this->subscription_status === self::STATUS_ACTIVE;
     }
 
     public function isExpired(): bool
