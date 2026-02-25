@@ -19,6 +19,7 @@
       @csrf
       @method('PUT')
 
+      {{-- Name --}}
       <div class="sm:col-span-2">
         <label class="text-xs font-semibold text-slate-700">Name</label>
         <input
@@ -29,6 +30,25 @@
         />
       </div>
 
+      {{-- Industry --}}
+      <div class="sm:col-span-2">
+        <label class="text-xs font-semibold text-slate-700">Industry</label>
+        <select
+          name="industry_id"
+          class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200"
+          required
+        >
+          <option value="" disabled>Select industry</option>
+          @foreach ($industries as $ind)
+            <option value="{{ $ind->id }}"
+              {{ (string) old('industry_id', $skill->industry_id) === (string) $ind->id ? 'selected' : '' }}>
+              {{ $ind->name }}
+            </option>
+          @endforeach
+        </select>
+      </div>
+
+      {{-- Sort order --}}
       <div>
         <label class="text-xs font-semibold text-slate-700">Sort order</label>
         <input
@@ -40,6 +60,7 @@
         />
       </div>
 
+      {{-- Active --}}
       <div class="flex items-end">
         <label class="inline-flex items-center gap-2 text-sm text-slate-700">
           <input type="checkbox" name="is_active" value="1" class="rounded border-slate-300"
@@ -48,6 +69,7 @@
         </label>
       </div>
 
+      {{-- Buttons --}}
       <div class="sm:col-span-2 flex justify-end gap-2">
         <a href="{{ route('admin.skills.index') }}"
            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
@@ -57,6 +79,7 @@
           Save changes
         </button>
       </div>
+
     </form>
   </div>
 

@@ -48,11 +48,6 @@
             {{ $job->industry ?? '—' }}
         </span>
 
-        @if($skills->count())
-            <span class="inline-flex items-center rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-xs font-semibold">
-                {{ $skills->first() }}
-            </span>
-        @endif
     </div>
 
     <div class="mt-5 space-y-3 text-sm text-gray-600">

@@ -4,14 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Skill extends Model
+class EmployerIndustry extends Model
 {
     protected $fillable = [
+        'employer_profile_id',
         'industry_id',
-        'name',
-        'is_active',
-        'sort_order',
     ];
+
+    public function employerProfile()
+    {
+        return $this->belongsTo(EmployerProfile::class);
+    }
 
     public function industry()
     {
