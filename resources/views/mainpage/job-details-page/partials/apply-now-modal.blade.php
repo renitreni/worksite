@@ -1,6 +1,6 @@
 @php
   $u = auth()->user();
-  $resume = $u?->candidateResume; // should be eager-loaded with experiences/educations
+  $resume = $u?->candidateResume; 
 
   $fullNameDefault = $u ? (trim(($u->first_name ?? '').' '.($u->last_name ?? '')) ?: ($u->name ?? '')) : '';
   $emailDefault = $u?->email ?? '';

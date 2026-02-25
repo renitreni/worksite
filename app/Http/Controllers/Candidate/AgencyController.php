@@ -18,6 +18,9 @@ class AgencyController extends Controller
             abort(404);
         }
 
+        $employerProfile->load(['user:id,email']);
+
+
         $jobs = $employerProfile->jobPosts()
             ->where('status', 'open')
             ->orderByDesc('posted_at')

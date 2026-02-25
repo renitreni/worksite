@@ -22,45 +22,47 @@
             </div>
 
             @php
-                // ✅ Find industry_id based on stored industry name in job_posts
-                $currentIndustryId = optional(
-                    collect($industries ?? [])->firstWhere('name', $job->industry)
-                )->id;
-
-                // use old industry_id if validation failed
+                // Industry ID from job (job stores industry name)
+                $currentIndustryId = optional(collect($industries ?? [])->firstWhere('name', $job->industry))->id;
                 $oldIndustryId = old('industry_id', $currentIndustryId);
-
-                // Job skills stored as CSV names in DB (ex: "Welding,Driving")
-                $selectedSkillNames = collect(explode(',', (string) $job->skills))
-                    ->map(fn($s) => trim($s))
-                    ->filter()
-                    ->values()
-                    ->all();
-                
-
-                // old('skills') will be array of IDs now (after your new form)
-                $oldSkillIds = old('skills', []);
-
-                if (!is_array($oldSkillIds)) $oldSkillIds = [];
 
                 // Country cascading init
                 $oldCountry = old('country', $job->country);
-                $oldCity    = old('city', $job->city);
-                $oldArea    = old('area', $job->area);
-            @endphp
-            @php
-    // Convert saved CSV skill NAMES -> IDs (for checkbox checking)
-    $selectedSkillIdsFromDb = [];
+                $oldCity = old('city', $job->city);
+                $oldArea = old('area', $job->area);
 
-    if (!empty($currentIndustryId) && count($selectedSkillNames) > 0) {
-        $selectedSkillIdsFromDb = \App\Models\Skill::query()
-            ->where('industry_id', $currentIndustryId)
-            ->whereIn('name', $selectedSkillNames)
-            ->pluck('id')
-            ->map(fn($id) => (string) $id)
-            ->all();
-    }
-@endphp
+                // old('skills') on validation fail = IDs (array)
+                $oldSkillIds = old('skills', []);
+                if (!is_array($oldSkillIds)) {
+                    $oldSkillIds = [];
+                }
+                $oldSkillIds = collect($oldSkillIds)->map(fn($v) => (string) $v)->values()->all();
+
+                // ✅ Detect if saved skills are IDs ("11,12") or names ("Caregiver,Nurse")
+                $rawSkills = trim((string) $job->skills);
+                $savedSkillIds = [];
+
+                if ($rawSkills !== '') {
+                    $parts = collect(explode(',', $rawSkills))->map(fn($s) => trim($s))->filter()->values();
+
+                    $looksNumeric = $parts->every(fn($s) => preg_match('/^\d+$/', $s));
+
+                    if ($looksNumeric) {
+                        // Saved as IDs
+                        $savedSkillIds = $parts->map(fn($s) => (string) $s)->all();
+                    } else {
+                        // Saved as NAMES -> map to IDs (needs industry)
+                        if (!empty($currentIndustryId)) {
+                            $savedSkillIds = \App\Models\Skill::query()
+                                ->where('industry_id', $currentIndustryId)
+                                ->whereIn('name', $parts->all())
+                                ->pluck('id')
+                                ->map(fn($id) => (string) $id)
+                                ->all();
+                        }
+                    }
+                }
+            @endphp
 
             <form action="{{ route('employer.job-postings.update', $job->id) }}" method="POST"
                 class="px-6 sm:px-8 py-8 space-y-8">
@@ -78,7 +80,9 @@
                         </label>
                         <input type="text" name="title" id="title" value="{{ old('title', $job->title) }}"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                        @error('title') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        @error('title')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     {{-- Industry (ID) --}}
@@ -90,8 +94,9 @@
                             <select name="industry_id" id="industry_id"
                                 class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
                                 <option value="">Select Industry</option>
-                                @foreach(($industries ?? []) as $ind)
-                                    <option value="{{ $ind->id }}" {{ (string)$oldIndustryId === (string)$ind->id ? 'selected' : '' }}>
+                                @foreach ($industries ?? [] as $ind)
+                                    <option value="{{ $ind->id }}"
+                                        {{ (string) $oldIndustryId === (string) $ind->id ? 'selected' : '' }}>
                                         {{ $ind->name }}
                                     </option>
                                 @endforeach
@@ -101,7 +106,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
-                        @error('industry_id') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        @error('industry_id')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     {{-- Skills (AJAX by Industry) --}}
@@ -109,18 +116,18 @@
                         <label class="block text-sm font-medium text-slate-700">
                             Skills <span class="text-red-500">*</span>
                         </label>
-                        <p class="text-xs text-slate-500 mt-1">Select all that apply.</p>
-
                         <div id="skillsHint" class="mt-2 text-xs text-slate-500">
                             Select an industry to load skills.
                         </div>
 
-                        <div id="skillsGrid" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {{-- Filled by JS --}}
-                        </div>
+                        <div id="skillsGrid" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
 
-                        @error('skills') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
-                        @error('skills.*') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        @error('skills')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
+                        @error('skills.*')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
@@ -140,8 +147,9 @@
                                 <select name="country" id="country"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
                                     <option value="">Select Country</option>
-                                    @foreach(($countries ?? []) as $country)
-                                        <option value="{{ $country }}" {{ old('country', $job->country) == $country ? 'selected' : '' }}>
+                                    @foreach ($countries ?? [] as $country)
+                                        <option value="{{ $country }}"
+                                            {{ old('country', $job->country) == $country ? 'selected' : '' }}>
                                             {{ $country }}
                                         </option>
                                     @endforeach
@@ -153,7 +161,9 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            @error('country') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('country')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- City --}}
@@ -181,10 +191,14 @@
                                 <input type="text" name="city_custom" id="city_custom" value="{{ old('city_custom') }}"
                                     placeholder="Type city..."
                                     class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                @error('city_custom') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                                @error('city_custom')
+                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                @enderror
                             </div>
 
-                            @error('city') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('city')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- Area --}}
@@ -209,16 +223,21 @@
                                 <label for="area_custom" class="block text-xs font-semibold text-slate-600">
                                     Enter Area (will be sent for admin approval)
                                 </label>
-                                <input type="text" name="area_custom" id="area_custom" value="{{ old('area_custom') }}"
-                                    placeholder="Type area..."
+                                <input type="text" name="area_custom" id="area_custom"
+                                    value="{{ old('area_custom') }}" placeholder="Type area..."
                                     class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                @error('area_custom') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                                @error('area_custom')
+                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                @enderror
                             </div>
 
-                            @error('area') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('area')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
+                    {{-- Experience + Salary --}}
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         <div>
                             <label for="min_experience_years" class="block text-sm font-medium text-slate-700">
@@ -227,45 +246,56 @@
                             <input type="number" min="0" name="min_experience_years" id="min_experience_years"
                                 value="{{ old('min_experience_years', $job->min_experience_years) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            @error('min_experience_years') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('min_experience_years')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-slate-700">Salary Range (optional)</label>
                             <div class="mt-2 grid grid-cols-2 gap-3">
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold"
+                                    <span
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold"
                                         id="salarySymbol">₱</span>
-                                    <input type="number" step="0.01" min="0" name="salary_min" id="salary_min"
-                                        value="{{ old('salary_min', $job->salary_min) }}" placeholder="Minimum"
+                                    <input type="number" step="0.01" min="0" name="salary_min"
+                                        id="salary_min" value="{{ old('salary_min', $job->salary_min) }}"
+                                        placeholder="Minimum"
                                         class="pl-10 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
                                 </div>
 
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold">—</span>
-                                    <input type="number" step="0.01" min="0" name="salary_max" id="salary_max"
-                                        value="{{ old('salary_max', $job->salary_max) }}" placeholder="Maximum"
+                                    <span
+                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold">—</span>
+                                    <input type="number" step="0.01" min="0" name="salary_max"
+                                        id="salary_max" value="{{ old('salary_max', $job->salary_max) }}"
+                                        placeholder="Maximum"
                                         class="pl-10 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
                                 </div>
                             </div>
-                            @error('salary_min') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
-                            @error('salary_max') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('salary_min')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                            @error('salary_max')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
                             <label for="salary_currency" class="block text-sm font-medium text-slate-700">Currency</label>
                             <div class="mt-2 relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M19 9h2m-2 0a2 2 0 00-2 2v2a2 2 0 002 2h2m-4-6h2m0 0V7m0 10v-2" />
                                     </svg>
                                 </span>
                                 <select name="salary_currency" id="salary_currency"
                                     class="pl-10 block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    @foreach(($currencies ?? []) as $code => $name)
-                                        <option value="{{ $code }}" {{ old('salary_currency', $job->salary_currency ?? 'PHP') == $code ? 'selected' : '' }}>
+                                    @foreach ($currencies ?? [] as $code => $name)
+                                        <option value="{{ $code }}"
+                                            {{ old('salary_currency', $job->salary_currency ?? 'PHP') == $code ? 'selected' : '' }}>
                                             {{ $code }} — {{ $name }}
                                         </option>
                                     @endforeach
@@ -277,22 +307,23 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            @error('salary_currency') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('salary_currency')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
 
                 <div class="h-px bg-slate-200"></div>
 
-                {{-- Descriptions & Fees --}}
+                {{-- Content + Fees --}}
                 <div class="space-y-6">
                     <h2 class="text-base font-semibold text-slate-900">Descriptions & Fees</h2>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label for="gender" class="block text-sm font-medium text-slate-700">
-                                Gender <span class="text-red-500">*</span>
-                            </label>
+                            <label for="gender" class="block text-sm font-medium text-slate-700">Gender <span
+                                    class="text-red-500">*</span></label>
                             <div class="mt-2 relative">
                                 <select name="gender" id="gender"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
@@ -356,9 +387,8 @@
                     </div>
 
                     <div>
-                        <label for="job_description" class="block text-sm font-medium text-slate-700">
-                            Job Description <span class="text-red-500">*</span>
-                        </label>
+                        <label for="job_description" class="block text-sm font-medium text-slate-700">Job Description <span
+                                class="text-red-500">*</span></label>
                         <textarea name="job_description" id="job_description" rows="6"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('job_description', $job->job_description) }}</textarea>
                         @error('job_description') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
@@ -408,7 +438,8 @@
                         <div>
                             <label for="placement_fee" class="block text-sm font-medium text-slate-700">Placement Fee (optional)</label>
                             <div class="mt-2 relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold" id="feeSymbol">₱</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold"
+                                    id="feeSymbol">₱</span>
                                 <input type="number" step="0.01" name="placement_fee" id="placement_fee"
                                     value="{{ old('placement_fee', $job->placement_fee) }}"
                                     class="pl-10 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
@@ -447,7 +478,6 @@
                 </div>
 
                 @php $backUrl = url()->previous(); @endphp
-
                 <div class="pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
                     <a href="{{ $backUrl }}"
                         class="inline-flex justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
@@ -462,138 +492,17 @@
         </div>
     </div>
 
-    {{-- Currency symbol switcher --}}
-    <script>
-        (function () {
-            const symbolMap = {
-                PHP: "₱", USD: "$", EUR: "€", GBP: "£", JPY: "¥",
-                AUD: "$", CAD: "$", NZD: "$", SGD: "$", HKD: "$",
-                SAR: "﷼", AED: "د.إ", QAR: "﷼", KWD: "د.ك",
-                INR: "₹", KRW: "₩", CNY: "¥", THB: "฿",
-                IDR: "Rp", MYR: "RM", VND: "₫", RUB: "₽",
-                ZAR: "R", TRY: "₺"
-            };
-
-            function setSymbol(selectId, symbolId) {
-                const sel = document.getElementById(selectId);
-                const sym = document.getElementById(symbolId);
-                if (!sel || !sym) return;
-                const code = sel.value || "PHP";
-                sym.textContent = symbolMap[code] ?? code;
-            }
-
-            setSymbol("salary_currency", "salarySymbol");
-            setSymbol("placement_fee_currency", "feeSymbol");
-
-            const salaryCurrency = document.getElementById("salary_currency");
-            const feeCurrency = document.getElementById("placement_fee_currency");
-
-            if (salaryCurrency) salaryCurrency.addEventListener("change", () => setSymbol("salary_currency", "salarySymbol"));
-            if (feeCurrency) feeCurrency.addEventListener("change", () => setSymbol("placement_fee_currency", "feeSymbol"));
-        })();
-    </script>
-
-    {{-- Country -> City -> Area (AJAX) --}}
-    <script>
-        (function () {
-            const countryEl = document.getElementById('country');
-            const cityEl = document.getElementById('city');
-            const areaEl = document.getElementById('area');
-
-            if (!countryEl || !cityEl || !areaEl) return;
-
-            const oldCountry = @json($oldCountry);
-            const oldCity = @json($oldCity);
-            const oldArea = @json($oldArea);
-
-            function resetSelect(selectEl, placeholder) {
-                const customOpt = Array.from(selectEl.options).find(o => o.value === '__custom__');
-                selectEl.innerHTML = '';
-                selectEl.appendChild(new Option(placeholder, ''));
-                if (customOpt) selectEl.appendChild(new Option(customOpt.text, '__custom__'));
-            }
-
-            function fillSelect(selectEl, items, selectedValue) {
-                const customOpt = Array.from(selectEl.options).find(o => o.value === '__custom__');
-                if (customOpt) customOpt.remove();
-
-                (items || []).forEach(name => {
-                    const opt = new Option(name, name);
-                    if (selectedValue && selectedValue === name) opt.selected = true;
-                    selectEl.appendChild(opt);
-                });
-
-                if (customOpt) selectEl.appendChild(customOpt);
-            }
-
-            async function fetchJson(url) {
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) return [];
-                const ct = res.headers.get('content-type') || '';
-                if (!ct.includes('application/json')) return [];
-                return await res.json();
-            }
-
-            async function loadCities(country, selectedCity = null) {
-                resetSelect(cityEl, 'Select City');
-                resetSelect(areaEl, 'Select Area');
-                if (!country) return;
-
-                const url = `{{ route('employer.geo.cities') }}?country=${encodeURIComponent(country)}`;
-                const cities = await fetchJson(url);
-                fillSelect(cityEl, cities, selectedCity);
-            }
-
-            async function loadAreas(country, city, selectedArea = null) {
-                resetSelect(areaEl, 'Select Area');
-                if (!country || !city) return;
-
-                const url = `{{ route('employer.geo.areas') }}?country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}`;
-                const areas = await fetchJson(url);
-                fillSelect(areaEl, areas, selectedArea);
-            }
-
-            countryEl.addEventListener('change', async () => {
-                await loadCities(countryEl.value);
-            });
-
-            cityEl.addEventListener('change', async () => {
-                const country = countryEl.value;
-                const city = cityEl.value;
-
-                if (city === '__custom__' || !city) {
-                    resetSelect(areaEl, 'Select Area');
-                    return;
-                }
-
-                await loadAreas(country, city);
-            });
-
-            (async function init() {
-                if (oldCountry) {
-                    await loadCities(oldCountry, oldCity);
-                    if (oldCity && oldCity !== '__custom__') {
-                        await loadAreas(oldCountry, oldCity, oldArea);
-                    }
-                }
-            })();
-        })();
-    </script>
-
     {{-- Industry -> Skills (AJAX) --}}
     <script>
-        (function () {
+        (function() {
             const industryEl = document.getElementById('industry_id');
             const grid = document.getElementById('skillsGrid');
             const hint = document.getElementById('skillsHint');
 
             if (!industryEl || !grid) return;
 
-            // if validation failed -> old skills are IDs
-            const oldSkillIds = @json($oldSkillIds);
-
-            // from DB -> selected skills are NAMES (CSV)
-            const selectedSkillNames = @json($selectedSkillNames);
+            const oldSkillIds = (@json($oldSkillIds) || []).map(String);
+            const savedSkillIds = (@json($savedSkillIds) || []).map(String);
 
             function renderSkills(skills) {
                 grid.innerHTML = '';
@@ -606,9 +515,8 @@
                 hint.textContent = 'Select all that apply.';
 
                 skills.forEach(s => {
-                    const checked =
-                        (Array.isArray(oldSkillIds) && oldSkillIds.map(String).includes(String(s.id)))
-                        || (Array.isArray(selectedSkillNames) && selectedSkillNames.includes(s.name));
+                    const id = String(s.id);
+                    const checked = oldSkillIds.includes(id) || savedSkillIds.includes(id);
 
                     const label = document.createElement('label');
                     label.className =
@@ -626,7 +534,11 @@
             }
 
             async function fetchJson(url) {
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                const res = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 if (!res.ok) return [];
                 const ct = res.headers.get('content-type') || '';
                 if (!ct.includes('application/json')) return [];
@@ -650,11 +562,8 @@
                 await loadSkills(industryEl.value);
             });
 
-            // init on load (edit)
             (async function init() {
-                if (industryEl.value) {
-                    await loadSkills(industryEl.value);
-                }
+                if (industryEl.value) await loadSkills(industryEl.value);
             })();
         })();
     </script>

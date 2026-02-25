@@ -198,6 +198,9 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/geo/areas', [JobController::class, 'areasByCity'])
         ->name('geo.areas');
 
+    Route::get('/industries/{industry}/skills', [JobController::class, 'skillsByIndustry'])
+        ->name('industries.skills');
+
     // Unified applicant route with optional status filter
 
 

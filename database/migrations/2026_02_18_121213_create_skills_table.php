@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('skills', function (Blueprint $table) {
             $table->id();
+            $table->foreignId(column: 'industry_id')->constrained();
             $table->string('name')->unique();
             $table->boolean('is_active')->default(true);
             $table->unsignedInteger('sort_order')->default(0);
