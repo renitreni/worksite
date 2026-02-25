@@ -1,125 +1,76 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- Section Header -->
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
-                Browse by Specialization
+                Browse by Industry
             </h2>
             <p class="text-gray-600 mt-3 max-w-xl mx-auto">
                 Discover the most in-demand OFW job categories and opportunities.
             </p>
         </div>
 
-        @php
-            $specializations = [
-                [
-                    'image' => 'domestic.jpg',
-                    'name' => 'Domestic',
-                    'jobs' => 1200,
-                    'sub' => ['Helper', 'Nanny', 'Housekeeper', 'Driver'],
-                ],
-                [
-                    'image' => 'caregiver.avif',
-                    'name' => 'Caregiver',
-                    'jobs' => 860,
-                    'sub' => ['Caregiver', 'Nursing Aide', 'Home Care', 'Private Nurse'],
-                ],
-                [
-                    'image' => 'construction.jpeg',
-                    'name' => 'Construction',
-                    'jobs' => 740,
-                    'sub' => ['Laborer', 'Welder', 'Electrician', 'Carpenter'],
-                ],
-                [
-                    'image' => 'factory.jpg',
-                    'name' => 'Factory',
-                    'jobs' => 920,
-                    'sub' => ['Worker', 'Operator', 'Packaging', 'Assembler'],
-                ],
-                [
-                    'image' => 'driver.webp',
-                    'name' => 'Driver',
-                    'jobs' => 510,
-                    'sub' => ['Company', 'Delivery', 'Truck', 'Forklift'],
-                ],
-                [
-                    'image' => 'hospitality.png',
-                    'name' => 'Hospitality',
-                    'jobs' => 680,
-                    'sub' => ['Reception', 'Housekeeping', 'Bellman', 'Cleaner'],
-                ],
-                [
-                    'image' => 'food.jpg',
-                    'name' => 'Food',
-                    'jobs' => 590,
-                    'sub' => ['Barista', 'Waiter', 'Cook', 'Kitchen'],
-                ],
-                [
-                    'image' => 'admin.jpg',
-                    'name' => 'Admin',
-                    'jobs' => 430,
-                    'sub' => ['Assistant', 'Clerk', 'Encoder', 'CSR'],
-                ],
-                [
-                    'image' => 'beauty.jpg',
-                    'name' => 'Beauty',
-                    'jobs' => 370,
-                    'sub' => ['Beautician', 'Hair', 'Makeup', 'Massage'],
-                ],
-                [
-                    'image' => 'maritime.avif',
-                    'name' => 'Maritime',
-                    'jobs' => 295,
-                    'sub' => ['Deck', 'Engine', 'Cook', 'Steward'],
-                ],
-            ];
-        @endphp
+        @if (($industryCards ?? collect())->count() === 0)
+            <div class="max-w-2xl mx-auto bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                <p class="text-gray-700 font-medium">No industries yet.</p>
+                <p class="text-gray-500 text-sm mt-1">Once industries and jobs are available, they will appear here.</p>
+            </div>
+        @else
+            <div x-data="{
+                total: {{ $industryCards->count() }},
+                step: 4,
+                shown: 4,
+                init() {
+                    // ✅ md+ show 8 initially, mobile show 4
+                    this.shown = window.matchMedia('(min-width: 768px)').matches ? 8 : 4;
+            
+                    // ✅ keep correct when resizing
+                    window.addEventListener('resize', () => {
+                        const desired = window.matchMedia('(min-width: 768px)').matches ? 8 : 4;
+                        // only increase if user hasn't loaded more yet
+                        if (this.shown <= 8) this.shown = desired;
+                    });
+                },
+                loadMore() {
+                    this.shown = Math.min(this.shown + this.step, this.total);
+                }
+            }">
 
-        <!-- Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            @foreach ($specializations as $item)
-                <a href="#"
-                   class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg
-                          transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    @foreach ($industryCards as $i => $item)
+                        <x-industry-card :item="$item" :href="route('jobs.index', ['industry_id' => $item['id']])" x-show="{{ $i }} < shown"
+                            x-transition.opacity.duration.200ms />
+                    @endforeach
+                </div>
 
-                    <!-- Image -->
-                    <div class="h-32 w-full overflow-hidden">
-                        <img
-                            src="{{ asset('images/' . $item['image']) }}"
-                            alt="{{ $item['name'] }}"
-                            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                        >
-                    </div>
+                <div class="mt-12 flex justify-center" x-show="shown < total" x-cloak>
 
-                    <!-- Content -->
-                    <div class="p-4">
-                        <div class="text-center">
-                            <h3 class="text-base font-semibold text-gray-900 group-hover:text-[#16A34A] transition-colors">
-                                {{ $item['name'] }}
-                            </h3>
-                            <p class="text-xs text-gray-500 mt-1">
-                                {{ number_format($item['jobs']) }} jobs
-                            </p>
-                        </div>
+                    <button type="button" @click="loadMore()"
+                        class="inline-flex items-center gap-2
+               rounded-xl border border-slate-300
+               bg-white px-8 py-3
+               text-sm font-semibold text-slate-700
+               shadow-sm
+               transition-all duration-200
+               hover:border-slate-400
+               hover:bg-slate-50
+               active:scale-[0.98]
+               focus:outline-none focus:ring-2 focus:ring-slate-300">
 
-                        <!-- Sub jobs -->
-                        <div class="mt-3 grid grid-cols-2 gap-2">
-                            @foreach ($item['sub'] as $subjob)
-                                <div class="px-2 py-1 text-[11px] font-medium
-                                            bg-green-50 text-green-700
-                                            border border-green-100
-                                            rounded-full text-center
-                                            whitespace-nowrap overflow-hidden text-ellipsis">
-                                    {{ $subjob }}
-                                </div>
-                            @endforeach
-                        </div>
+                        Load More
 
-                    </div>
-                </a>
-            @endforeach
-        </div>
+                        <!-- subtle arrow -->
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+
+                    </button>
+
+                </div>
+            </div>
+        @endif
 
     </div>
 </section>

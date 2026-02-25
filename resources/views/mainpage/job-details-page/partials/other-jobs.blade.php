@@ -1,4 +1,3 @@
-{{-- expects: $agencyJobs --}}
 <div class="mt-10">
     <div class="flex items-center justify-between">
         <h2 class="text-lg sm:text-xl font-semibold text-slate-800">

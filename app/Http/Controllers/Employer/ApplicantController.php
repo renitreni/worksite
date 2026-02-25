@@ -3,87 +3,116 @@
 namespace App\Http\Controllers\Employer;
 
 use App\Http\Controllers\Controller;
-use App\Models\CandidateProfile;
+use App\Models\JobApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 class ApplicantController extends Controller
 {
-    // Unified applicant listing with optional status filter
     public function index(Request $request)
     {
-        $status = $request->query('status'); // 'all', 'shortlisted', 'rejected', or null
+        $status = $request->query('status', 'all');
 
-        $query = CandidateProfile::with('user');
+        $query = JobApplication::query()
+            ->with([
+                'jobPost:id,title',
+                'candidateProfile.user:id,name,email',
+            ])
+            ->latest();
 
-        if ($status && $status != 'all') {
+        if ($status !== 'all') {
             $query->where('status', $status);
         }
 
-        $candidates = $query->get();
+        $applications = $query->get();
 
-        return view('employer.contents.applicants.index', compact('candidates', 'status'));
+        return view('employer.contents.applicants.index', compact('applications', 'status'));
     }
 
-    public function show(CandidateProfile $candidate)
+    public function show(JobApplication $application)
     {
-        return view('employer.contents.applicants.show', compact('candidate'));
+        $application->load(['jobPost', 'candidateProfile.user']);
+        return view('employer.contents.applicants.show', compact('application'));
     }
 
-    public function shortlist(CandidateProfile $candidate)
+    public function shortlist(JobApplication $application)
     {
-        if ($candidate->status === 'new') {
-            $candidate->update(['status' => 'shortlisted']);
+        $current = strtolower(trim($application->status ?? ''));
+
+        // ✅ allow applied/new/pending -> shortlisted
+        if (in_array($current, ['applied', 'new', 'pending'], true)) {
+            $application->update(['status' => 'shortlisted']);
+            return back()->with('success', 'Applicant shortlisted.');
         }
-        return back()->with('success', 'Applicant shortlisted.');
+
+        return back()->with('error', 'Cannot shortlist from current status: ' . ($application->status ?? 'N/A'));
     }
 
-    public function interview(CandidateProfile $candidate)
+    public function interview(JobApplication $application)
     {
-        if ($candidate->status === 'shortlisted') {
-            $candidate->update(['status' => 'interview']);
+        $current = strtolower(trim($application->status ?? ''));
+
+        if ($current === 'shortlisted') {
+            $application->update(['status' => 'interview']);
+            return back()->with('success', 'Applicant moved to Interview stage.');
         }
-        return back()->with('success', 'Applicant moved to Interview stage.');
+
+        return back()->with('error', 'Cannot move to interview from current status: ' . ($application->status ?? 'N/A'));
     }
 
-    public function hire(CandidateProfile $candidate)
+    public function hire(JobApplication $application)
     {
-        if ($candidate->status === 'interview') {
-            $candidate->update(['status' => 'hired']);
+        $current = strtolower(trim($application->status ?? ''));
+
+        if ($current === 'interview') {
+            $application->update(['status' => 'hired']);
+            return back()->with('success', 'Applicant Hired!');
         }
-        return back()->with('success', 'Applicant Hired!');
+
+        return back()->with('error', 'Cannot hire from current status: ' . ($application->status ?? 'N/A'));
     }
 
-    public function reject(CandidateProfile $candidate)
+    public function reject(JobApplication $application)
     {
-        if (in_array($candidate->status, ['new', 'shortlisted'])) {
-            $candidate->update(['status' => 'rejected']);
+        $current = strtolower(trim($application->status ?? ''));
+
+        if (!in_array($current, ['rejected', 'hired'], true)) {
+            $application->update(['status' => 'rejected']);
+            return back()->with('error', 'Applicant rejected.');
         }
-        return back()->with('error', 'Applicant rejected.');
+
+        return back()->with('error', 'Cannot reject from current status: ' . ($application->status ?? 'N/A'));
     }
 
     public function export(Request $request)
     {
         $status = $request->query('status', 'all');
 
-        $query = CandidateProfile::with('user');
+        $query = JobApplication::query()
+            ->with(['jobPost:id,title', 'candidateProfile.user:id,name,email'])
+            ->latest();
 
         if ($status !== 'all') {
             $query->where('status', $status);
         }
 
-        $candidates = $query->get();
+        $applications = $query->get();
 
-        // CSV header
         $csvData = "Name,Email,Phone,Status,Applied Position\n";
 
-        foreach ($candidates as $c) {
+        foreach ($applications as $app) {
+            $name  = $app->candidateProfile?->user?->name ?? $app->full_name ?? '';
+            $email = $app->candidateProfile?->user?->email ?? $app->email ?? '';
+            $phone = $app->phone ?? '';
+            $st    = ucfirst(strtolower(trim($app->status ?? 'applied')));
+            $title = $app->jobPost?->title ?? '';
+
             $csvData .= implode(',', [
-                $c->user->name ?? '',
-                $c->user->email ?? '',
-                $c->contact_e164 ?? '',
-                ucfirst($c->status ?? 'new'),
-                $c->bio ?? ''
+                $this->csvEscape($name),
+                $this->csvEscape($email),
+                $this->csvEscape($phone),
+                $this->csvEscape($st),
+                $this->csvEscape($title),
             ]) . "\n";
         }
 
@@ -91,5 +120,11 @@ class ApplicantController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="applicants.csv"',
         ]);
+    }
+
+    private function csvEscape(string $value): string
+    {
+        $v = str_replace('"', '""', $value);
+        return '"' . $v . '"';
     }
 }

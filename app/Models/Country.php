@@ -18,5 +18,8 @@ class Country extends Model
     {
         return $this->hasMany(City::class);
     }
+    public function jobPosts()
+    {
+        return $this->hasMany(JobPost::class, 'country', 'name');
+    }
 }
-

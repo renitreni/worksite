@@ -18,6 +18,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Candidate\SavedJobController;
 use App\Http\Controllers\Candidate\JobReportController;
 use App\Http\Controllers\Candidate\AgencyController;
+use App\Http\Controllers\Candidate\JobApplicationController;
 use App\Http\Controllers\Admin\IndustryController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\CountryController;
@@ -27,6 +28,8 @@ use App\Http\Controllers\Admin\LocationSuggestionController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\JobPostAdminController;
+use App\Http\Controllers\SearchController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -35,30 +38,19 @@ use App\Http\Controllers\Admin\SubscriptionController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::view('/search-jobs', 'mainpage.search-jobs-page.search-jobs')
-    ->name('search-jobs');
 
-Route::view('/search-agency', 'mainpage.search-jobs-page.search-agency')
-    ->name('search-agency');
-
-Route::view('/search-industries', 'mainpage.search-jobs-page.search-industries')
-    ->name('search-industries');
-
-Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
-    ->name('search-country');
-
-Route::view('/agency-details', 'mainpage.agency-details-page.agency.show')
-    ->name('agency.details');
+Route::get('/search-jobs', [SearchController::class, 'jobs'])->name('search-jobs');
+Route::get('/search-agency', [SearchController::class, 'agency'])->name('search-agency');
+Route::get('/search-industries', [SearchController::class, 'industries'])->name('search-industries');
+Route::get('/search-country', [SearchController::class, 'country'])->name('search-country');
 
 Route::get('/jobs', [JobBrowseController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show');
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
     ->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])
-    ->name('agencies.show');
+    ->name('agency.details');
 
-Route::get('/agencies/{employerProfile}/jobs', [AgencyController::class, 'jobs'])
-    ->name('agencies.jobs');
 
 
 
@@ -156,6 +148,8 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
     Route::post('/my-resume/education', [ResumeController::class, 'storeEducation'])->name('resume.edu.store');
     Route::delete('/my-resume/education/{education}', [ResumeController::class, 'deleteEducation'])->name('resume.edu.delete');
 
+    Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'store'])
+        ->name('jobs.apply');
     Route::get('/my-applied-jobs', fn() => view('candidate.contents.my-applied-jobs'))->name('my-applied-jobs');
     Route::get('/shortlist-jobs', fn() => view('candidate.contents.shortlist-jobs'))->name('shortlist-jobs');
     Route::get('/following-employers', fn() => view('candidate.contents.following-employers'))->name('following-employers');
@@ -199,17 +193,16 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/geo/areas', [JobController::class, 'areasByCity'])
         ->name('geo.areas');
 
+    Route::get('/industries/{industry}/skills', [JobController::class, 'skillsByIndustry'])
+        ->name('industries.skills');
+
     // Unified applicant route with optional status filter
-    Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
+
 
     // Route::get('/{candidate}', [ApplicantController::class, 'show'])->name('aplicants.show'); // view applicant
 
     // Status updates
-    Route::put('/{candidate}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
-    Route::put('/{candidate}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
-    Route::put('/{candidate}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
-    Route::put('/{candidate}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
-
+    Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
     Route::get('/applicants/export', [ApplicantController::class, 'export'])->name('applicants.export');
 
     // Show dashboard with all plans and current subscription
@@ -227,6 +220,12 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     // Process payment submission (POST)
     Route::post('/subscription/pay/{subscription}', [\App\Http\Controllers\Employer\SubscriptionController::class, 'processPayment'])
         ->name('subscription.pay');
+    Route::get('/applicants/{application}', [ApplicantController::class, 'show'])->name('applicants.show');
+
+    Route::put('/applicants/{application}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
+    Route::put('/applicants/{application}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
+    Route::put('/applicants/{application}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
+    Route::put('/applicants/{application}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
 });
 
 /*
@@ -277,6 +276,34 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::patch('/users/{user}/subscription', [UserController::class, 'updateSubscription'])
             ->name('users.subscription');
+                /*
+        |--------------------------------------------------------------------------
+        | JOB POSTS MODERATION
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('job-posts')->name('job-posts.')->group(function () {
+
+            Route::get('/', [JobPostAdminController::class, 'index'])
+                ->name('index');
+
+            Route::get('/{jobPost}', [JobPostAdminController::class, 'show'])
+                ->name('show');
+
+            Route::patch('/{jobPost}/hold', [JobPostAdminController::class, 'hold'])
+                ->name('hold');
+
+            Route::patch('/{jobPost}/unhold', [JobPostAdminController::class, 'unhold'])
+                ->name('unhold');
+
+            Route::patch('/{jobPost}/disable', [JobPostAdminController::class, 'disable'])
+                ->name('disable');
+
+            Route::patch('/{jobPost}/enable', [JobPostAdminController::class, 'enable'])
+                ->name('enable');
+
+            Route::patch('/{jobPost}/notes', [JobPostAdminController::class, 'updateNotes'])
+                ->name('notes');
+        });
 
         // Status controls
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
@@ -289,6 +316,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Employer approval workflow
         Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
         Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
+
+        // Suspension controls
+        Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
+        Route::patch('/users/{user}/unsuspend', [UserController::class, 'unsuspend'])->name('users.unsuspend');
 
         /*
         |--------------------------------------------------------------------------
@@ -410,8 +441,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/countries/{country}/cities/{city}/meta', [CityController::class, 'updateMeta'])->name('cities.meta');
             Route::patch('/countries/{country}/cities/{city}/areas/{area}/meta', [AreaController::class, 'updateMeta'])->name('areas.meta');
         });
-
-      
     });
 
     /*

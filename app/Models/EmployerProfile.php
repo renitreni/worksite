@@ -6,32 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmployerProfile extends Model
 {
+
     protected $fillable = [
         'user_id',
-        'industry_id',
         'company_name',
         'company_address',
         'company_contact',
         'company_website',
         'description',
-        'industries',
         'logo_path',
         'cover_path',
         'total_profile_views',
         'representative_name',
         'position',
-        'status', // pending/approved/rejected
-        'rejection_reason',
-        'rejected_at',
-        'approved_at',
     ];
 
-    protected $casts = [
-    'rejected_at' => 'datetime',
-    'approved_at' => 'datetime',
-    'starts_at' => 'datetime',
-    'ends_at' => 'datetime',
-];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -57,10 +46,9 @@ class EmployerProfile extends Model
         return $this->hasMany(JobPost::class);
     }
 
-    public function industry()
-    {
-        return $this->belongsTo(\App\Models\Industry::class);
-    }
+    /**
+     * Subscription helpers (reads from employer_subscriptions table)
+     */
     public function isExpired(): bool
     {
         return $this->ends_at && now()->greaterThan($this->ends_at);
@@ -114,3 +102,40 @@ class EmployerProfile extends Model
     }
 }
 
+        return $sub->plan ?: 'basic';
+    }
+
+    public function can(string $feature): bool
+    {
+        $plan = $this->effectivePlan();
+
+        $matrix = [
+            'basic' => [
+                'post_job' => false,
+                'view_candidate_full' => false,
+                'download_cv' => false,
+                'message_candidate' => false,
+            ],
+            'standard' => [
+                'post_job' => true,
+                'view_candidate_full' => false,
+                'download_cv' => false,
+                'message_candidate' => false,
+            ],
+            'gold' => [
+                'post_job' => true,
+                'view_candidate_full' => true,
+                'download_cv' => false,
+                'message_candidate' => false,
+            ],
+            'platinum' => [
+                'post_job' => true,
+                'view_candidate_full' => true,
+                'download_cv' => true,
+                'message_candidate' => true,
+            ],
+        ];
+
+        return (bool) data_get($matrix, "{$plan}.{$feature}", false);
+    }
+}

@@ -10,6 +10,13 @@ class Industry extends Model
 
     public function employerProfiles()
     {
-        return $this->hasMany(\App\Models\EmployerProfile::class);
+        return $this->belongsToMany(EmployerProfile::class, 'employer_industries')
+            ->withTimestamps();
     }
+
+    public function skills()
+    {
+        return $this->hasMany(Skill::class);
+    }
+    
 }

@@ -191,7 +191,5 @@
 
 </nav>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => window.lucide?.createIcons());
-</script>
+
 @include('mainpage.components.partials.navbar-modals')

@@ -20,12 +20,12 @@
 
     // ✅ Inserted later for superadmin: Admin Accounts
 
-    [
-      'label' => 'Job Postings',
-      'route' => 'admin.jobs',
-      'icon' => 'briefcase',
-      'active' => 'admin.jobs*',
-    ],
+      [
+    'label' => 'Job Postings',
+    'route' => 'admin.job-posts.index',
+    'icon' => 'briefcase',
+    'active' => 'admin.job-posts.*',
+      ],
 
     // ✅ Grouped submenu
     [

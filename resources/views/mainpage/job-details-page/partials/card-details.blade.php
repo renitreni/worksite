@@ -1,27 +1,35 @@
-<div
-    x-data="{
-        saveSuccessOpen: {{ session()->has('success') ? 'true' : 'false' }},
-        reportOpen: false,
-        reportReason: '',
-        reportDetails: '',
-        closeSaveModal() { this.saveSuccessOpen = false; },
-        openReport() { this.reportOpen = true; },
-        closeReport() { this.reportOpen = false; this.reportReason=''; this.reportDetails=''; }
-    }"
-    x-init="
-        if (saveSuccessOpen) {
-            setTimeout(() => saveSuccessOpen = false, 2500);
-        }
-    "
-    class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8"
->
+<div x-data="{
+    saveSuccessOpen: {{ session()->has('success') ? 'true' : 'false' }},
+    reportOpen: false,
+    reportReason: '',
+    reportDetails: '',
+    applyOpen: false,
+    loginApplyOpen: false,
+    closeSaveModal() { this.saveSuccessOpen = false },
+    openReport() { this.reportOpen = true },
+    closeReport() {
+        this.reportOpen = false;
+        this.reportReason = '';
+        this.reportDetails = '';
+    },
+}" x-init="if (saveSuccessOpen) setTimeout(() => saveSuccessOpen = false, 2500);
+
+@if($errors->any())
+applyOpen = true;
+@endif
+
+@if($errors->has('resume') || $errors->has('cover_letter_text') || $errors->has('cover_letter_file'))
+// open uploading step if upload-related errors
+step = 2;
+@endif"
+    class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
     {{-- Header --}}
     <div class="flex items-start gap-5">
         {{-- Logo --}}
         <div class="shrink-0">
-            @if($logo)
+            @if ($logo)
                 <img src="{{ asset('storage/' . $logo) }}" alt="{{ $company }} logo"
-                     class="h-16 w-16 rounded-xl object-cover border border-slate-200 bg-white">
+                    class="h-16 w-16 rounded-xl object-cover border border-slate-200 bg-white">
             @else
                 <div class="h-16 w-16 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center">
                     <span class="text-lg font-bold text-slate-700">
@@ -49,7 +57,8 @@
     <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
         <div class="space-y-3">
             <div class="flex items-center gap-3">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+                <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
                     <i data-lucide="wallet" class="w-4 h-4 text-slate-600"></i>
                 </span>
                 <div>
@@ -59,7 +68,8 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+                <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
                     <i data-lucide="user" class="w-4 h-4 text-slate-600"></i>
                 </span>
                 <div class="font-semibold text-slate-700">
@@ -68,7 +78,8 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+                <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
                     <i data-lucide="calendar" class="w-4 h-4 text-slate-600"></i>
                 </span>
                 <div class="font-semibold text-slate-700">
@@ -79,7 +90,8 @@
 
         <div class="space-y-3">
             <div class="flex items-center gap-3">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+                <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
                     <i data-lucide="map-pin" class="w-4 h-4 text-slate-600"></i>
                 </span>
                 <div class="font-semibold text-slate-700">
@@ -88,7 +100,8 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+                <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
                     <i data-lucide="badge-check" class="w-4 h-4 text-slate-600"></i>
                 </span>
                 <div class="font-semibold text-slate-700">
@@ -97,13 +110,13 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+                <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
                     <i data-lucide="clock" class="w-4 h-4 text-slate-600"></i>
                 </span>
                 <div class="text-slate-700">
-        
-                    @if($applyUntil)
-        
+
+                    @if ($applyUntil)
                         <span class="italic text-slate-600">Apply Until:</span>
                         <span class="font-semibold">{{ $applyUntil }}</span>
                     @endif
@@ -112,12 +125,40 @@
         </div>
     </div>
 
+    {{-- Skills --}}
+    @if (!empty($job->skills))
+        @php
+            // supports: array, json string, or comma-separated string
+            $skills = $job->skills;
+
+            if (is_string($skills)) {
+                $decoded = json_decode($skills, true);
+                $skills = json_last_error() === JSON_ERROR_NONE ? $decoded : explode(',', $skills);
+            }
+
+            $skills = collect($skills)->map(fn($s) => trim($s))->filter()->unique()->values();
+        @endphp
+
+        @if ($skills->count())
+            <div class="mt-6">
+                <div class="mt-3 flex flex-wrap gap-2">
+                    @foreach ($skills as $skill)
+                        <span
+                            class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                            {{ $skill }}
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    @endif
+
     {{-- Buttons row --}}
     <div class="mt-6 flex flex-wrap gap-3">
-        <a href="#apply"
-           class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition">
+        <button type="button" @click="{{ auth()->check() ? 'applyOpen=true' : 'loginApplyOpen=true' }}"
+            class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition">
             Apply Now
-        </a>
+        </button>
 
         {{-- SAVE --}}
         <form action="{{ route('candidate.jobs.save', $job->id) }}" method="POST">
@@ -129,15 +170,17 @@
         </form>
     </div>
 
+
+
     {{-- Content sections --}}
     <div class="mt-10 space-y-8">
         <div>
             <h2 class="text-2xl font-semibold text-slate-700">Job Description</h2>
             @php $lines = lines_to_list($job->job_description); @endphp
-            @if($lines->count() > 1)
+            @if ($lines->count() > 1)
                 <ul class="mt-4 list-disc pl-6 space-y-2 text-slate-700">
-                    @foreach($lines as $line)
-                        <li>{{ ltrim($line, "-• ") }}</li>
+                    @foreach ($lines as $line)
+                        <li>{{ ltrim($line, '-• ') }}</li>
                     @endforeach
                 </ul>
             @else
@@ -148,28 +191,31 @@
         <div>
             <h2 class="text-2xl font-semibold text-slate-700">Job Qualifications</h2>
             @php $lines = lines_to_list($job->job_qualifications); @endphp
-            @if(!empty($job->job_qualifications) && $lines->count() > 1)
+            @if (!empty($job->job_qualifications) && $lines->count() > 1)
                 <ul class="mt-4 list-disc pl-6 space-y-2 text-slate-700">
-                    @foreach($lines as $line)
-                        <li>{{ ltrim($line, "-• ") }}</li>
+                    @foreach ($lines as $line)
+                        <li>{{ ltrim($line, '-• ') }}</li>
                     @endforeach
                 </ul>
             @else
-                <p class="mt-4 text-slate-700 whitespace-pre-line">{{ $job->job_qualifications ?: 'Not specified.' }}</p>
+                <p class="mt-4 text-slate-700 whitespace-pre-line">{{ $job->job_qualifications ?: 'Not specified.' }}
+                </p>
             @endif
         </div>
 
         <div>
             <h2 class="text-2xl font-semibold text-slate-700">Additional Information</h2>
             @php $lines = lines_to_list($job->additional_information); @endphp
-            @if(!empty($job->additional_information) && $lines->count() > 1)
+            @if (!empty($job->additional_information) && $lines->count() > 1)
                 <ul class="mt-4 list-disc pl-6 space-y-2 text-slate-700">
-                    @foreach($lines as $line)
-                        <li>{{ ltrim($line, "-• ") }}</li>
+                    @foreach ($lines as $line)
+                        <li>{{ ltrim($line, '-• ') }}</li>
                     @endforeach
                 </ul>
             @else
-                <p class="mt-4 text-slate-700 whitespace-pre-line">{{ $job->additional_information ?: 'Not specified.' }}</p>
+                <p class="mt-4 text-slate-700 whitespace-pre-line">
+                    {{ $job->additional_information ?: 'Not specified.' }}
+                </p>
             @endif
         </div>
     </div>
@@ -181,7 +227,8 @@
                 <p class="text-sm font-semibold text-slate-700">Principal / Employer</p>
                 <p class="mt-2 text-sm text-slate-700">{{ $job->principal_employer ?: 'Not specified' }}</p>
 
-                <p class="mt-6 text-sm font-semibold text-slate-700">DMW (formerly POEA) Registration / Accreditation No.</p>
+                <p class="mt-6 text-sm font-semibold text-slate-700">DMW (formerly POEA) Registration / Accreditation
+                    No.</p>
                 <p class="mt-2 text-sm text-slate-700">{{ $job->dmw_registration_no ?: 'Not specified' }}</p>
             </div>
 
@@ -198,8 +245,7 @@
     {{-- Report bar --}}
     <div class="mt-6 rounded-xl bg-slate-100 border border-slate-200 px-4 py-3 text-center text-sm text-slate-600">
         Is this ad misleading?
-        <button type="button" @click="openReport()"
-                class="font-semibold text-slate-900 hover:underline">
+        <button type="button" @click="openReport()" class="font-semibold text-slate-900 hover:underline">
             Report this job
         </button>
     </div>
@@ -221,7 +267,7 @@
                 <i data-lucide="globe" class="w-5 h-5 text-slate-500 mt-0.5"></i>
                 <div>
                     <p class="font-semibold">Website</p>
-                    @if(!empty($ep->company_website))
+                    @if (!empty($ep->company_website))
                         <a class="text-blue-600 hover:underline" href="{{ $ep->company_website }}" target="_blank">
                             {{ $ep->company_website }}
                         </a>
@@ -243,7 +289,8 @@
                 <i data-lucide="file-text" class="w-5 h-5 text-slate-500 mt-0.5"></i>
                 <div>
                     <p class="font-semibold">About</p>
-                    <p class="text-slate-600 whitespace-pre-line">{{ $ep->description ?? 'No description provided.' }}</p>
+                    <p class="text-slate-600 whitespace-pre-line">{{ $ep->description ?? 'No description provided.' }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -251,12 +298,13 @@
 
     {{-- ✅ SAVE SUCCESS MODAL --}}
     <div x-cloak x-show="saveSuccessOpen" x-transition.opacity
-         class="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+        class="fixed inset-0 z-[9999] flex items-center justify-center px-4">
         <div class="absolute inset-0 bg-black/40" @click="closeSaveModal()"></div>
 
         <div class="relative w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl border border-slate-200">
             <div class="flex items-start gap-3">
-                <div class="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                <div
+                    class="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
                     <i data-lucide="check" class="w-5 h-5 text-emerald-700"></i>
                 </div>
                 <div class="flex-1">
@@ -265,8 +313,7 @@
                         {{ session('success') }}
                     </div>
                 </div>
-                <button type="button" @click="closeSaveModal()"
-                        class="rounded-lg p-2 hover:bg-slate-100">
+                <button type="button" @click="closeSaveModal()" class="rounded-lg p-2 hover:bg-slate-100">
                     <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
                 </button>
             </div>
@@ -275,7 +322,7 @@
 
     {{-- ✅ REPORT MODAL --}}
     <div x-cloak x-show="reportOpen" x-transition.opacity
-         class="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+        class="fixed inset-0 z-[9999] flex items-center justify-center px-4">
         <div class="absolute inset-0 bg-black/40" @click="closeReport()"></div>
 
         <div class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-200">
@@ -289,13 +336,15 @@
                 </button>
             </div>
 
-            <form class="mt-5 space-y-4" method="POST" action="{{ route('candidate.jobs.report.store', $job->id) }}">
+            <form class="mt-5 space-y-4" method="POST"
+                action="{{ route('candidate.jobs.report.store', $job->id) }}">
                 @csrf
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Reason <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-slate-700">Reason <span
+                            class="text-red-500">*</span></label>
                     <select name="reason" x-model="reportReason"
-                            class="mt-1 w-full rounded-xl border-slate-300 focus:ring-emerald-200 focus:border-emerald-500">
+                        class="mt-1 w-full rounded-xl border-slate-300 focus:ring-emerald-200 focus:border-emerald-500">
                         <option value="">Select a reason</option>
                         <option value="misleading">Misleading information</option>
                         <option value="scam">Possible scam</option>
@@ -303,31 +352,36 @@
                         <option value="wrong_contact">Wrong contact/details</option>
                         <option value="other">Other</option>
                     </select>
-                    @error('reason') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                    @error('reason')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-slate-700">Details (optional)</label>
                     <textarea name="details" rows="4" x-model="reportDetails"
-                              class="mt-1 w-full rounded-xl border-slate-300 focus:ring-emerald-200 focus:border-emerald-500"
-                              placeholder="Add more details..."></textarea>
-                    @error('details') <p class="text-sm text-red-600 mt-1">{{ $message }}</p> @enderror
+                        class="mt-1 w-full rounded-xl border-slate-300 focus:ring-emerald-200 focus:border-emerald-500"
+                        placeholder="Add more details..."></textarea>
+                    @error('details')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" @click="closeReport()"
-                            class="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
+                        class="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
                         Cancel
                     </button>
 
-                    <button type="submit"
-                            :disabled="!reportReason"
-                            class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button type="submit" :disabled="!reportReason"
+                        class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed">
                         Submit Report
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    @include('mainpage.job-details-page.partials.apply-now-modal')
 
 </div>
