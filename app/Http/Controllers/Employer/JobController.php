@@ -61,24 +61,14 @@ class JobController extends Controller
      */
     private function taxonomies(): array
     {
-        // Industries
+        // ✅ industries as models (id+name)
         $industries = \App\Models\Industry::where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->pluck('name')
-            ->values()
-            ->toArray();
+            ->get(['id', 'name']);
 
-        // Skills
-        if (Schema::hasTable('skills')) {
-            $skillsQ = \App\Models\Skill::query();
-            if (Schema::hasColumn('skills', 'is_active')) {
-                $skillsQ->where('is_active', true);
-            }
-            $skills = $skillsQ->orderBy('name')->pluck('name')->values()->toArray();
-        } else {
-            $skills = ['Welding', 'Driving', 'Caregiving', 'Cooking', 'Cleaning'];
-        }
+        // ✅ start empty, will be loaded by AJAX
+        $skills = [];
 
         // Countries from config
         $countries = collect(config('countries', []))
@@ -87,7 +77,6 @@ class JobController extends Controller
             ->values()
             ->toArray();
 
-        // ✅ Start empty, will be loaded by AJAX
         $cities = [];
         $areas  = [];
 
@@ -101,6 +90,18 @@ class JobController extends Controller
      * Normalize city/area values when select uses "__custom__".
      * Returns [$city, $area]
      */
+
+    public function skillsByIndustry(\App\Models\Industry $industry)
+    {
+        return response()->json(
+            \App\Models\Skill::query()
+                ->where('industry_id', $industry->id)
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get(['id', 'name'])
+        );
+    }
 
 
     public function citiesByCountry(Request $request)
@@ -261,10 +262,10 @@ class JobController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'industry' => 'required|string|max:255',
+            'industry_id' => 'required|exists:industries,id',
 
             'skills' => 'required|array|min:1',
-            'skills.*' => 'string|max:255',
+            'skills.*' => 'integer|exists:skills,id',
 
             'country' => 'required|string|max:255',
 
@@ -300,16 +301,37 @@ class JobController extends Controller
             'placement_fee_currency' => 'nullable|string|max:10',
         ]);
 
+        // ✅ ensure selected skills belong to selected industry
+        $industryId = (int) $validated['industry_id'];
+        $skillIds = $validated['skills'];
+
+        $skillRows = \App\Models\Skill::where('industry_id', $industryId)
+            ->whereIn('id', $skillIds)
+            ->get(['id', 'name']);
+
+        if ($skillRows->count() !== count($skillIds)) {
+            return back()->withInput()->withErrors([
+                'skills' => 'Some selected skills do not belong to the chosen industry.',
+            ]);
+        }
+
+
+
         // Normalize city/area if "__custom__"
         [$city, $area] = $this->normalizeCityArea($request);
         $validated['city'] = $city;
         $validated['area'] = $area;
 
+        // ✅ store industry name (string column)
+        $industry = \App\Models\Industry::findOrFail($industryId);
+        $validated['industry'] = $industry->name;
+
+        // ✅ store skills as CSV names (string column)
         // Create/update suggestion if custom typed
         $this->maybeCreateLocationSuggestion($request, (string) $validated['country'], $city, $area);
 
         // Skills -> CSV
-        $validated['skills'] = implode(',', $validated['skills']);
+        $validated['skills'] = $skillRows->pluck('name')->implode(',');
         $validated['posted_at'] = now();
         $validated['status'] = 'open';
 
@@ -351,10 +373,10 @@ class JobController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'industry' => 'required|string|max:255',
+            'industry_id' => 'required|exists:industries,id',
 
             'skills' => 'required|array|min:1',
-            'skills.*' => 'string|max:255',
+            'skills.*' => 'integer|exists:skills,id',
 
             'country' => 'required|string|max:255',
 
@@ -392,6 +414,25 @@ class JobController extends Controller
             'status' => 'nullable|in:open,closed',
         ]);
 
+        // ✅ ensure selected skills belong to selected industry
+        $industryId = (int) $validated['industry_id'];
+        $skillIds = $validated['skills'];
+
+        $skillRows = \App\Models\Skill::where('industry_id', $industryId)
+            ->whereIn('id', $skillIds)
+            ->get(['id', 'name']);
+
+        if ($skillRows->count() !== count($skillIds)) {
+            return back()->withInput()->withErrors([
+                'skills' => 'Some selected skills do not belong to the chosen industry.',
+            ]);
+        }
+
+        // ✅ store industry name (string column)
+        $industry = \App\Models\Industry::findOrFail($industryId);
+        $validated['industry'] = $industry->name;
+
+
         // Normalize city/area if "__custom__"
         [$city, $area] = $this->normalizeCityArea($request);
         $validated['city'] = $city;
@@ -401,8 +442,7 @@ class JobController extends Controller
         $this->maybeCreateLocationSuggestion($request, (string) $validated['country'], $city, $area);
 
         // Skills -> CSV
-        $validated['skills'] = implode(',', $validated['skills']);
-
+        $validated['skills'] = $skillRows->pluck('name')->implode(',');
         // Remove fields not in job_posts table
         unset($validated['city_custom'], $validated['area_custom']);
 

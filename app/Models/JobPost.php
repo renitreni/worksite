@@ -67,6 +67,8 @@ class JobPost extends Model
         return $this->hasManyThrough(CandidateProfile::class, JobApplication::class, 'job_post_id', 'id', 'id', 'candidate_profile_id');
     }
 
+    
+
     public function saves()
     {
         return $this->hasMany(\App\Models\SavedJob::class, 'job_post_id');
