@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\LocationSuggestionController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\JobPostAdminController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -265,6 +266,34 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::patch('/users/{user}/subscription', [UserController::class, 'updateSubscription'])
             ->name('users.subscription');
+                /*
+        |--------------------------------------------------------------------------
+        | JOB POSTS MODERATION
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('job-posts')->name('job-posts.')->group(function () {
+
+            Route::get('/', [JobPostAdminController::class, 'index'])
+                ->name('index');
+
+            Route::get('/{jobPost}', [JobPostAdminController::class, 'show'])
+                ->name('show');
+
+            Route::patch('/{jobPost}/hold', [JobPostAdminController::class, 'hold'])
+                ->name('hold');
+
+            Route::patch('/{jobPost}/unhold', [JobPostAdminController::class, 'unhold'])
+                ->name('unhold');
+
+            Route::patch('/{jobPost}/disable', [JobPostAdminController::class, 'disable'])
+                ->name('disable');
+
+            Route::patch('/{jobPost}/enable', [JobPostAdminController::class, 'enable'])
+                ->name('enable');
+
+            Route::patch('/{jobPost}/notes', [JobPostAdminController::class, 'updateNotes'])
+                ->name('notes');
+        });
 
         // Status controls
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
