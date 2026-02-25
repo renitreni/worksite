@@ -20,6 +20,7 @@ class JobPost extends Model
         'area',
 
         'min_experience_years',
+        'education_level',
 
         'salary_min',
         'salary_max',
@@ -90,6 +91,7 @@ class JobPost extends Model
     {
         return $this->hasManyThrough(CandidateProfile::class, JobApplication::class, 'job_post_id', 'id', 'id', 'candidate_profile_id');
     }
+    
 
     
 

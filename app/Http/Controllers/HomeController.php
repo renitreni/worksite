@@ -111,7 +111,7 @@ class HomeController extends Controller
             ];
         });
 
-        return view('main', compact(
+        return view('mainpage.home', compact(
             'featuredJobs',
             'featuredAgencies',
             'industryCards'

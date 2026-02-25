@@ -42,25 +42,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    @livewireStyles
 </head>
 
 <body class="font-['Inter',sans-serif] text-gray-800">
     @include('mainpage.components.navbar')
-    @include('mainpage.hero-section')
-    @include('mainpage.browse-by-industry')
-    @include('mainpage.featured-agency')
-    @include('mainpage.featured-job')
-    @include('mainpage.how-it-works')
-    @include('mainpage.marketing')
+
+    @yield('content')
+
     @include('mainpage.components.footer')
 
+    @livewireScripts
+
+    <script>
+        function refreshLucide() {
+            if (window.lucide) lucide.createIcons();
+        }
+
+        document.addEventListener('DOMContentLoaded', refreshLucide);
+        document.addEventListener('livewire:initialized', () => {
+            refreshLucide();
+            Livewire.hook('morph.updated', () => refreshLucide());
+        });
+    </script>
 
     @yield('script')
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        lucide.createIcons();
-    </script>
 </body>
 
 </html>

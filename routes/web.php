@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\JobPostAdminController;
+use App\Http\Controllers\SearchController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -37,18 +38,11 @@ use App\Http\Controllers\Admin\JobPostAdminController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::view('/search-jobs', 'mainpage.search-jobs-page.search-jobs')
-    ->name('search-jobs');
 
-Route::view('/search-agency', 'mainpage.search-jobs-page.search-agency')
-    ->name('search-agency');
-
-Route::view('/search-industries', 'mainpage.search-jobs-page.search-industries')
-    ->name('search-industries');
-
-Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
-    ->name('search-country');
-
+Route::get('/search-jobs', [SearchController::class, 'jobs'])->name('search-jobs');
+Route::get('/search-agency', [SearchController::class, 'agency'])->name('search-agency');
+Route::get('/search-industries', [SearchController::class, 'industries'])->name('search-industries');
+Route::get('/search-country', [SearchController::class, 'country'])->name('search-country');
 
 Route::get('/jobs', [JobBrowseController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show');
