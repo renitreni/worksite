@@ -75,7 +75,7 @@
                         <i data-lucide="user" class="h-4 w-4 text-gray-500"></i>
                         Company Profile
                     </a>
-                    <a href="{{ route('employer.subscription') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="{{ route('employer.subscription.dashboard') }}" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <i data-lucide="credit-card" class="h-4 w-4 text-gray-500"></i>
                         Subscription / Plan
                     </a>

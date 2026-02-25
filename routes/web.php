@@ -175,7 +175,7 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
 
     Route::get('/analytics', fn() => view('employer.contents.analytics'))->name('analytics');
-    Route::get('/subscription', fn() => view('employer.contents.subscription'))->name('subscription');
+    // Route::get('/subscription', fn() => view('employer.contents.subscription'))->name('subscription');
 
     // Job postings
     Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
@@ -204,6 +204,22 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     // Status updates
     Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
     Route::get('/applicants/export', [ApplicantController::class, 'export'])->name('applicants.export');
+
+    // Show dashboard with all plans and current subscription
+    Route::get('/subscription', [\App\Http\Controllers\Employer\SubscriptionController::class, 'dashboard'])
+        ->name('subscription.dashboard');
+
+    // Select a plan (creates or updates subscription)
+    Route::get('/subscription/select/{plan}', [\App\Http\Controllers\Employer\SubscriptionController::class, 'selectPlan'])
+        ->name('subscription.select');
+
+    // Show payment page (GET)
+    Route::get('/subscription/pay/{subscription}', [\App\Http\Controllers\Employer\SubscriptionController::class, 'payment'])
+        ->name('subscription.payment');
+
+    // Process payment submission (POST)
+    Route::post('/subscription/pay/{subscription}', [\App\Http\Controllers\Employer\SubscriptionController::class, 'processPayment'])
+        ->name('subscription.pay');
     Route::get('/applicants/{application}', [ApplicantController::class, 'show'])->name('applicants.show');
 
     Route::put('/applicants/{application}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');

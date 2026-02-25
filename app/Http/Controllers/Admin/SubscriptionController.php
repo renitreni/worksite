@@ -16,7 +16,7 @@ class SubscriptionController extends Controller
 
         $subs = EmployerSubscription::query()
             ->with(['employer:id,name,email', 'plan:id,name,code,price'])
-            ->when($status !== '', fn($qr) => $qr->where('subscription_status', $status))
+            ->when($status !== '', fn($qr) => $qr->where('status', $status))
             ->when($q !== '', function($qr) use ($q) {
                 $qr->whereHas('employer', function($e) use ($q) {
                     $e->where('name', 'like', "%{$q}%")
@@ -33,18 +33,24 @@ class SubscriptionController extends Controller
     public function activate(EmployerSubscription $subscription)
     {
         DB::transaction(function () use ($subscription) {
+            // Activate subscription
             $subscription->update([
-                'subscription_status' => EmployerSubscription::STATUS_ACTIVE,
+                'status' => EmployerSubscription::STATUS_ACTIVE,
                 'starts_at' => now(),
-                'ends_at' => now()->addDays(30),
+                'ends_at' => now()->addDays($subscription->plan->duration_days ?? 30),
+                'activated_by_admin_id' => auth('admin')->id(),
+                'activated_at' => now(),
+            ]);
 
-                // keep these ONLY if your table actually has these columns
-                // 'activated_by_admin_id' => auth('admin')->id(),
-                // 'activated_at' => now(),
+            // Update pending payment to completed
+            $subscription->payments()->pending()->update([
+                'status' => \App\Models\Payment::STATUS_COMPLETED,
+                'verified_by_admin_id' => auth('admin')->id(),
+                'verified_at' => now(),
             ]);
         });
 
-        return back()->with('success', 'Subscription activated for 30 days.');
+        return back()->with('success', 'Subscription activated and payment marked as completed.');
     }
 
     public function suspend(Request $request, EmployerSubscription $subscription)
@@ -54,12 +60,10 @@ class SubscriptionController extends Controller
         ]);
 
         $subscription->update([
-            'subscription_status' => EmployerSubscription::STATUS_SUSPENDED,
-
-            // keep these ONLY if your table actually has these columns
-            // 'suspended_by_admin_id' => auth('admin')->id(),
-            // 'suspended_at' => now(),
-            // 'suspend_reason' => $data['reason'],
+            'status' => EmployerSubscription::STATUS_SUSPENDED,
+            'suspended_by_admin_id' => auth('admin')->id(),
+            'suspended_at' => now(),
+            'suspend_reason' => $data['reason'],
         ]);
 
         return back()->with('warning', 'Subscription suspended.');

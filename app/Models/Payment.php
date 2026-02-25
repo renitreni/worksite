@@ -14,6 +14,7 @@ class Payment extends Model
     protected $fillable = [
         'employer_id',
         'plan_id',
+        'subscription_id',
         'amount',
         'status',
         'reference',
@@ -55,5 +56,10 @@ class Payment extends Model
     public function scopeFailed($q)
     {
         return $q->where('status', self::STATUS_FAILED);
+    }
+
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(EmployerSubscription::class, 'subscription_id');
     }
 }

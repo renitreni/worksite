@@ -51,33 +51,56 @@ class EmployerProfile extends Model
      */
     public function isExpired(): bool
     {
-        $sub = $this->subscription;
-
-        if (!$sub || !$sub->ends_at) {
-            return false;
-        }
-
-        return now()->greaterThan($sub->ends_at);
+        return $this->ends_at && now()->greaterThan($this->ends_at);
     }
-
     public function effectivePlan(): string
     {
-        $sub = $this->subscription;
-
-        // No subscription row yet → basic
-        if (!$sub) {
+        // If not active or expired → basic/free
+        if ($this->subscription_status !== 'active') {
             return 'basic';
         }
 
-        // Not active → basic
-        if ($sub->subscription_status !== 'active') {
-            return 'basic';
-        }
-
-        // Expired → basic
         if ($this->isExpired()) {
             return 'basic';
         }
+
+        return $this->plan ?: 'basic';
+    }
+
+    public function can(string $feature): bool
+    {
+        $plan = $this->effectivePlan();
+
+        $matrix = [
+            'basic' => [
+                'post_job' => false,
+                'view_candidate_full' => false,
+                'download_cv' => false,
+                'message_candidate' => false,
+            ],
+            'standard' => [
+                'post_job' => true,
+                'view_candidate_full' => false,
+                'download_cv' => false,
+                'message_candidate' => false,
+            ],
+            'gold' => [
+                'post_job' => true,
+                'view_candidate_full' => true,
+                'download_cv' => false,
+                'message_candidate' => false,
+            ],
+            'platinum' => [
+                'post_job' => true,
+                'view_candidate_full' => true,
+                'download_cv' => true,
+                'message_candidate' => true,
+            ],
+        ];
+
+        return (bool) data_get($matrix, "{$plan}.{$feature}", false);
+    }
+}
 
         return $sub->plan ?: 'basic';
     }
