@@ -123,7 +123,6 @@
 
 <!-- ✅ Scripts -->
 <script>
-    lucide.createIcons();
 
     // Mobile main menu toggle
     const mobileMenuButton = document.getElementById('mobile-menu-button');

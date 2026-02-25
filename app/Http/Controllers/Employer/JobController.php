@@ -278,6 +278,7 @@ class JobController extends Controller
             'area_custom' => 'nullable|required_if:area,__custom__|string|max:255',
 
             'min_experience_years' => 'nullable|integer|min:0|max:60',
+            'education_level' => 'nullable|in:high_school,college,masteral,phd',
 
             'salary_min' => 'nullable|numeric|min:0',
             'salary_max' => 'nullable|numeric|gte:salary_min',
@@ -389,6 +390,7 @@ class JobController extends Controller
             'area_custom' => 'nullable|required_if:area,__custom__|string|max:255',
 
             'min_experience_years' => 'nullable|integer|min:0|max:60',
+            'education_level' => 'nullable|in:high_school,college,masteral,phd',
 
             'salary_min' => 'nullable|numeric|min:0',
             'salary_max' => 'nullable|numeric|gte:salary_min',

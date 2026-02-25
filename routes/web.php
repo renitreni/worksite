@@ -28,6 +28,8 @@ use App\Http\Controllers\Admin\LocationSuggestionController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\JobPostAdminController;
+use App\Http\Controllers\SearchController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
@@ -36,18 +38,11 @@ use App\Http\Controllers\Admin\SubscriptionController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::view('/search-jobs', 'mainpage.search-jobs-page.search-jobs')
-    ->name('search-jobs');
 
-Route::view('/search-agency', 'mainpage.search-jobs-page.search-agency')
-    ->name('search-agency');
-
-Route::view('/search-industries', 'mainpage.search-jobs-page.search-industries')
-    ->name('search-industries');
-
-Route::view('/search-country', 'mainpage.search-jobs-page.search-country')
-    ->name('search-country');
-
+Route::get('/search-jobs', [SearchController::class, 'jobs'])->name('search-jobs');
+Route::get('/search-agency', [SearchController::class, 'agency'])->name('search-agency');
+Route::get('/search-industries', [SearchController::class, 'industries'])->name('search-industries');
+Route::get('/search-country', [SearchController::class, 'country'])->name('search-country');
 
 Route::get('/jobs', [JobBrowseController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show');
@@ -265,6 +260,34 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::patch('/users/{user}/subscription', [UserController::class, 'updateSubscription'])
             ->name('users.subscription');
+                /*
+        |--------------------------------------------------------------------------
+        | JOB POSTS MODERATION
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('job-posts')->name('job-posts.')->group(function () {
+
+            Route::get('/', [JobPostAdminController::class, 'index'])
+                ->name('index');
+
+            Route::get('/{jobPost}', [JobPostAdminController::class, 'show'])
+                ->name('show');
+
+            Route::patch('/{jobPost}/hold', [JobPostAdminController::class, 'hold'])
+                ->name('hold');
+
+            Route::patch('/{jobPost}/unhold', [JobPostAdminController::class, 'unhold'])
+                ->name('unhold');
+
+            Route::patch('/{jobPost}/disable', [JobPostAdminController::class, 'disable'])
+                ->name('disable');
+
+            Route::patch('/{jobPost}/enable', [JobPostAdminController::class, 'enable'])
+                ->name('enable');
+
+            Route::patch('/{jobPost}/notes', [JobPostAdminController::class, 'updateNotes'])
+                ->name('notes');
+        });
 
         // Status controls
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');

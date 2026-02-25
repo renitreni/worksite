@@ -346,6 +346,44 @@
                         <span class="text-xs text-slate-500">Step 3 of 3</span>
                     </div>
 
+                    {{-- Education Level --}}
+                    <div>
+                        <label for="education_level" class="block text-sm font-medium text-slate-700">
+                            Required Education
+                        </label>
+
+                        <div class="mt-2 relative">
+                            <select name="education_level" id="education_level"
+                                class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                <option value="">Any / Not required</option>
+                                <option value="high_school"
+                                    {{ old('education_level') === 'high_school' ? 'selected' : '' }}>
+                                    High school diploma
+                                </option>
+                                <option value="college" {{ old('education_level') === 'college' ? 'selected' : '' }}>
+                                    College graduate
+                                </option>
+                                <option value="masteral" {{ old('education_level') === 'masteral' ? 'selected' : '' }}>
+                                    Masteral degree
+                                </option>
+                                <option value="phd" {{ old('education_level') === 'phd' ? 'selected' : '' }}>
+                                    PhD / Doctorate
+                                </option>
+                            </select>
+
+                            <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+
+                        @error('education_level')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- Gender + Age --}}
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>

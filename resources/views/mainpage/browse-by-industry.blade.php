@@ -38,59 +38,37 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     @foreach ($industryCards as $i => $item)
-                        <a x-show="{{ $i }} < shown" x-transition.opacity.duration.200ms
-                            href="{{ route('jobs.index', ['industry_id' => $item['id']]) }}"
-                            class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg
-                                   transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                            <div class="h-32 w-full overflow-hidden">
-                                <img src="{{ $item['image'] ? asset('storage/' . $item['image']) : asset('images/industry-fallback.jpg') }}"
-                                    alt="{{ $item['name'] }}"
-                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                    loading="lazy">
-                            </div>
-
-                            <div class="p-4">
-                                <div class="text-center">
-                                    <h3
-                                        class="text-base font-semibold text-gray-900 group-hover:text-[#16A34A] transition-colors">
-                                        {{ $item['name'] }}
-                                    </h3>
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        {{ number_format($item['jobs']) }} jobs
-                                    </p>
-                                </div>
-
-                                @php
-                                    $skills = collect($item['skills'] ?? [])
-                                        ->take(3)
-                                        ->values();
-                                @endphp
-
-                                @if ($skills->count())
-                                    <div class="mt-3 space-y-1">
-                                        @foreach ($skills as $skill)
-                                            <div class="rounded-md bg-green-50 border border-green-100 px-3 py-1
-                                                       text-[11px] font-semibold text-green-700 text-center truncate"
-                                                title="{{ $skill }}">
-                                                {{ $skill }}
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-                        </a>
+                        <x-industry-card :item="$item" :href="route('jobs.index', ['industry_id' => $item['id']])" x-show="{{ $i }} < shown"
+                            x-transition.opacity.duration.200ms />
                     @endforeach
                 </div>
 
-                <div class="mt-10 flex justify-center" x-show="shown < total" x-cloak>
-                    <button type="button" @click="loadMore()"
-                        class="inline-flex items-center gap-2 rounded-xl bg-[#16A34A] px-5 py-3 text-sm font-semibold text-white
-                               shadow-sm hover:bg-green-700 transition">
-                        Load more
-                        <span class="text-white/80 text-xs" x-text="`(${shown} / ${total})`"></span>
-                    </button>
-                </div>
+                <div class="mt-12 flex justify-center" x-show="shown < total" x-cloak>
 
+                    <button type="button" @click="loadMore()"
+                        class="inline-flex items-center gap-2
+               rounded-xl border border-slate-300
+               bg-white px-8 py-3
+               text-sm font-semibold text-slate-700
+               shadow-sm
+               transition-all duration-200
+               hover:border-slate-400
+               hover:bg-slate-50
+               active:scale-[0.98]
+               focus:outline-none focus:ring-2 focus:ring-slate-300">
+
+                        Load More
+
+                        <!-- subtle arrow -->
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+
+                    </button>
+
+                </div>
             </div>
         @endif
 

@@ -320,6 +320,53 @@
                 <div class="space-y-6">
                     <h2 class="text-base font-semibold text-slate-900">Descriptions & Fees</h2>
 
+                    {{-- Required Education --}}
+                    <div>
+                        <label for="education_level" class="block text-sm font-medium text-slate-700">
+                            Required Education
+                        </label>
+
+                        <div class="mt-2 relative">
+                            <select name="education_level" id="education_level"
+                                class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                <option value=""
+                                    {{ old('education_level', $job->education_level) === null || old('education_level', $job->education_level) === '' ? 'selected' : '' }}>
+                                    Any / Not required
+                                </option>
+
+                                <option value="high_school"
+                                    {{ old('education_level', $job->education_level) === 'high_school' ? 'selected' : '' }}>
+                                    High school diploma
+                                </option>
+
+                                <option value="college"
+                                    {{ old('education_level', $job->education_level) === 'college' ? 'selected' : '' }}>
+                                    College graduate
+                                </option>
+
+                                <option value="masteral"
+                                    {{ old('education_level', $job->education_level) === 'masteral' ? 'selected' : '' }}>
+                                    Masteral degree
+                                </option>
+
+                                <option value="phd"
+                                    {{ old('education_level', $job->education_level) === 'phd' ? 'selected' : '' }}>
+                                    PhD / Doctorate
+                                </option>
+                            </select>
+
+                            <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+
+                        @error('education_level')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label for="gender" class="block text-sm font-medium text-slate-700">Gender <span
@@ -327,9 +374,12 @@
                             <div class="mt-2 relative">
                                 <select name="gender" id="gender"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="both" {{ old('gender', $job->gender) == 'both' ? 'selected' : '' }}>Both</option>
-                                    <option value="male" {{ old('gender', $job->gender) == 'male' ? 'selected' : '' }}>Male</option>
-                                    <option value="female" {{ old('gender', $job->gender) == 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="both" {{ old('gender', $job->gender) == 'both' ? 'selected' : '' }}>
+                                        Both</option>
+                                    <option value="male" {{ old('gender', $job->gender) == 'male' ? 'selected' : '' }}>
+                                        Male</option>
+                                    <option value="female"
+                                        {{ old('gender', $job->gender) == 'female' ? 'selected' : '' }}>Female</option>
                                 </select>
                                 <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -338,7 +388,9 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            @error('gender') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('gender')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -346,7 +398,9 @@
                             <input type="number" min="0" name="age_min" id="age_min"
                                 value="{{ old('age_min', $job->age_min) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            @error('age_min') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('age_min')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -354,7 +408,9 @@
                             <input type="number" min="0" name="age_max" id="age_max"
                                 value="{{ old('age_max', $job->age_max) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            @error('age_max') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('age_max')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -364,7 +420,9 @@
                             <input type="date" name="apply_until" id="apply_until"
                                 value="{{ old('apply_until', optional($job->apply_until)->format('Y-m-d')) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            @error('apply_until') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('apply_until')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -372,8 +430,10 @@
                             <div class="mt-2 relative">
                                 <select name="status" id="status"
                                     class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="open" {{ old('status', $job->status) == 'open' ? 'selected' : '' }}>Open</option>
-                                    <option value="closed" {{ old('status', $job->status) == 'closed' ? 'selected' : '' }}>Closed</option>
+                                    <option value="open" {{ old('status', $job->status) == 'open' ? 'selected' : '' }}>
+                                        Open</option>
+                                    <option value="closed"
+                                        {{ old('status', $job->status) == 'closed' ? 'selected' : '' }}>Closed</option>
                                 </select>
                                 <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
                                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -382,61 +442,81 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            @error('status') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('status')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
                     <div>
-                        <label for="job_description" class="block text-sm font-medium text-slate-700">Job Description <span
-                                class="text-red-500">*</span></label>
+                        <label for="job_description" class="block text-sm font-medium text-slate-700">Job Description
+                            <span class="text-red-500">*</span></label>
                         <textarea name="job_description" id="job_description" rows="6"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('job_description', $job->job_description) }}</textarea>
-                        @error('job_description') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        @error('job_description')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
-                        <label for="job_qualifications" class="block text-sm font-medium text-slate-700">Job Qualifications</label>
+                        <label for="job_qualifications" class="block text-sm font-medium text-slate-700">Job
+                            Qualifications</label>
                         <textarea name="job_qualifications" id="job_qualifications" rows="4"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('job_qualifications', $job->job_qualifications) }}</textarea>
-                        @error('job_qualifications') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        @error('job_qualifications')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
-                        <label for="additional_information" class="block text-sm font-medium text-slate-700">Additional Information</label>
+                        <label for="additional_information" class="block text-sm font-medium text-slate-700">Additional
+                            Information</label>
                         <textarea name="additional_information" id="additional_information" rows="4"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('additional_information', $job->additional_information) }}</textarea>
-                        @error('additional_information') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        @error('additional_information')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="principal_employer" class="block text-sm font-medium text-slate-700">Principal / Employer</label>
+                            <label for="principal_employer" class="block text-sm font-medium text-slate-700">Principal /
+                                Employer</label>
                             <input type="text" name="principal_employer" id="principal_employer"
                                 value="{{ old('principal_employer', $job->principal_employer) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            @error('principal_employer') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('principal_employer')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
-                            <label for="dmw_registration_no" class="block text-sm font-medium text-slate-700">DMW Reg/Accreditation No.</label>
+                            <label for="dmw_registration_no" class="block text-sm font-medium text-slate-700">DMW
+                                Reg/Accreditation No.</label>
                             <input type="text" name="dmw_registration_no" id="dmw_registration_no"
                                 value="{{ old('dmw_registration_no', $job->dmw_registration_no) }}"
                                 class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            @error('dmw_registration_no') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('dmw_registration_no')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
                     <div>
-                        <label for="principal_employer_address" class="block text-sm font-medium text-slate-700">Principal / Employer Address</label>
+                        <label for="principal_employer_address" class="block text-sm font-medium text-slate-700">Principal
+                            / Employer Address</label>
                         <input type="text" name="principal_employer_address" id="principal_employer_address"
                             value="{{ old('principal_employer_address', $job->principal_employer_address) }}"
                             class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                        @error('principal_employer_address') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        @error('principal_employer_address')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
-                            <label for="placement_fee" class="block text-sm font-medium text-slate-700">Placement Fee (optional)</label>
+                            <label for="placement_fee" class="block text-sm font-medium text-slate-700">Placement Fee
+                                (optional)</label>
                             <div class="mt-2 relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold"
                                     id="feeSymbol">₱</span>
@@ -444,23 +524,27 @@
                                     value="{{ old('placement_fee', $job->placement_fee) }}"
                                     class="pl-10 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
                             </div>
-                            @error('placement_fee') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('placement_fee')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
-                            <label for="placement_fee_currency" class="block text-sm font-medium text-slate-700">Placement Fee Currency</label>
+                            <label for="placement_fee_currency" class="block text-sm font-medium text-slate-700">Placement
+                                Fee Currency</label>
                             <div class="mt-2 relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
+                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M19 9h2m-2 0a2 2 0 00-2 2v2a2 2 0 002 2h2m-4-6h2m0 0V7m0 10v-2" />
                                     </svg>
                                 </span>
                                 <select name="placement_fee_currency" id="placement_fee_currency"
                                     class="pl-10 block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    @foreach(($currencies ?? []) as $code => $name)
-                                        <option value="{{ $code }}" {{ old('placement_fee_currency', $job->placement_fee_currency ?? 'PHP') == $code ? 'selected' : '' }}>
+                                    @foreach ($currencies ?? [] as $code => $name)
+                                        <option value="{{ $code }}"
+                                            {{ old('placement_fee_currency', $job->placement_fee_currency ?? 'PHP') == $code ? 'selected' : '' }}>
                                             {{ $code }} — {{ $name }}
                                         </option>
                                     @endforeach
@@ -472,7 +556,9 @@
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            @error('placement_fee_currency') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                            @error('placement_fee_currency')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
