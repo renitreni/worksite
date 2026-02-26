@@ -1,2 +1,8 @@
 User-agent: *
-Disallow:
+Allow: /
+
+Disallow: /admin
+Disallow: /employer
+Disallow: /candidate
+
+Sitemap: https://jobabroad.online/sitemap.xml

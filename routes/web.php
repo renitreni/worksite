@@ -6,12 +6,19 @@ use App\Http\Controllers\Candidate\JobBrowseController;
 use App\Http\Controllers\Candidate\AgencyController;
 use App\Http\Controllers\SearchController;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/sitemap.xml', function () {
+    return response()->view('sitemap')
+        ->header('Content-Type', 'application/xml');
+});
 
 Route::get('/search-jobs', [SearchController::class, 'jobs'])->name('search-jobs');
 Route::get('/search-agency', [SearchController::class, 'agency'])->name('search-agency');
@@ -29,6 +36,6 @@ Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])->na
 | Split route files
 |--------------------------------------------------------------------------
 */
-require __DIR__.'/candidate.php';
-require __DIR__.'/employer.php';
-require __DIR__.'/admin.php';
+require __DIR__ . '/candidate.php';
+require __DIR__ . '/employer.php';
+require __DIR__ . '/admin.php';
