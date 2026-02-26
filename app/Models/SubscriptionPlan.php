@@ -14,12 +14,12 @@ class SubscriptionPlan extends Model
         'code',
         'name',
         'price',
-        'features',
         'is_active',
+        'sort_order',
     ];
 
     protected $casts = [
-        'features'  => 'array',
+        'price' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 
@@ -33,9 +33,19 @@ class SubscriptionPlan extends Model
         return $this->hasMany(EmployerSubscription::class, 'plan_id');
     }
 
-    // Optional helper: safe read from features JSON
+    public function featureValues()
+    {
+        return $this->hasMany(\App\Models\PlanFeature::class, 'plan_id')->with('definition');
+    }
+
     public function feature(string $key, $default = null)
     {
-        return data_get($this->features, $key, $default);
+        // Make sure featureValues is loaded (eager-load in currentPlan())
+        $row = $this->featureValues->first(fn($pf) => $pf->definition?->key === $key);
+
+        if (!$row) return $default;
+
+        // value stored as JSON can be scalar or array
+        return $row->value ?? $row->definition?->default_value ?? $default;
     }
 }

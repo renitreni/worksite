@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('employer_subscriptions', function (Blueprint $table) {
@@ -16,28 +15,24 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->foreignId('plan_id')
-                ->nullable()
                 ->constrained('subscription_plans')
-                ->nullOnDelete();
+                ->restrictOnDelete();
 
-            // ✅ status (matches your UI filters)
-            $table->enum('subscription_status', [
-                'inactive',
-                'active',
-                'expired',
-                'canceled'
-            ])->default('inactive');
+            $table->string('subscription_status')->default('inactive');
+            // inactive | active | expired | canceled
 
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('ends_at')->nullable();
 
             $table->timestamps();
 
-            // ✅ 1 profile = 1 subscription row
-            $table->unique('employer_profile_id');
+            // ✅ Short custom index names
+            $table->index(
+                ['employer_profile_id', 'subscription_status'],
+                'emp_sub_profile_status_idx'
+            );
 
-            $table->index(['subscription_status']);
-            $table->index(['ends_at']);
+            $table->index('ends_at', 'emp_sub_ends_idx');
         });
     }
 
