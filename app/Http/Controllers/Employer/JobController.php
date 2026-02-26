@@ -13,12 +13,90 @@ use App\Models\City;
 use App\Models\Area;
 use Illuminate\Support\Facades\Log;
 use App\Models\Country;
+use App\Models\EmployerSubscription;
+use App\Models\SubscriptionPlan;
+
 
 class JobController extends Controller
 {
     // ----------------------------
-    // Helpers
-    // ----------------------------
+// Posting limit helpers (KEY-BASED using PlanFeature)
+// ----------------------------
+
+    private function getActiveSubscriptionForProfile($profile): ?EmployerSubscription
+    {
+        return EmployerSubscription::query()
+            ->with([
+                'plan' => fn($q) => $q->withTrashed()->with('featureValues.definition'),
+            ])
+            ->where('employer_profile_id', $profile->id)
+            ->where('subscription_status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+            })
+            ->orderByDesc('ends_at')
+            ->first();
+    }
+
+    /**
+     * Returns:
+     *  - int => limit
+     *  - null => unlimited
+     */
+    private function activeJobPostingLimitForProfile($profile): ?int
+    {
+        $activeSub = $this->getActiveSubscriptionForProfile($profile);
+
+        // ✅ No subscription => BASIC default = 1
+        if (!$activeSub || !$activeSub->plan) {
+            return 1;
+        }
+
+        $plan = $activeSub->plan;
+
+        // ✅ read from features table (key: job_limit_active)
+        $raw = $plan->feature('job_limit_active', 1);
+
+        // If feature is blank in DB, your feature() may return null/default_value.
+        // We treat null/"" as unlimited.
+        if ($raw === null || $raw === '') {
+            return null; // unlimited
+        }
+
+        // Sometimes value is stored as array because of cast 'array'
+        // Example: ["value" => 5] or ["limit" => 5]
+        if (is_array($raw)) {
+            // try common keys; adjust if your stored shape is different
+            $raw = $raw['value'] ?? $raw['limit'] ?? $raw[0] ?? null;
+            if ($raw === null || $raw === '')
+                return null;
+        }
+
+        // numeric -> int, else fallback to 1
+        return is_numeric($raw) ? (int) $raw : 1;
+    }
+
+    private function openJobsCountForProfile($profile): int
+    {
+        return JobPost::query()
+            ->where('employer_profile_id', $profile->id)
+            ->where('status', 'open')
+            ->where('is_disabled', false)
+            ->where('is_held', false)
+            ->count();
+    }
+
+    private function postingLimitState($profile): array
+    {
+        $limit = $this->activeJobPostingLimitForProfile($profile); // null = unlimited
+        $openCount = $this->openJobsCountForProfile($profile);
+
+        return [
+            'limit' => $limit,
+            'openCount' => $openCount,
+            'exceeded' => ($limit !== null && $openCount >= $limit),
+        ];
+    }
     private function requireApprovedEmployerProfile()
     {
         $user = Auth::user();
@@ -78,7 +156,7 @@ class JobController extends Controller
             ->toArray();
 
         $cities = [];
-        $areas  = [];
+        $areas = [];
 
         $currencies = config('currencies', []);
         asort($currencies);
@@ -107,7 +185,8 @@ class JobController extends Controller
     public function citiesByCountry(Request $request)
     {
         $countryName = $request->query('country');
-        if (!$countryName) return response()->json([]);
+        if (!$countryName)
+            return response()->json([]);
 
         // Find country by name
         $country = Country::query()
@@ -137,13 +216,15 @@ class JobController extends Controller
         $countryName = $request->query('country');
         $cityName = $request->query('city');
 
-        if (!$countryName || !$cityName) return response()->json([]);
+        if (!$countryName || !$cityName)
+            return response()->json([]);
 
         $country = Country::query()
             ->where('name', $countryName)
             ->first();
 
-        if (!$country) return response()->json([]);
+        if (!$country)
+            return response()->json([]);
 
         // Find the city under that country
         $city = City::query()
@@ -151,7 +232,8 @@ class JobController extends Controller
             ->where('name', $cityName)
             ->first();
 
-        if (!$city) return response()->json([]);
+        if (!$city)
+            return response()->json([]);
 
         $areasQ = Area::query()->where('city_id', $city->id);
 
@@ -191,22 +273,25 @@ class JobController extends Controller
     {
         // Only create if employer used custom option
         $usedCustom = ($request->input('city') === '__custom__') || ($request->input('area') === '__custom__');
-        if (!$usedCustom) return;
+        if (!$usedCustom)
+            return;
 
         $country = trim($country);
-        if ($country === '') return;
+        if ($country === '')
+            return;
 
         // Only if there is something to suggest
-        if (!$city && !$area) return;
+        if (!$city && !$area)
+            return;
 
         $suggestion = LocationSuggestion::firstOrCreate(
             [
                 'country' => $country,
-                'city'    => $city,
-                'area'    => $area,
+                'city' => $city,
+                'area' => $area,
             ],
             [
-                'count'  => 0,
+                'count' => 0,
                 'status' => 'pending',
             ]
         );
@@ -251,7 +336,19 @@ class JobController extends Controller
     // ----------------------------
     public function create()
     {
-        $this->requireApprovedEmployerProfile();
+        $profile = $this->requireApprovedEmployerProfile();
+
+        $state = $this->postingLimitState($profile);
+
+        if ($state['exceeded']) {
+            return redirect()
+                ->route('employer.job-postings.index')
+                ->with('limit_modal', true)
+                ->with('limit_data', [
+                    'limit' => $state['limit'],        // e.g. 1
+                    'openCount' => $state['openCount'] // e.g. 1
+                ]);
+        }
 
         return view('employer.contents.job-postings.create', $this->taxonomies());
     }
@@ -259,6 +356,18 @@ class JobController extends Controller
     public function store(Request $request)
     {
         $profile = $this->requireApprovedEmployerProfile();
+
+        $state = $this->postingLimitState($profile);
+        if ($state['exceeded']) {
+            return redirect()
+                ->route('employer.job-postings.index')
+                ->with('limit_modal', true)
+                ->with('limit_data', [
+                    'limit' => $state['limit'],
+                    'openCount' => $state['openCount']
+                ])
+                ->with('error', 'Posting limit reached.');
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -372,6 +481,7 @@ class JobController extends Controller
     {
         $this->requireOwner($job);
 
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'industry_id' => 'required|exists:industries,id',
@@ -416,6 +526,18 @@ class JobController extends Controller
             'status' => 'nullable|in:open,closed',
         ]);
 
+        $state = $this->postingLimitState($profile);
+        if ($state['exceeded']) {
+            return redirect()
+                ->route('employer.job-postings.index')
+                ->with('limit_modal', true)
+                ->with('limit_data', [
+                    'limit' => $state['limit'],
+                    'openCount' => $state['openCount']
+                ])
+                ->with('error', 'Posting limit reached.');
+        }
+
         // ✅ ensure selected skills belong to selected industry
         $industryId = (int) $validated['industry_id'];
         $skillIds = $validated['skills'];
@@ -429,6 +551,7 @@ class JobController extends Controller
                 'skills' => 'Some selected skills do not belong to the chosen industry.',
             ]);
         }
+
 
         // ✅ store industry name (string column)
         $industry = \App\Models\Industry::findOrFail($industryId);
@@ -475,6 +598,11 @@ class JobController extends Controller
         if ($job->status !== 'closed') {
             return redirect()->back()->with('error', 'Job is already open.');
         }
+
+        $profile = $this->requireApprovedEmployerProfile();
+
+        // ✅ block reopen if limit reached
+        $this->enforcePostingLimitOrRedirect($profile);
 
         $job->update(['status' => 'open']);
 

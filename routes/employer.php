@@ -6,6 +6,7 @@ use App\Http\Controllers\Employer\EmployerProfileController;
 use App\Http\Controllers\Employer\JobController;
 use App\Http\Controllers\Employer\ApplicantController;
 use App\Http\Controllers\Employer\SubscriptionController as EmployerSubscriptionController;
+use App\Http\Controllers\Employer\ApplicantFileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +24,7 @@ Route::middleware('guest')->prefix('employer')->name('employer.')->group(functio
 Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
     ->middleware('auth')
     ->name('employer.logout');
-    
+
 
 /*
 |--------------------------------------------------------------------------
@@ -59,18 +60,31 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/industries/{industry}/skills', [JobController::class, 'skillsByIndustry'])->name('industries.skills');
 
     // Applicants
+    // Applicants pages
     Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
-    Route::get('/applicants/export', [ApplicantController::class, 'export'])->name('applicants.export');
     Route::get('/applicants/{application}', [ApplicantController::class, 'show'])->name('applicants.show');
 
+    // Status actions
     Route::put('/applicants/{application}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
     Route::put('/applicants/{application}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
     Route::put('/applicants/{application}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
     Route::put('/applicants/{application}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
 
+    // Export
+    Route::get('/applicants-export', [ApplicantController::class, 'export'])->name('applicants.export');
+
+    // Files (CV + documents)
+    Route::get('/applicants/{application}/cv/preview', [ApplicantFileController::class, 'previewCv'])->name('applicants.cv.preview');
+    Route::get('/applicants/{application}/cv/download', [ApplicantFileController::class, 'downloadCv'])->name('applicants.cv.download');
+
+    Route::get('/applicants/{application}/attachments/{attachment}/download', [ApplicantFileController::class, 'downloadDocument'])->name('applicants.docs.download');
+    Route::get('/applicants/{application}/attachments/{attachment}/preview', [ApplicantFileController::class, 'previewDocument'])->name('applicants.docs.preview');
     // Subscription (employer side)
     Route::get('/subscription', [EmployerSubscriptionController::class, 'dashboard'])->name('subscription.dashboard');
-    Route::get('/subscription/select/{plan}', [EmployerSubscriptionController::class, 'selectPlan'])->name('subscription.select');
+    Route::post('/subscription/select/{plan}', [EmployerSubscriptionController::class, 'selectPlan'])->name('subscription.select');
+    Route::patch('/subscription/{subscription}/cancel', [EmployerSubscriptionController::class, 'cancelPending'])
+  ->name('subscription.cancel');
     Route::get('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'payment'])->name('subscription.payment');
     Route::post('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'processPayment'])->name('subscription.pay');
+   
 });

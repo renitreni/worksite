@@ -187,7 +187,7 @@
             </div>
           </div>
 
-          {{-- Cover letter --}}
+          {{-- Cover letter
           <div class="rounded-2xl border border-slate-200 p-5">
             <div class="flex items-center gap-2">
               <div class="h-9 w-9 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
@@ -225,7 +225,7 @@
                 <p class="mt-2 text-xs text-slate-500">PDF/DOC/DOCX • max 5MB</p>
               </div>
             </div>
-          </div>
+          </div> --}}
         </div>
 
         {{-- STEP 3: REVIEW --}}
@@ -286,7 +286,7 @@
                   </template>
                 </div>
               </div>
-
+{{-- 
               <div class="rounded-xl border border-slate-200 p-4">
                 <div class="flex items-center justify-between gap-3">
                   <div class="font-semibold text-slate-900">Cover letter file</div>
@@ -304,7 +304,7 @@
                     <span>No file selected</span>
                   </template>
                 </div>
-              </div>
+              </div> --}}
             </div>
           </div>
 

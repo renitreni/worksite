@@ -13,7 +13,7 @@
             'shortlisted' => 'Shortlisted Applicants',
             'interview' => 'Interview Stage',
             'hired' => 'Hired Applicants',
-            'rejected' => 'Rejected Applicants'
+            'rejected' => 'Rejected Applicants',
         ];
 
         // ✅ Updated: status classes now includes applied
@@ -43,7 +43,7 @@
             'shortlisted' => 'Shortlisted',
             'interview' => 'Interview',
             'hired' => 'Hired',
-            'rejected' => 'Rejected'
+            'rejected' => 'Rejected',
         ];
     @endphp
 
@@ -68,8 +68,10 @@
         <x-toast type="success" :message="session('success')" />
         <x-toast type="error" :message="session('error')" />
 
+        @include('employer.contents.applicants.profile-views-limit-modal')
+
         <div class="flex flex-wrap gap-2">
-            @foreach(array_keys($filterLabels) as $filter)
+            @foreach (array_keys($filterLabels) as $filter)
                 <a href="{{ route('employer.applicants.index', ['status' => $filter]) }}"
                     class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold border transition
                                {{ $status == $filter ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100' }}">
@@ -83,11 +85,16 @@
                 <table class="min-w-full table-fixed divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="w-[25%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Applicant</th>
-                            <th class="w-[20%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Applied Position</th>
-                            <th class="w-[20%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Email</th>
-                            <th class="w-[10%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Status</th>
-                            <th class="w-[25%] px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase">Actions</th>
+                            <th class="w-[25%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Applicant
+                            </th>
+                            <th class="w-[20%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Applied
+                                Position</th>
+                            <th class="w-[20%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Email
+                            </th>
+                            <th class="w-[10%] px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Status
+                            </th>
+                            <th class="w-[25%] px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase">Actions
+                            </th>
                         </tr>
                     </thead>
 
@@ -107,8 +114,8 @@
                                 $cStatus = $statusAlias[$rawStatus] ?? $rawStatus;
 
                                 // Name/email
-                                $name = $app->candidateProfile?->user?->name ?? $app->full_name ?? 'No Name';
-                                $email = $app->candidateProfile?->user?->email ?? $app->email ?? 'N/A';
+                                $name = $app->candidateProfile?->user?->name ?? ($app->full_name ?? 'No Name');
+                                $email = $app->candidateProfile?->user?->email ?? ($app->email ?? 'N/A');
 
                                 // Locking rule
                                 $locked = in_array($cStatus, ['rejected', 'hired'], true);
@@ -124,7 +131,9 @@
                                 $next = $nextMap[$cStatus] ?? null;
 
                                 $canMoveTo = function ($target) use ($next, $locked) {
-                                    if ($locked) return false;
+                                    if ($locked) {
+                                        return false;
+                                    }
                                     return $target === $next;
                                 };
 
@@ -146,19 +155,28 @@
                                 </td>
 
                                 <td class="px-6 py-5">
-                                    <span class="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold {{ $statusClasses($cStatus) }}">
+                                    <span
+                                        class="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold {{ $statusClasses($cStatus) }}">
                                         {{ ucfirst($cStatus) }}
                                     </span>
                                 </td>
 
                                 <td class="px-6 py-5">
-                                    <div class="flex justify-center gap-2" x-data="{ open: false }" @click.outside="open=false">
+                                    <div class="flex justify-center gap-2" x-data="{ open: false }"
+                                        @click.outside="open=false">
+                                        @php
+                                            $alreadyViewed = in_array($app->id, $viewedTodayIds ?? []);
+                                        @endphp
+
                                         <a href="{{ route('employer.applicants.show', $app) }}"
-                                            class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition">
-                                            View
+                                            class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition
+   {{ $alreadyViewed
+       ? 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200'
+       : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
+                                            {{ $alreadyViewed ? 'Viewed' : 'View' }}
                                         </a>
 
-                                        <div x-data="{ open:false }">
+                                        <div x-data="{ open: false }">
                                             <button type="button"
                                                 class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition"
                                                 @click="open = true">
@@ -178,10 +196,12 @@
                                                     <div class="px-5 py-4 bg-slate-50 border-b border-slate-200">
                                                         <div class="flex items-start justify-between gap-3">
                                                             <div>
-                                                                <div class="text-sm font-semibold text-slate-900">Update Applicant Status</div>
+                                                                <div class="text-sm font-semibold text-slate-900">Update
+                                                                    Applicant Status</div>
                                                                 <div class="mt-1 text-xs text-slate-600">
                                                                     Current:
-                                                                    <span class="font-bold text-slate-800">{{ ucfirst($cStatus) }}</span>
+                                                                    <span
+                                                                        class="font-bold text-slate-800">{{ ucfirst($cStatus) }}</span>
                                                                 </div>
                                                             </div>
 
@@ -193,15 +213,18 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="p-4 max-h-[60vh] overflow-y-auto overscroll-contain space-y-2">
+                                                    <div
+                                                        class="p-4 max-h-[60vh] overflow-y-auto overscroll-contain space-y-2">
                                                         <button type="button" disabled
                                                             class="w-full text-left px-4 py-2.5 rounded-2xl text-sm font-semibold bg-slate-50 text-slate-400 cursor-not-allowed">
                                                             Current: {{ ucfirst($cStatus) }}
                                                         </button>
 
                                                         {{-- SHORTLISTED --}}
-                                                        @if($canMoveTo('shortlisted'))
-                                                            <form action="{{ route('employer.applicants.shortlist', $app) }}" method="POST">
+                                                        @if ($canMoveTo('shortlisted'))
+                                                            <form
+                                                                action="{{ route('employer.applicants.shortlist', $app) }}"
+                                                                method="POST">
                                                                 @csrf
                                                                 @method('PUT')
                                                                 <button type="submit"
@@ -217,8 +240,10 @@
                                                         @endif
 
                                                         {{-- INTERVIEW --}}
-                                                        @if($canMoveTo('interview'))
-                                                            <form action="{{ route('employer.applicants.interview', $app) }}" method="POST">
+                                                        @if ($canMoveTo('interview'))
+                                                            <form
+                                                                action="{{ route('employer.applicants.interview', $app) }}"
+                                                                method="POST">
                                                                 @csrf
                                                                 @method('PUT')
                                                                 <button type="submit"
@@ -234,8 +259,9 @@
                                                         @endif
 
                                                         {{-- HIRED --}}
-                                                        @if($canMoveTo('hired'))
-                                                            <form action="{{ route('employer.applicants.hire', $app) }}" method="POST">
+                                                        @if ($canMoveTo('hired'))
+                                                            <form action="{{ route('employer.applicants.hire', $app) }}"
+                                                                method="POST">
                                                                 @csrf
                                                                 @method('PUT')
                                                                 <button type="submit"
@@ -253,8 +279,9 @@
                                                         <div class="my-2 h-px bg-slate-200"></div>
 
                                                         {{-- REJECT --}}
-                                                        @if($canReject)
-                                                            <form action="{{ route('employer.applicants.reject', $app) }}" method="POST"
+                                                        @if ($canReject)
+                                                            <form action="{{ route('employer.applicants.reject', $app) }}"
+                                                                method="POST"
                                                                 onsubmit="return confirm('Reject this applicant?');">
                                                                 @csrf
                                                                 @method('PUT')
@@ -271,7 +298,8 @@
                                                         @endif
                                                     </div>
 
-                                                    <div class="px-5 py-4 border-t border-slate-200 bg-white flex justify-end">
+                                                    <div
+                                                        class="px-5 py-4 border-t border-slate-200 bg-white flex justify-end">
                                                         <button type="button"
                                                             class="rounded-2xl px-4 py-2 text-sm font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition"
                                                             @click="open=false">

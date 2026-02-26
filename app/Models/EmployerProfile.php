@@ -31,11 +31,16 @@ class EmployerProfile extends Model
         return $this->hasOne(EmployerVerification::class);
     }
 
-    public function subscription()
+    public function subscriptions()
     {
-        return $this->hasOne(EmployerSubscription::class);
+        return $this->hasMany(\App\Models\EmployerSubscription::class, 'employer_profile_id');
     }
 
+    public function subscription() // keep this name if you already use it
+    {
+        return $this->hasOne(\App\Models\EmployerSubscription::class, 'employer_profile_id')
+            ->latestOfMany('id'); // ✅ always latest row
+    }
     public function industries()
     {
         return $this->belongsToMany(Industry::class, 'employer_industries')->withTimestamps();

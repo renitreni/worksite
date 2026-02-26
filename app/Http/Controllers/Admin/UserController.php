@@ -25,7 +25,8 @@ class UserController extends Controller
 
         $q = trim((string) $request->query('q', ''));
         $role = trim((string) $request->query('role', 'candidate')); // candidate|employer
-        if (!in_array($role, ['candidate', 'employer'], true)) $role = 'candidate';
+        if (!in_array($role, ['candidate', 'employer'], true))
+            $role = 'candidate';
 
         $verified = trim((string) $request->query('verified', ''));
         $archived = (string) $request->query('archived', '0');
@@ -38,7 +39,7 @@ class UserController extends Controller
             ->where('role', $role) // ✅ always filtered by role
             ->with([
                 'employerProfile.verification',
-                'employerProfile.subscription',
+                'employerProfile.subscription.plan',
                 'employerProfile.industries',
             ]);
 
@@ -69,10 +70,16 @@ class UserController extends Controller
 
         // subscription filters (only when role=employer)
         if ($role === 'employer' && ($sub_plan !== '' || $sub_status !== '')) {
-            $query->whereHas('employerProfile.subscription', function ($s) use ($sub_plan, $sub_status) {
-                if ($sub_plan !== '') $s->where('plan', $sub_plan);
-                if ($sub_status !== '') $s->where('subscription_status', $sub_status);
+            $query->whereHas('employerProfile.subscription', function ($s) use ($sub_status) {
+                if ($sub_status !== '')
+                    $s->where('subscription_status', $sub_status);
             });
+
+            if ($sub_plan !== '') {
+                $query->whereHas('employerProfile.subscription.plan', function ($p) use ($sub_plan) {
+                    $p->where('code', $sub_plan);
+                });
+            }
         }
 
         $users = $query->latest('id')->paginate(10)->withQueryString();
@@ -94,7 +101,7 @@ class UserController extends Controller
 
         $user->load([
             'employerProfile.verification',
-            'employerProfile.subscription',
+            'employerProfile.subscription.plan',
             'employerProfile.industries',
         ]);
 
@@ -107,7 +114,7 @@ class UserController extends Controller
 
         $user->load([
             'employerProfile.verification',
-            'employerProfile.subscription',
+            'employerProfile.subscription.plan',
             'employerProfile.industries',
         ]);
 
@@ -119,21 +126,21 @@ class UserController extends Controller
         abort_if(!in_array($user->role, ['employer', 'candidate'], true), 404);
 
         $data = $request->validate([
-            'first_name'       => ['required', 'string', 'max:255'],
-            'last_name'        => ['required', 'string', 'max:255'],
-            'email'            => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'phone'            => ['nullable', 'string', 'max:50'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:50'],
 
             // employer verification status (NEW location)
-            'employer_status'  => ['nullable', Rule::in(['pending', 'approved', 'rejected', 'suspended'])],
+            'employer_status' => ['nullable', Rule::in(['pending', 'approved', 'rejected', 'suspended'])],
         ]);
 
         $user->update([
             'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
-            'name'       => $data['first_name'] . ' ' . $data['last_name'],
-            'email'      => $data['email'],
-            'phone'      => $data['phone'] ?? null,
+            'last_name' => $data['last_name'],
+            'name' => $data['first_name'] . ' ' . $data['last_name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
         ]);
 
         // employer verification update (now in employer_verifications table)
@@ -142,13 +149,13 @@ class UserController extends Controller
             $profile = EmployerProfile::firstOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'company_name'        => '—',
-                    'company_address'     => '—',
-                    'company_contact'     => '—',
-                    'company_website'     => null,
-                    'description'         => null,
+                    'company_name' => '—',
+                    'company_address' => '—',
+                    'company_contact' => '—',
+                    'company_website' => null,
+                    'description' => null,
                     'representative_name' => '—',
-                    'position'            => '—',
+                    'position' => '—',
                 ]
             );
 
@@ -240,13 +247,13 @@ class UserController extends Controller
         $profile = EmployerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
+                'company_name' => '—',
+                'company_address' => '—',
+                'company_contact' => '—',
+                'company_website' => null,
+                'description' => null,
                 'representative_name' => '—',
-                'position'            => '—',
+                'position' => '—',
             ]
         );
 
@@ -278,13 +285,13 @@ class UserController extends Controller
         $profile = EmployerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
+                'company_name' => '—',
+                'company_address' => '—',
+                'company_contact' => '—',
+                'company_website' => null,
+                'description' => null,
                 'representative_name' => '—',
-                'position'            => '—',
+                'position' => '—',
             ]
         );
 
@@ -316,23 +323,23 @@ class UserController extends Controller
         $profile = EmployerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
+                'company_name' => '—',
+                'company_address' => '—',
+                'company_contact' => '—',
+                'company_website' => null,
+                'description' => null,
                 'representative_name' => '—',
-                'position'            => '—',
+                'position' => '—',
             ]
         );
 
         $profile->verification()->updateOrCreate(
             ['employer_profile_id' => $profile->id],
             [
-                'status'           => 'suspended',
+                'status' => 'suspended',
                 'suspended_reason' => $data['suspended_reason'],
-                'approved_at'      => null,
-                'rejected_at'      => null,
+                'approved_at' => null,
+                'rejected_at' => null,
                 'rejection_reason' => null,
             ]
         );
@@ -353,13 +360,13 @@ class UserController extends Controller
         $profile = EmployerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'company_name'        => '—',
-                'company_address'     => '—',
-                'company_contact'     => '—',
-                'company_website'     => null,
-                'description'         => null,
+                'company_name' => '—',
+                'company_address' => '—',
+                'company_contact' => '—',
+                'company_website' => null,
+                'description' => null,
                 'representative_name' => '—',
-                'position'            => '—',
+                'position' => '—',
             ]
         );
 
@@ -367,10 +374,10 @@ class UserController extends Controller
         $profile->verification()->updateOrCreate(
             ['employer_profile_id' => $profile->id],
             [
-                'status'           => 'approved',
+                'status' => 'approved',
                 'suspended_reason' => null,
-                'approved_at'      => now(),
-                'rejected_at'      => null,
+                'approved_at' => now(),
+                'rejected_at' => null,
                 'rejection_reason' => null,
             ]
         );

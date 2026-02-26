@@ -25,4 +25,5 @@ class CandidateResume extends Model
     {
         return $this->hasMany(ResumeAttachment::class, 'resume_id')->latest();
     }
+    
 }

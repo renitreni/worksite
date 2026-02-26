@@ -117,10 +117,15 @@
                                             class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
                                             Active
                                         </span>
-                                    @elseif($st === 'pending_activation')
+                                    @elseif($st === 'pending')
                                         <span
                                             class="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 border border-sky-200">
                                             Pending
+                                        </span>
+                                    @elseif ($st === 'canceled')
+                                        <span
+                                            class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 border border-red-200">
+                                            Cancelled
                                         </span>
                                     @elseif($st === 'suspended')
                                         <span
