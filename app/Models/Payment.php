@@ -16,6 +16,7 @@ class Payment extends Model
         'plan_id',
         'subscription_id',
         'amount',
+        'method',
         'status',
         'reference',
         'proof_path',
@@ -26,7 +27,13 @@ class Payment extends Model
 
     protected $casts = [
         'verified_at' => 'datetime',
+        'amount' => 'decimal:2',
     ];
+
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
 
     public function employer(): BelongsTo
     {
@@ -38,28 +45,13 @@ class Payment extends Model
         return $this->belongsTo(SubscriptionPlan::class, 'plan_id');
     }
 
-    public function verifiedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'verified_by_admin_id');
-    }
-
-    public function scopePending($q)
-    {
-        return $q->where('status', self::STATUS_PENDING);
-    }
-
-    public function scopeCompleted($q)
-    {
-        return $q->where('status', self::STATUS_COMPLETED);
-    }
-
-    public function scopeFailed($q)
-    {
-        return $q->where('status', self::STATUS_FAILED);
-    }
-
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(EmployerSubscription::class, 'subscription_id');
+    }
+
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by_admin_id');
     }
 }

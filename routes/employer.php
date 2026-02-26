@@ -23,6 +23,7 @@ Route::middleware('guest')->prefix('employer')->name('employer.')->group(functio
 Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
     ->middleware('auth')
     ->name('employer.logout');
+    
 
 /*
 |--------------------------------------------------------------------------

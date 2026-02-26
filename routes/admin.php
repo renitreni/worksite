@@ -83,7 +83,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
             Route::post('payments/{payment}/complete', [PaymentController::class, 'markCompleted'])->name('payments.complete');
             Route::post('payments/{payment}/fail', [PaymentController::class, 'markFailed'])->name('payments.fail');
-
             Route::get('/', [SubscriptionController::class, 'index'])->name('index');
             Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired');
 

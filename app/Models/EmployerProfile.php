@@ -46,96 +46,13 @@ class EmployerProfile extends Model
         return $this->hasMany(JobPost::class);
     }
 
-    /**
-     * Subscription helpers (reads from employer_subscriptions table)
-     */
-    public function isExpired(): bool
+    public function activeSubscription()
     {
-        return $this->ends_at && now()->greaterThan($this->ends_at);
-    }
-    public function effectivePlan(): string
-    {
-        // If not active or expired → basic/free
-        if ($this->subscription_status !== 'active') {
-            return 'basic';
-        }
-
-        if ($this->isExpired()) {
-            return 'basic';
-        }
-
-        return $this->plan ?: 'basic';
-    }
-
-    public function can(string $feature): bool
-    {
-        $plan = $this->effectivePlan();
-
-        $matrix = [
-            'basic' => [
-                'post_job' => false,
-                'view_candidate_full' => false,
-                'download_cv' => false,
-                'message_candidate' => false,
-            ],
-            'standard' => [
-                'post_job' => true,
-                'view_candidate_full' => false,
-                'download_cv' => false,
-                'message_candidate' => false,
-            ],
-            'gold' => [
-                'post_job' => true,
-                'view_candidate_full' => true,
-                'download_cv' => false,
-                'message_candidate' => false,
-            ],
-            'platinum' => [
-                'post_job' => true,
-                'view_candidate_full' => true,
-                'download_cv' => true,
-                'message_candidate' => true,
-            ],
-        ];
-
-        return (bool) data_get($matrix, "{$plan}.{$feature}", false);
-    }
-}
-
-        return $sub->plan ?: 'basic';
-    }
-
-    public function can(string $feature): bool
-    {
-        $plan = $this->effectivePlan();
-
-        $matrix = [
-            'basic' => [
-                'post_job' => false,
-                'view_candidate_full' => false,
-                'download_cv' => false,
-                'message_candidate' => false,
-            ],
-            'standard' => [
-                'post_job' => true,
-                'view_candidate_full' => false,
-                'download_cv' => false,
-                'message_candidate' => false,
-            ],
-            'gold' => [
-                'post_job' => true,
-                'view_candidate_full' => true,
-                'download_cv' => false,
-                'message_candidate' => false,
-            ],
-            'platinum' => [
-                'post_job' => true,
-                'view_candidate_full' => true,
-                'download_cv' => true,
-                'message_candidate' => true,
-            ],
-        ];
-
-        return (bool) data_get($matrix, "{$plan}.{$feature}", false);
+        return $this->hasOne(\App\Models\EmployerSubscription::class)
+            ->where('subscription_status', \App\Models\EmployerSubscription::STATUS_ACTIVE)
+            ->where(function ($q) {
+                $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+            })
+            ->latestOfMany();
     }
 }

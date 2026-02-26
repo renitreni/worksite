@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\SubscriptionPlan;
 use App\Models\EmployerSubscription;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class SubscriptionController extends Controller
 {
@@ -16,43 +18,34 @@ class SubscriptionController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
+        abort_if(!$user, 403);
 
-        /** @var \App\Models\EmployerProfile|null $employerProfile */
-        $employerProfile = $user?->employerProfile;
-        if (!$employerProfile) {
-            abort(404, 'Employer profile not found.');
-        }
+        $employerProfile = $user->employerProfile;
+        abort_if(!$employerProfile, 404, 'Employer profile not found.');
 
-        /** @var \App\Models\EmployerProfile $employerProfileNonNull */
-        $employerProfileNonNull = $employerProfile;
-
-        // Get all subscriptions for this employer, latest first
-        $subscriptions = EmployerSubscription::with('plan')
-            ->where('employer_profile_id', $employerProfileNonNull->id)
+        // ✅ Get all subscriptions for this employer (include soft-deleted plans)
+        $subscriptions = EmployerSubscription::with([
+            'plan' => fn($q) => $q->withTrashed()->with(['featureValues.definition']),
+            'payments' => fn($q) => $q->latest('id'), // optional: show last payment status in UI
+        ])
+            ->where('employer_profile_id', $employerProfile->id)
             ->orderBy('ends_at', 'desc')
+            ->get()
+            ->filter(fn($s) => $s->plan !== null)
+            ->values();
+
+        // ✅ Determine current subscription (prefer active, else inactive, else latest)
+        $currentSubscription =
+            $subscriptions->firstWhere('subscription_status', 'active')
+            ?? $subscriptions->firstWhere('subscription_status', 'inactive')
+            ?? $subscriptions->first();
+
+        // ✅ Available plans
+        $plans = SubscriptionPlan::query()
+            ->where('is_active', true)
+            ->with(['featureValues.definition'])
+            ->orderBy('price')
             ->get();
-
-        // Assert all subscription plans exist
-        foreach ($subscriptions as $sub) {
-            assert($sub->plan !== null);
-        }
-
-        // Determine current subscription (latest active, or latest inactive)
-        $currentSubscription = $subscriptions->firstWhere('subscription_status', 'active')
-            ?? $subscriptions->firstWhere('subscription_status', 'inactive');
-
-        // Get all plans and decode features safely
-        $plans = SubscriptionPlan::all()->map(function ($plan) {
-            /** @var string|null $planFeatures */
-            $planFeatures = $plan->features;
-
-            // Decode JSON, fallback to empty array if null
-            $plan->features = $planFeatures
-                ? json_decode($planFeatures, true)
-                : [];
-
-            return $plan;
-        });
 
         return view('employer.contents.subscription.subscription-dashboard', [
             'subscriptions' => $subscriptions,
@@ -67,55 +60,53 @@ class SubscriptionController extends Controller
     public function selectPlan($planId)
     {
         $user = Auth::user();
+        abort_if(!$user, 403);
 
-        /** @var \App\Models\EmployerProfile|null $employerProfile */
-        $employerProfile = $user?->employerProfile;
-        if (!$employerProfile) {
-            abort(404, 'Employer profile not found.');
-        }
+        $employerProfile = $user->employerProfile;
+        abort_if(!$employerProfile, 404, 'Employer profile not found.');
 
-        /** @var \App\Models\EmployerProfile $employerProfileNonNull */
-        $employerProfileNonNull = $employerProfile;
+        $plan = SubscriptionPlan::where('is_active', true)->findOrFail($planId);
 
-        // Find the selected plan
-        $plan = SubscriptionPlan::findOrFail($planId);
-
-        // Find or create subscription for this plan
+        // Create/reuse subscription
         $subscription = EmployerSubscription::firstOrCreate(
             [
-                'employer_profile_id' => $employerProfileNonNull->id,
+                'employer_profile_id' => $employerProfile->id,
                 'plan_id' => $plan->id,
             ],
             [
-                'subscription_status' => 'inactive',
+                'subscription_status' => EmployerSubscription::STATUS_INACTIVE,
                 'starts_at' => now(),
                 'ends_at' => now()->addMonth(),
             ]
         );
 
-        // Reset dates if previously expired or canceled
-        if (!$subscription->wasRecentlyCreated && in_array($subscription->subscription_status, ['expired', 'canceled'])) {
+        // If expired/canceled, reset to inactive with fresh dates
+        if (
+            !$subscription->wasRecentlyCreated &&
+            in_array($subscription->subscription_status, [EmployerSubscription::STATUS_EXPIRED, EmployerSubscription::STATUS_CANCELED], true)
+        ) {
             $subscription->update([
-                'subscription_status' => 'inactive',
+                'subscription_status' => EmployerSubscription::STATUS_INACTIVE,
                 'starts_at' => now(),
                 'ends_at' => now()->addMonth(),
             ]);
         }
 
-        // Cancel old inactive plans, expire active plans
-        EmployerSubscription::where('employer_profile_id', $employerProfileNonNull->id)
+        // Cancel other inactive subs, expire old active subs
+        EmployerSubscription::where('employer_profile_id', $employerProfile->id)
             ->where('id', '!=', $subscription->id)
             ->get()
             ->each(function ($sub) {
-                if ($sub->subscription_status === 'inactive') {
-                    $sub->update(['subscription_status' => 'canceled']);
-                } elseif ($sub->subscription_status === 'active') {
-                    $sub->update(['subscription_status' => 'expired']);
+                if ($sub->subscription_status === EmployerSubscription::STATUS_INACTIVE) {
+                    $sub->update(['subscription_status' => EmployerSubscription::STATUS_CANCELED]);
+                } elseif ($sub->subscription_status === EmployerSubscription::STATUS_ACTIVE) {
+                    $sub->update(['subscription_status' => EmployerSubscription::STATUS_EXPIRED]);
                 }
             });
 
-        return redirect()->route('employer.subscription.payment', $subscription->id)
-                         ->with('success', 'Please complete your payment to activate the plan.');
+        return redirect()
+            ->route('employer.subscription.payment', $subscription->id)
+            ->with('success', 'Please complete your payment to activate the plan.');
     }
 
     /**
@@ -124,55 +115,80 @@ class SubscriptionController extends Controller
     public function payment($subscriptionId)
     {
         $user = Auth::user();
+        abort_if(!$user, 403);
 
-        /** @var \App\Models\EmployerProfile|null $employerProfile */
-        $employerProfile = $user?->employerProfile;
-        if (!$employerProfile) {
-            abort(404, 'Employer profile not found.');
-        }
+        $employerProfile = $user->employerProfile;
+        abort_if(!$employerProfile, 404, 'Employer profile not found.');
 
-        /** @var \App\Models\EmployerProfile $employerProfileNonNull */
-        $employerProfileNonNull = $employerProfile;
+        $subscription = EmployerSubscription::with([
+            'plan' => fn($q) => $q->withTrashed(),
+        ])
+            ->where('employer_profile_id', $employerProfile->id)
+            ->findOrFail($subscriptionId);
 
-        $subscription = EmployerSubscription::with('plan')->findOrFail($subscriptionId);
-
-        // Assert plan exists to satisfy static analysis
-        assert($subscription->plan !== null);
+        abort_if(!$subscription->plan, 404, 'Subscription plan not found for this subscription.');
 
         return view('employer.contents.subscription.payment', compact('subscription'));
     }
 
     /**
-     * Process payment submission
+     * Process manual payment submission (GCash QR or Cash)
+     *
+     * - gcash: reference REQUIRED + proof REQUIRED
+     * - cash: reference optional, proof optional (you can require if you want)
      */
     public function processPayment(Request $request, $subscriptionId)
     {
         $user = Auth::user();
+        abort_if(!$user, 403);
 
-        /** @var \App\Models\EmployerProfile|null $employerProfile */
-        $employerProfile = $user?->employerProfile;
-        if (!$employerProfile) {
-            abort(404, 'Employer profile not found.');
-        }
+        $employerProfile = $user->employerProfile;
+        abort_if(!$employerProfile, 404, 'Employer profile not found.');
 
-        /** @var \App\Models\EmployerProfile $employerProfileNonNull */
-        $employerProfileNonNull = $employerProfile;
+        $subscription = EmployerSubscription::with([
+            'plan' => fn($q) => $q->withTrashed(),
+        ])
+            ->where('employer_profile_id', $employerProfile->id)
+            ->findOrFail($subscriptionId);
 
-        $subscription = EmployerSubscription::with('plan')->findOrFail($subscriptionId);
+        abort_if(!$subscription->plan, 404, 'Subscription plan not found for this subscription.');
 
-        // Assert plan exists
-        assert($subscription->plan !== null);
-
-        // Create payment linked to subscription
-        $subscription->payments()->create([
-            'employer_id' => $employerProfileNonNull->user_id,
-            'plan_id' => $subscription->plan_id,
-            'amount' => $subscription->plan->price,
-            'status' => 'pending',
-            'reference' => $request->input('reference'),
+        // Base validation
+        $data = $request->validate([
+            'method' => ['required', Rule::in(['gcash', 'cash'])],
+            'gcash_reference' => ['nullable', 'string', 'max:191'],
+            'cash_note' => ['nullable', 'string', 'max:191'],
+            'proof' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
         ]);
 
-        return redirect()->route('employer.subscription.dashboard')
-            ->with('success', "Payment submitted for {$subscription->plan->name}. Once verified, your subscription will be activated.");
+        if ($data['method'] === 'gcash') {
+            $request->validate([
+                'gcash_reference' => ['required', 'string', 'max:191'],
+                'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
+            ]);
+        }
+
+        $proofPath = $request->hasFile('proof')
+            ? $request->file('proof')->store('payments/proofs', 'public')
+            : null;
+
+        $reference = $data['method'] === 'gcash'
+            ? $data['gcash_reference']
+            : ($data['cash_note'] ?? null);
+
+        $subscription->payments()->create([
+            'employer_id' => $employerProfile->user_id,
+            'plan_id' => $subscription->plan_id,
+            'subscription_id' => $subscription->id,
+            'amount' => $subscription->plan->price,
+            'status' => 'pending',
+            'method' => $data['method'],
+            'reference' => $reference,
+            'proof_path' => $proofPath,
+        ]);
+
+        return redirect()
+            ->route('employer.subscription.dashboard')
+            ->with('success', "Payment submitted for {$subscription->plan->name}. Please wait for admin verification.");
     }
 }

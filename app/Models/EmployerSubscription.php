@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EmployerSubscription extends Model
 {
-    // Status constants (can match your enum in DB)
     public const STATUS_INACTIVE = 'inactive';
     public const STATUS_ACTIVE   = 'active';
     public const STATUS_EXPIRED  = 'expired';
@@ -27,7 +26,6 @@ class EmployerSubscription extends Model
         'ends_at'   => 'datetime',
     ];
 
-    // Relationships
     public function employerProfile(): BelongsTo
     {
         return $this->belongsTo(EmployerProfile::class);
@@ -35,7 +33,7 @@ class EmployerSubscription extends Model
 
     public function plan(): BelongsTo
     {
-        return $this->belongsTo(SubscriptionPlan::class, 'plan_id');
+        return $this->belongsTo(SubscriptionPlan::class, 'plan_id')->withTrashed();
     }
 
     public function payments(): HasMany
@@ -43,10 +41,10 @@ class EmployerSubscription extends Model
         return $this->hasMany(Payment::class, 'subscription_id');
     }
 
-    // Helper functions
     public function isActive(): bool
     {
-        return $this->subscription_status === self::STATUS_ACTIVE;
+        return $this->subscription_status === self::STATUS_ACTIVE
+            && (!$this->ends_at || now()->lessThanOrEqualTo($this->ends_at));
     }
 
     public function isExpired(): bool
