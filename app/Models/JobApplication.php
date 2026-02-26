@@ -24,6 +24,6 @@ class JobApplication extends Model
 
     public function candidateProfile()
     {
-        return $this->belongsTo(\App\Models\CandidateProfile::class, 'candidate_id');
+        return $this->belongsTo(\App\Models\CandidateProfile::class, 'candidate_id', 'user_id');
     }
 }

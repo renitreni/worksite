@@ -51,4 +51,9 @@ class CandidateProfile extends Model
             'job_post_id'
         )->withTimestamps();
     }
+
+    public function resume()
+    {
+        return $this->hasOne(\App\Models\CandidateResume::class, 'user_id', 'user_id');
+    }
 }

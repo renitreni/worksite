@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class EmployerSubscription extends Model
 {
     public const STATUS_INACTIVE = 'inactive';
-    public const STATUS_ACTIVE   = 'active';
-    public const STATUS_EXPIRED  = 'expired';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_EXPIRED = 'expired';
     public const STATUS_CANCELED = 'canceled';
+
+    public const STATUS_PENDING = 'pending';
 
     protected $fillable = [
         'employer_profile_id',
@@ -23,7 +25,7 @@ class EmployerSubscription extends Model
 
     protected $casts = [
         'starts_at' => 'datetime',
-        'ends_at'   => 'datetime',
+        'ends_at' => 'datetime',
     ];
 
     public function employerProfile(): BelongsTo
@@ -54,7 +56,8 @@ class EmployerSubscription extends Model
 
     public function daysLeft(): ?int
     {
-        if (!$this->ends_at) return null;
+        if (!$this->ends_at)
+            return null;
         return now()->startOfDay()->diffInDays($this->ends_at->startOfDay(), false);
     }
 }

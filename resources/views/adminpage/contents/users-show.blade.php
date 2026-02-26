@@ -111,12 +111,12 @@
           <div class="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div class="text-xs font-semibold text-slate-500">Plan</div>
-              <div class="mt-1 font-semibold text-slate-900">{{ ucfirst($subPlan) }}</div>
+              <div class="mt-1 font-semibold text-slate-900">{{ ucfirst($user->employerProfile?->subscription?->plan?->name ?? '—') }}</div>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div class="text-xs font-semibold text-slate-500">Subscription Status</div>
-              <div class="mt-1 font-semibold text-slate-900">{{ ucfirst($subStatus) }}</div>
+              <div class="mt-1 font-semibold text-slate-900">{{ ucfirst($user->employerProfile?->subscription?->subscription_status ?? '—') }}</div>
             </div>
 
             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
