@@ -2,7 +2,15 @@ import './bootstrap'
 
 import 'notyf/notyf.min.css'
 import { Notyf } from 'notyf'
+import Alpine from 'alpinejs'
+import collapse from '@alpinejs/collapse'
+import focus from '@alpinejs/focus'
 
+Alpine.plugin(collapse)
+Alpine.plugin(focus)
+
+window.Alpine = Alpine
+Alpine.start()
 
 // Create ONE Notyf instance for the whole app
 window.notyf = new Notyf({

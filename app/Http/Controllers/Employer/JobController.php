@@ -15,12 +15,10 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Country;
 use App\Models\EmployerSubscription;
 use App\Models\SubscriptionPlan;
-use App\Traits\FeatureAccess;
 
 
 class JobController extends Controller
 {
-    use FeatureAccess;
     // ----------------------------
 // Posting limit helpers (KEY-BASED using PlanFeature)
 // ----------------------------
@@ -47,11 +45,35 @@ class JobController extends Controller
      */
     private function activeJobPostingLimitForProfile($profile): ?int
     {
-        // Use canFeature() from trait
-        $limit = $profile->canFeature('job_limit_active', 1);
+        $activeSub = $this->getActiveSubscriptionForProfile($profile);
 
-        // If limit is null/0, treat as unlimited
-        return $limit === null ? null : (int) $limit;
+        // ✅ No subscription => BASIC default = 1
+        if (!$activeSub || !$activeSub->plan) {
+            return 1;
+        }
+
+        $plan = $activeSub->plan;
+
+        // ✅ read from features table (key: job_limit_active)
+        $raw = $plan->feature('job_limit_active', 1);
+
+        // If feature is blank in DB, your feature() may return null/default_value.
+        // We treat null/"" as unlimited.
+        if ($raw === null || $raw === '') {
+            return null; // unlimited
+        }
+
+        // Sometimes value is stored as array because of cast 'array'
+        // Example: ["value" => 5] or ["limit" => 5]
+        if (is_array($raw)) {
+            // try common keys; adjust if your stored shape is different
+            $raw = $raw['value'] ?? $raw['limit'] ?? $raw[0] ?? null;
+            if ($raw === null || $raw === '')
+                return null;
+        }
+
+        // numeric -> int, else fallback to 1
+        return is_numeric($raw) ? (int) $raw : 1;
     }
 
     private function openJobsCountForProfile($profile): int
@@ -75,7 +97,6 @@ class JobController extends Controller
             'exceeded' => ($limit !== null && $openCount >= $limit),
         ];
     }
-
     private function requireApprovedEmployerProfile()
     {
         $user = Auth::user();
@@ -458,9 +479,8 @@ class JobController extends Controller
 
     public function update(Request $request, JobPost $job)
     {
-        $profile = $this->requireApprovedEmployerProfile();
-
         $this->requireOwner($job);
+
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -569,23 +589,6 @@ class JobController extends Controller
 
         return redirect()->route('employer.job-postings.index')
             ->with('info', 'Job closed successfully.');
-    }
-
-    private function enforcePostingLimitOrRedirect($profile): void
-    {
-        $state = $this->postingLimitState($profile);
-        if ($state['exceeded']) {
-            redirect()
-                ->route('employer.job-postings.index')
-                ->with('limit_modal', true)
-                ->with('limit_data', [
-                    'limit' => $state['limit'],
-                    'openCount' => $state['openCount'],
-                ])
-                ->with('error', 'Posting limit reached.')
-                ->send();
-            exit;
-        }
     }
 
     public function reopen(JobPost $job)

@@ -16,7 +16,7 @@ class PlanFeatureSeeder extends Seeder
 
         $matrix = [
 
-            'standard' => [
+            '' => [
                 'job_limit_active' => 2,
                 'candidate_profile_views_per_day' => 5,
                 'candidate_info_level' => 'basic_preview',

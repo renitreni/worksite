@@ -3,11 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\FeatureAccess;
-
 class EmployerProfile extends Model
 {
-    use FeatureAccess;
 
     protected $fillable = [
         'user_id',
@@ -63,14 +60,4 @@ class EmployerProfile extends Model
             ->latestOfMany();
     }
 
-    public function canFeature(string $key): bool|string|null
-    {
-        $subscription = $this->activeSubscription()->with('plan.featureValues.definition')->first();
-
-        if (!$subscription) return false;
-
-        $features = $subscription->activeFeatures();
-
-        return $features->get($key, false);
-    }
 }
