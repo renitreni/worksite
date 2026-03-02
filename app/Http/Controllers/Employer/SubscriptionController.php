@@ -45,10 +45,24 @@ class SubscriptionController extends Controller
             ->orderBy('price')
             ->get();
 
+        // Get pending subscription (selected but not yet active)
+        $pendingSubscription = $subscriptions
+            ->firstWhere('subscription_status', EmployerSubscription::STATUS_PENDING);
+
+        // Check if payment already submitted and still pending admin approval
+        $paymentPendingApproval = null;
+
+        if ($pendingSubscription) {
+            $paymentPendingApproval = $pendingSubscription->payments()
+                ->where('status', 'pending')
+                ->latest()
+                ->first();
+        }
         return view('employer.contents.subscription.subscription-dashboard', [
             'subscriptions' => $subscriptions,
             'currentSubscription' => $currentSubscription,
             'pendingSubscription' => $pendingSubscription, // ✅ add
+            'paymentPendingApproval' => $paymentPendingApproval,
             'plans' => $plans,
         ]);
     }

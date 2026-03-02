@@ -60,29 +60,45 @@
                                 Status:
                                 <span class="font-semibold">{{ ucfirst($pendingSubscription->subscription_status) }}</span>
                             </div>
-                            <p class="mt-2 text-xs text-slate-600">
-                                You selected a plan but haven’t completed payment yet. Continue to payment to activate it.
-                            </p>
+                            @if ($paymentPendingApproval)
+                                <p class="mt-2 text-xs text-slate-600">
+                                    Your payment has been submitted and is waiting for admin approval.
+                                </p>
+                            @else
+                                <p class="mt-2 text-xs text-slate-600">
+                                    You selected a plan but haven’t completed payment yet.
+                                </p>
+                            @endif
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
-                            <a href="{{ route('employer.subscription.payment', $pendingSubscription->id) }}"
-                                class="inline-flex items-center justify-center rounded-2xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm
-            hover:bg-amber-700 focus:outline-none focus:ring-4 focus:ring-amber-200 transition">
-                                Continue Payment
-                            </a>
+                            <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
 
-                            <form method="POST"
-                                action="{{ route('employer.subscription.cancel', $pendingSubscription->id) }}"
-                                onsubmit="return confirm('Cancel this pending subscription? You can select a plan again after canceling.')">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit"
-                                    class="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-white px-6 py-3 text-sm font-semibold text-rose-700 shadow-sm
-             hover:bg-rose-50 focus:outline-none focus:ring-4 focus:ring-rose-200 transition">
-                                    Cancel
-                                </button>
-                            </form>
+                                @if ($paymentPendingApproval)
+                                    <span
+                                        class="inline-flex items-center justify-center rounded-2xl bg-slate-200 px-6 py-3 text-sm font-semibold text-slate-700">
+                                        Waiting for Approval
+                                    </span>
+                                @else
+                                    <a href="{{ route('employer.subscription.payment', $pendingSubscription->id) }}"
+                                        class="inline-flex items-center justify-center rounded-2xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm
+                  hover:bg-amber-700 focus:outline-none focus:ring-4 focus:ring-amber-200 transition">
+                                        Continue Payment
+                                    </a>
+
+                                    <form method="POST"
+                                        action="{{ route('employer.subscription.cancel', $pendingSubscription->id) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                            class="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-white px-6 py-3 text-sm font-semibold text-rose-700 shadow-sm
+                     hover:bg-rose-50 focus:outline-none focus:ring-4 focus:ring-rose-200 transition">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                @endif
+
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -326,28 +342,44 @@
                         @endphp
 
                         <div class="p-5 pt-0">
-                            @if ($isPendingPlan)
+
+                            {{-- 1️⃣ If this plan is the pending plan AND payment already submitted --}}
+                            @if ($isPendingPlan && $paymentPendingApproval)
+                                <span
+                                    class="inline-flex w-full items-center justify-center rounded-2xl bg-slate-200 px-6 py-3 text-sm font-semibold text-slate-700">
+                                    Waiting for Approval
+                                </span>
+
+                                {{-- 2️⃣ If this plan is pending BUT payment not yet submitted --}}
+                            @elseif ($isPendingPlan && !$paymentPendingApproval)
                                 <a href="{{ route('employer.subscription.payment', $pendingSubscription->id) }}"
                                     class="inline-flex w-full items-center justify-center rounded-2xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm
-              hover:bg-amber-700 focus:outline-none focus:ring-4 focus:ring-amber-200 transition">
+                  hover:bg-amber-700 focus:outline-none focus:ring-4 focus:ring-amber-200 transition">
                                     Continue Payment
                                 </a>
-                            @elseif(!$canSelect)
+
+                                {{-- 3️⃣ If cannot select (active / expired / canceled logic) --}}
+                            @elseif (!$canSelect)
                                 <span
                                     class="inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold border
-      {{ $subStatus === 'active' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200' }}">
+            {{ $subStatus === 'active'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : 'bg-amber-50 text-amber-800 border-amber-200' }}">
                                     {{ ucfirst($subStatus) }}
                                 </span>
+
+                                {{-- 4️⃣ Default: user can choose plan --}}
                             @else
                                 <form method="POST" action="{{ route('employer.subscription.select', $plan->id) }}">
                                     @csrf
                                     <button type="submit"
                                         class="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm
-               hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-200 transition">
+                       hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-200 transition">
                                         Choose Plan
                                     </button>
                                 </form>
                             @endif
+
                         </div>
                     </div>
                 @endforeach

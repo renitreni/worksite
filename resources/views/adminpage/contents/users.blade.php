@@ -133,7 +133,10 @@
                                 $isVerified = !is_null($u->email_verified_at);
 
                                 $empStatus = null;
-                                $plan = null;
+
+                                $planCode = null;
+                                $planName = null;
+
                                 $subStatus = null;
                                 $subStarts = null;
                                 $subEnds = null;
