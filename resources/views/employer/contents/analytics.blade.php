@@ -7,7 +7,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-xl p-6 shadow flex items-center justify-between">
             <div>
-                <p class="text-2xl font-bold text-gray-900">16</p>
+                <p class="text-2xl font-bold text-gray-900">{{ $activeJobs }}</p>
                 <p class="text-sm text-gray-500">Active Job Posts</p>
             </div>
             <i data-lucide="briefcase" class="h-8 w-8 text-emerald-500"></i>
@@ -15,7 +15,7 @@
 
         <div class="bg-white rounded-xl p-6 shadow flex items-center justify-between">
             <div>
-                <p class="text-2xl font-bold text-gray-900">61</p>
+                <p class="text-2xl font-bold text-gray-900">{{ $totalApplications }}</p>
                 <p class="text-sm text-gray-500">Total Applications</p>
             </div>
             <i data-lucide="users" class="h-8 w-8 text-blue-500"></i>
@@ -23,7 +23,7 @@
 
         <div class="bg-white rounded-xl p-6 shadow flex items-center justify-between">
             <div>
-                <p class="text-2xl font-bold text-gray-900">7</p>
+                <p class="text-2xl font-bold text-gray-900">{{ $hiresThisMonth }}</p>
                 <p class="text-sm text-gray-500">Hires This Month</p>
             </div>
             <i data-lucide="check-circle" class="h-8 w-8 text-yellow-500"></i>
@@ -66,7 +66,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const commonOptions = {
         responsive: true,
-        maintainAspectRatio: false, // fit container height
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: true } }
     };
@@ -75,10 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
     new Chart(document.getElementById('applicationsChart'), {
         type: 'bar',
         data: {
-            labels: ['Frontend Developer', 'Backend Developer', 'UI/UX Designer', 'QA Tester'],
+            labels: @json($applicationsPerJob->pluck('title')),
             datasets: [{
                 label: 'Applications',
-                data: [15, 22, 8, 12],
+                data: @json($applicationsPerJob->pluck('applications_count')),
                 backgroundColor: '#10B981'
             }]
         },
@@ -89,10 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
     new Chart(document.getElementById('hiresChart'), {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+            labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
             datasets: [{
                 label: 'Hires',
-                data: [2, 5, 3, 6, 4],
+                data: @json($hiresPerMonthData),
                 borderColor: '#3B82F6',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 fill: true,
@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
             labels: ['Active', 'Closed'],
             datasets: [{
                 label: 'Jobs',
-                data: [12, 4],
+                data: [{{ $jobsStatus['open'] ?? 0 }}, {{ $jobsStatus['closed'] ?? 0 }}],
                 backgroundColor: ['#FBBF24', '#EF4444']
             }]
         },
