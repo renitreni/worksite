@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\FeatureAccess;
 
 class EmployerSubscription extends Model
 {
+    use FeatureAccess;
+    
     public const STATUS_INACTIVE = 'inactive';
     public const STATUS_ACTIVE = 'active';
     public const STATUS_EXPIRED = 'expired';
@@ -59,5 +62,17 @@ class EmployerSubscription extends Model
         if (!$this->ends_at)
             return null;
         return now()->startOfDay()->diffInDays($this->ends_at->startOfDay(), false);
+    }
+
+    public function activeFeatures(): \Illuminate\Support\Collection
+    {
+        // Only active subscriptions count
+        if (!$this->isActive() || !$this->plan) {
+            return collect();
+        }
+
+        return $this->plan->featureValues
+            ->keyBy(fn($fv) => $fv->definition?->key)
+            ->map(fn($fv) => $fv->value ?? $fv->definition?->default_value);
     }
 }

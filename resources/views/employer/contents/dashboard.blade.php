@@ -1,13 +1,21 @@
 @extends('employer.layout')
 
 @section('content')
+@php
+    $employer = auth()->user()->employerProfile;
+@endphp
+
+<script>
+    window.Laravel = { userId: {{ auth()->id() }} };
+</script>
+
 <div class="space-y-6" x-data="employerDashboard()" x-init="init()">
 
     {{-- Header --}}
     <div class="space-y-1">
         <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">Dashboard</h1>
         <p class="text-sm text-gray-500">
-            Welcome back, <span class="font-semibold text-gray-700">John Company</span>!
+            Welcome back, <span class="font-semibold text-gray-700">{{ auth()->user()->name }}</span>!
         </p>
     </div>
 
@@ -61,7 +69,7 @@
         <section class="xl:col-span-8 space-y-4">
             <div class="flex items-center justify-between">
                 <h2 class="text-base font-semibold text-gray-900">Recently Posted Jobs</h2>
-                <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900">
+                <a href="{{ route('employer.job-postings.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900">
                     View All
                     <i data-lucide="arrow-right" class="h-4 w-4"></i>
                 </a>
@@ -86,12 +94,11 @@
                             >
                                 <i data-lucide="eye" class="h-4 w-4"></i> View Applicants
                             </button>
-                            <button
-                                type="button"
+                            <a href="{{ route('employer.job-postings.create') }}"
                                 class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
                             >
                                 <i data-lucide="plus" class="h-4 w-4"></i> New Job
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -179,37 +186,68 @@
             </div>
         </div>
     </div>
+
 </div>
+
+@php
+// Prepare jobs array for Alpine.js
+$jobsForJson = $jobs->map(function($job){
+    return [
+        'id' => $job->id,
+        'title' => $job->title,
+        'applicants' => $job->applications_count,
+        'status' => $job->status,
+        'statusPill' => match($job->status) {
+            'Open' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+            'Interviewing' => 'bg-amber-50 text-amber-700 border-amber-100',
+            'Closed' => 'bg-red-50 text-red-700 border-red-100',
+            default => 'bg-gray-50 text-gray-700 border-gray-100',
+        },
+        'applicantsList' => $job->applications->map(fn($a) => [
+            'id' => $a->id,
+            'name' => $a->full_name,
+            'email' => $a->email,
+            'appliedDate' => $a->created_at->format('Y-m-d'),
+        ])->values()->all(),
+    ];
+});
+
+// Notifications already prepared
+@endphp
 
 <script>
 function employerDashboard() {
     return {
-        jobs: [
-            {
-                id: 1, title: 'Frontend Developer', applicants: 12, status: 'Open',
-                statusPill: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-                applicantsList: [
-                    {id: 1, name: 'John Doe', email: 'john@example.com', appliedDate: '2023-10-01'},
-                    {id: 2, name: 'Jane Smith', email: 'jane@example.com', appliedDate: '2023-10-02'},
-                ]
-            },
-            {id: 2, title: 'UX Designer', applicants: 5, status: 'Interviewing', statusPill: 'bg-amber-50 text-amber-700 border-amber-100', applicantsList: []},
-            {id: 3, title: 'Backend Developer', applicants: 9, status: 'Closed', statusPill: 'bg-red-50 text-red-700 border-red-100', applicantsList: []},
-        ],
-        stats: {postedJobs: 3, applicants: 26, interviews: 8, shortlisted: 3},
-        notifications: [
-            {id: 1, title: 'New Application', time: '2 hours ago', body: 'John Doe applied to Frontend Developer', icon: 'user-plus', iconWrap: 'bg-blue-50 border-blue-100', iconColor: 'text-blue-600'}
-        ],
+        // Alpine.js data
+        jobs: @json($jobsForJson),
+        stats: @json($stats),
+        notifications: @json($notificationsArray),
+
         applicantsModalOpen: false,
         selectedJob: null,
+
         openJob(job) {
             this.selectedJob = job;
             this.applicantsModalOpen = true;
             this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
         },
-        closeApplicants() { this.applicantsModalOpen = false; },
-        markAllRead() { this.notifications = []; },
-        init() { if (window.lucide) window.lucide.createIcons(); }
+        closeApplicants() {
+            this.applicantsModalOpen = false;
+        },
+        markAllRead() {
+            this.notifications = [];
+        },
+        init() {
+            if (window.lucide) window.lucide.createIcons();
+
+            if (window.Echo) {
+                window.Echo.private(`employer.${window.Laravel.userId}`)
+                    .listen('.new-notification', (e) => {
+                        this.notifications.unshift(e.notification);
+                        window.toast('info', e.notification.title + ': ' + e.notification.body);
+                    });
+            }
+        }
     }
 }
 </script>

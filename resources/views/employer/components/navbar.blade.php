@@ -26,21 +26,16 @@
             </button>
 
             {{-- Messages --}}
-            <button
-                type="button"
-                class="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition cursor-pointer"
-                @click="alert('Open Messages (frontend-only)')"
-                aria-label="Messages"
-            >
+            <a href="{{ route('employer.chat.index') }}" class="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition" aria-label="Messages">
                 <i data-lucide="message-circle" class="h-5 w-5 text-gray-600"></i>
                 <span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white"></span>
-            </button>
+            </a>
 
             {{-- Analytics --}}
             <button
                 type="button"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition cursor-pointer"
-                @click="alert('Open Analytics Dashboard')"
+                @click="window.location='{{ route('employer.analytics') }}'"
                 aria-label="Analytics"
             >
                 <i data-lucide="bar-chart-2" class="h-5 w-5 text-gray-600"></i>

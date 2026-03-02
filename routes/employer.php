@@ -3,10 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Employer\EmployerAuthController;
 use App\Http\Controllers\Employer\EmployerProfileController;
+use App\Http\Controllers\Employer\DashboardController;
 use App\Http\Controllers\Employer\JobController;
 use App\Http\Controllers\Employer\ApplicantController;
 use App\Http\Controllers\Employer\SubscriptionController as EmployerSubscriptionController;
 use App\Http\Controllers\Employer\ApplicantFileController;
+use app\Http\Controllers\Employer\EmployerChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +35,7 @@ Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
 */
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
 
-    Route::view('/dashboard', 'employer.contents.dashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Company profile
     Route::get('/company-profile', [EmployerProfileController::class, 'show'])->name('company-profile');
@@ -41,7 +43,7 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
     Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
 
-    Route::get('/analytics', fn() => view('employer.contents.analytics'))->name('analytics');
+    Route::get('/analytics', [\App\Http\Controllers\Employer\AnalyticsController::class, 'index'])->name('analytics');
 
     // Job postings
     Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
@@ -54,6 +56,12 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::put('/job-postings/{job}', [JobController::class, 'update'])->name('job-postings.update');
     Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
 
+    // Combined chat interface
+    Route::get('/chat/{application?}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'index'])->name('chat.index');
+
+    // Store message
+    Route::post('/chat/{application}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'store'])->name('chat.store');
+    
     // Geo + skills helpers
     Route::get('/geo/cities', [JobController::class, 'citiesByCountry'])->name('geo.cities');
     Route::get('/geo/areas', [JobController::class, 'areasByCity'])->name('geo.areas');
