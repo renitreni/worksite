@@ -15,38 +15,57 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
+
     ->withMiddleware(function (Middleware $middleware): void {
 
-    $middleware->redirectGuestsTo(function ($request) {
-
-        // 🚀 VERY IMPORTANT: Do NOT redirect broadcasting auth
-        if ($request->is('broadcasting/*')) {
-            return null;
-        }
-
-        if ($request->is('admin/*')) {
-            return route('admin.login');
-        }
-
+        /*
+        |--------------------------------------------------------------------------
+        | Middleware Aliases
+        |--------------------------------------------------------------------------
+        */
         $middleware->alias([
-            // ✅ Your custom aliases (keep)
+            // Your custom middleware
             'role'   => \App\Http\Middleware\RoleMiddleware::class,
             'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
 
-            // ✅ Spatie permission aliases (add)
+            // Spatie permission middleware
             'permission' => PermissionMiddleware::class,
 
-            // Avoid conflict with your 'role' alias:
+            // avoid conflict with your custom role middleware
             'spatie.role' => SpatieRoleMiddleware::class,
 
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guest Redirects
+        |--------------------------------------------------------------------------
+        */
+        $middleware->redirectGuestsTo(function ($request) {
+
+            // Do NOT redirect broadcasting auth routes
+            if ($request->is('broadcasting/*')) {
+                return null;
+            }
+
+            // Admin routes go to admin login
+            if ($request->is('admin/*')) {
+                return route('admin.login');
+            }
+
+            // Default redirect
+            return route('login');
+        });
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
+
     ->withBroadcasting(
         __DIR__ . '/../routes/channels.php',
         attributes: ['middleware' => ['web', 'auth']]
+    )
 
-    )->create();
+    ->create();
