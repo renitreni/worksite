@@ -26,4 +26,9 @@ class JobApplication extends Model
     {
         return $this->belongsTo(\App\Models\CandidateProfile::class, 'candidate_id', 'user_id');
     }
+
+    public function chats()
+    {
+        return $this->hasMany(\App\Models\Chat::class);
+    }
 }

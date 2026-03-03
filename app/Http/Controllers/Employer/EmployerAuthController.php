@@ -8,6 +8,7 @@ use App\Models\EmployerProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
+use App\Notifications\AdminUserRegistered;
 
 class EmployerAuthController extends Controller
 {
@@ -37,33 +38,39 @@ class EmployerAuthController extends Controller
         $repName = trim($validated['representative_name']);
         $parts = preg_split('/\s+/', $repName);
         $first = $parts[0] ?? $repName;
-        $last  = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
+        $last = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
 
         $phoneToSave = $validated['company_contact_e164'] ?: $validated['company_contact'];
 
         $user = User::create([
             'first_name' => $first,
-            'last_name'  => $last,
-            'name'       => $repName,
-            'email'      => $validated['email'],
-            'phone'      => $phoneToSave,
-            'role'       => 'employer',
-            'password'   => bcrypt($validated['password']),
+            'last_name' => $last,
+            'name' => $repName,
+            'email' => $validated['email'],
+            'phone' => $phoneToSave,
+            'role' => 'employer',
+            'password' => bcrypt($validated['password']),
             'account_status' => 'active', // or 'hold' if you want default hold
         ]);
 
+
+        // Notify all admins
+        User::where('role', 'admin')->orWhere('role', 'superadmin')->get()->each(function ($admin) use ($user) {
+            $admin->notify(new AdminUserRegistered($user));
+        });
+
         // ✅ Create employer profile (NO status here anymore)
         $profile = EmployerProfile::create([
-            'user_id'             => $user->id,
-            'company_name'        => $validated['company_name'],
-            'company_address'     => $validated['company_address'],
-            'company_contact'     => $phoneToSave,
-            'company_website'     => null,
-            'description'         => null,
-            'logo_path'           => null,
-            'cover_path'          => null,
+            'user_id' => $user->id,
+            'company_name' => $validated['company_name'],
+            'company_address' => $validated['company_address'],
+            'company_contact' => $phoneToSave,
+            'company_website' => null,
+            'description' => null,
+            'logo_path' => null,
+            'cover_path' => null,
             'representative_name' => $validated['representative_name'],
-            'position'            => $validated['position'],
+            'position' => $validated['position'],
         ]);
 
         // ✅ Create verification row (status now lives here)
@@ -74,6 +81,8 @@ class EmployerAuthController extends Controller
             'rejection_reason' => null,
             'suspended_reason' => null,
         ]);
+
+
 
         return redirect()
             ->route('employer.register')
@@ -116,10 +125,10 @@ class EmployerAuthController extends Controller
 
         if ($status !== 'approved') {
             $msg = match ($status) {
-                'pending'   => 'Your employer account is still pending admin approval. Please wait.',
-                'rejected'  => 'Your employer account was rejected. Please contact admin/support.',
+                'pending' => 'Your employer account is still pending admin approval. Please wait.',
+                'rejected' => 'Your employer account was rejected. Please contact admin/support.',
                 'suspended' => 'Your employer account is suspended. Please contact admin/support.',
-                default     => 'Your employer account is not approved yet. Please wait for admin approval.',
+                default => 'Your employer account is not approved yet. Please wait for admin approval.',
             };
 
             return back()

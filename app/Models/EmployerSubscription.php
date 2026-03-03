@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EmployerSubscription extends Model
 {
+    
     public const STATUS_INACTIVE = 'inactive';
     public const STATUS_ACTIVE = 'active';
     public const STATUS_EXPIRED = 'expired';
@@ -60,4 +61,5 @@ class EmployerSubscription extends Model
             return null;
         return now()->startOfDay()->diffInDays($this->ends_at->startOfDay(), false);
     }
+
 }

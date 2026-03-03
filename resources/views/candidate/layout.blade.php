@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', default: 'Worksite') }}</title>
 
@@ -16,15 +17,16 @@
         }
     </style>
 
-    <!-- Alpine.js -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 
     <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <script>
+        window.Laravel = {
+            userId: {{ auth()->id() ?? 'null' }}
+        }
+    </script>
 </head>
 
 <body class="font-['Inter',sans-serif] bg-gray-100 text-gray-900 antialiased">
@@ -47,18 +49,23 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) window.lucide.createIcons();
-        });
-    </script>
-
     <style>
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
             display: none;
         }
     </style>
+
+    <script>
+        document.addEventListener('refresh-icons', () => {
+            window.lucide?.createIcons();
+        });
+    </script>
+    <script>
+        window.userId = {{ auth()->id() }};
+    </script>
+
+
 
 </body>
 

@@ -62,7 +62,7 @@ class JobPost extends Model
     protected $casts = [
         'posted_at' => 'datetime',
         'apply_until' => 'date',
-         'is_held' => 'boolean',
+        'is_held' => 'boolean',
         'held_at' => 'datetime',
 
         'is_disabled' => 'boolean',
@@ -91,9 +91,7 @@ class JobPost extends Model
     {
         return $this->hasManyThrough(CandidateProfile::class, JobApplication::class, 'job_post_id', 'id', 'id', 'candidate_profile_id');
     }
-    
 
-    
 
     public function saves()
     {

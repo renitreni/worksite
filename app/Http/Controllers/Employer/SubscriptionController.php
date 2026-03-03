@@ -8,6 +8,7 @@ use App\Models\SubscriptionPlan;
 use App\Models\EmployerSubscription;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Notifications\SubscriptionPaymentUpdated;
 
 class SubscriptionController extends Controller
 {
@@ -225,7 +226,8 @@ class SubscriptionController extends Controller
             : ($data['cash_note'] ?? null);
 
         // Create payment record (pending)
-        $subscription->payments()->create([
+        // Create payment record (pending)
+        $payment = $subscription->payments()->create([
             'employer_id' => $employerProfile->user_id,
             'plan_id' => $subscription->plan_id,
             'subscription_id' => $subscription->id,
@@ -236,6 +238,10 @@ class SubscriptionController extends Controller
             'proof_path' => $proofPath,
         ]);
 
+        // 🔔 Notify employer (pending submission)
+        $user->notify(
+            new SubscriptionPaymentUpdated($payment->load('plan'), 'pending')
+        );
         // Keep subscription as pending until admin verifies payment
         // (Admin will set ACTIVE and add starts_at/ends_at)
         return redirect()

@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\CandidateProfile;
+use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable
 {

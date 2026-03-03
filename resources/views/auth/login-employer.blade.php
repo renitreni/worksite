@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Worksite') }} | Employer Login</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         [x-cloak] { display: none !important; }
     </style>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 
 <body class="font-['Inter',sans-serif] bg-gray-50 text-gray-900 overflow-hidden">

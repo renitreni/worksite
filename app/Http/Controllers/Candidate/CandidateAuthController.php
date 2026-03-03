@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Str;
+use App\Notifications\AdminUserRegistered;
+
 
 class CandidateAuthController extends Controller
 {
@@ -41,11 +43,11 @@ class CandidateAuthController extends Controller
     {
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
-            'last_name'  => ['required', 'string', 'max:255'],
-            'email'      => ['required', 'email', 'max:255', 'unique:users,email'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
 
             'contact_number' => ['required', 'string', 'max:30'],
-            'contact_e164'   => ['nullable', 'string', 'max:40'],
+            'contact_e164' => ['nullable', 'string', 'max:40'],
 
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
@@ -54,19 +56,24 @@ class CandidateAuthController extends Controller
 
         $user = User::create([
             'first_name' => $validated['first_name'],
-            'last_name'  => $validated['last_name'],
-            'name'       => $fullName,
-            'email'      => $validated['email'],
-            'phone'      => $validated['contact_e164'] ?: $validated['contact_number'],
-            'role'       => 'candidate',
-            'password'   => $validated['password'], // hashed by cast
+            'last_name' => $validated['last_name'],
+            'name' => $fullName,
+            'email' => $validated['email'],
+            'phone' => $validated['contact_e164'] ?: $validated['contact_number'],
+            'role' => 'candidate',
+            'password' => $validated['password'], // hashed by cast
             'email_verified_at' => null,
         ]);
 
+        // 🔔 Notify admins
+        User::where('role', 'admin')->orWhere('role', 'superadmin')->get()->each(function ($admin) use ($user) {
+            $admin->notify(new AdminUserRegistered($user));
+        });
+
         CandidateProfile::create([
-            'user_id'         => $user->id,
-            'contact_number'  => $validated['contact_number'],
-            'contact_e164'    => $validated['contact_e164'] ?: null,
+            'user_id' => $user->id,
+            'contact_number' => $validated['contact_number'],
+            'contact_e164' => $validated['contact_e164'] ?: null,
         ]);
 
         // Send code (NO dashboard redirect yet)
@@ -84,7 +91,7 @@ class CandidateAuthController extends Controller
     {
         $data = $request->validate([
             'user_id' => ['required', 'integer', 'exists:users,id'],
-            'code'    => ['required', 'digits:6'],
+            'code' => ['required', 'digits:6'],
         ]);
 
         // Ensure this is really a candidate
@@ -162,7 +169,7 @@ class CandidateAuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => ['required', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
