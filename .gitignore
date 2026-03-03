@@ -22,3 +22,10 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Local tooling / AI
+.codex/
+AGENTS.md
+boost.json
+
+# Vendor language files (Spatie backup etc)
+lang/vendor/

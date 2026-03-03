@@ -4,6 +4,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware as SpatieRoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         channels: __DIR__ . '/../routes/channels.php',
@@ -24,23 +28,23 @@ return Application::configure(basePath: dirname(__DIR__))
             return route('admin.login');
         }
 
-        if ($request->is('employer/*')) {
-            return route('employer.login');
-        }
+        $middleware->alias([
+            // ✅ Your custom aliases (keep)
+            'role'   => \App\Http\Middleware\RoleMiddleware::class,
+            'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
 
-        // Default login page
-        return route('candidate.login');
-    });
+            // ✅ Spatie permission aliases (add)
+            'permission' => PermissionMiddleware::class,
 
-    $middleware->alias([
-        'role' => \App\Http\Middleware\RoleMiddleware::class,
-        'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
-    ]);
-})
+            // Avoid conflict with your 'role' alias:
+            'spatie.role' => SpatieRoleMiddleware::class,
+
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
-
     ->withBroadcasting(
         __DIR__ . '/../routes/channels.php',
         attributes: ['middleware' => ['web', 'auth']]
