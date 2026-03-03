@@ -8,6 +8,8 @@ use App\Services\EmployerAccessService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Models\CandidateProfileView;
+use App\Notifications\ApplicationStatusUpdated;
+use App\Events\ApplicationStatusChanged;
 
 class ApplicantController extends Controller
 {
@@ -110,6 +112,15 @@ class ApplicantController extends Controller
 
         if (in_array($current, ['applied', 'new', 'pending'], true)) {
             $application->update(['status' => 'shortlisted']);
+
+            $candidateUser = $application->candidateProfile?->user;
+
+            if ($candidateUser) {
+                $candidateUser->notify(new ApplicationStatusUpdated($application));
+            }
+
+            // 🔥 Employer real-time event
+            event(new ApplicationStatusChanged($application));
             return back()->with('success', 'Applicant shortlisted.');
         }
 
@@ -122,6 +133,15 @@ class ApplicantController extends Controller
 
         if ($current === 'shortlisted') {
             $application->update(['status' => 'interview']);
+
+            $candidateUser = $application->candidateProfile?->user;
+
+            if ($candidateUser) {
+                $candidateUser->notify(new ApplicationStatusUpdated($application));
+            }
+
+            // 🔥 Employer real-time event
+            event(new ApplicationStatusChanged($application));
             return back()->with('success', 'Applicant moved to Interview stage.');
         }
 
@@ -134,6 +154,16 @@ class ApplicantController extends Controller
 
         if ($current === 'interview') {
             $application->update(['status' => 'hired']);
+
+            $candidateUser = $application->candidateProfile?->user;
+
+            // 🔔 Candidate notification
+            if ($candidateUser) {
+                $candidateUser->notify(new ApplicationStatusUpdated($application));
+            }
+
+            // 🔥 Employer real-time event
+            event(new ApplicationStatusChanged($application));
             return back()->with('success', 'Applicant Hired!');
         }
 
@@ -146,6 +176,17 @@ class ApplicantController extends Controller
 
         if (!in_array($current, ['rejected', 'hired'], true)) {
             $application->update(['status' => 'rejected']);
+
+            $candidateUser = $application->candidateProfile?->user;
+
+            // 🔔 Candidate notification
+            if ($candidateUser) {
+                $candidateUser->notify(new ApplicationStatusUpdated($application));
+            }
+
+            // 🔥 Employer real-time event
+            event(new ApplicationStatusChanged($application));
+
             return back()->with('error', 'Applicant rejected.');
         }
 

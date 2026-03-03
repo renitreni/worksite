@@ -1,7 +1,7 @@
 @extends('candidate.layout')
 
 @section('content')
-    <div class="space-y-6" x-data="dashboardJobs()" x-init="init()">
+    <div class="space-y-6" x-data="dashboardJobs()">
 
         {{-- Header --}}
         <div class="space-y-1">
@@ -211,7 +211,8 @@
                                 <div class="min-w-0">
                                     <h2 class="text-2xl sm:text-3xl font-bold text-gray-900"
                                         x-text="selectedJob?.title ?? ''"></h2>
-                                    <p class="mt-1 text-sm font-semibold text-blue-600" x-text="selectedJob?.company ?? ''">
+                                    <p class="mt-1 text-sm font-semibold text-blue-600"
+                                        x-text="selectedJob?.company ?? ''">
                                     </p>
 
                                     <div class="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-600">
@@ -285,7 +286,8 @@
                             <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
                                 <h3 class="text-lg font-semibold text-gray-900">Responsibilities</h3>
                                 <ul class="mt-4 space-y-3 text-sm text-gray-700">
-                                    <template x-for="(item, idx) in (selectedJob?.responsibilities ?? [])" :key="idx">
+                                    <template x-for="(item, idx) in (selectedJob?.responsibilities ?? [])"
+                                        :key="idx">
                                         <li class="flex items-start gap-3">
                                             <span class="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></span>
                                             <span x-text="item"></span>
@@ -298,7 +300,8 @@
                             <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
                                 <h3 class="text-lg font-semibold text-gray-900">Requirements</h3>
                                 <ul class="mt-4 space-y-3 text-sm text-gray-700">
-                                    <template x-for="(item, idx) in (selectedJob?.requirements ?? [])" :key="idx">
+                                    <template x-for="(item, idx) in (selectedJob?.requirements ?? [])"
+                                        :key="idx">
                                         <li class="flex items-start gap-3">
                                             <span class="mt-2 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></span>
                                             <span x-text="item"></span>
@@ -311,7 +314,8 @@
                             <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
                                 <h3 class="text-lg font-semibold text-gray-900">Nice to Have</h3>
                                 <ul class="mt-4 space-y-3 text-sm text-gray-700">
-                                    <template x-for="(item, idx) in (selectedJob?.niceToHave ?? [])" :key="idx">
+                                    <template x-for="(item, idx) in (selectedJob?.niceToHave ?? [])"
+                                        :key="idx">
                                         <li class="flex items-start gap-3">
                                             <span class="mt-2 h-1.5 w-1.5 rounded-full bg-gray-400 shrink-0"></span>
                                             <span x-text="item"></span>
@@ -380,7 +384,8 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-gray-600 leading-relaxed" x-text="selectedJob?.companyInfo?.about ?? ''">
+                                    <p class="text-gray-600 leading-relaxed"
+                                        x-text="selectedJob?.companyInfo?.about ?? ''">
                                     </p>
 
                                     <button
@@ -535,7 +540,6 @@
 
     </div>
 
-    {{-- Alpine Data --}}
     <script>
         function dashboardJobs() {
             return {
@@ -543,213 +547,9 @@
                 applyModalOpen: false,
                 selectedJob: null,
 
-                jobs: [
-                    {
-                        id: 1,
-                        badge: 'TE',
-                        badgeBg: 'bg-blue-600',
-                        title: 'Senior Product Designer',
-                        company: 'TechFlow',
-                        location: 'Remote',
-                        type: 'Full-time',
-                        salary: '$120k - $150k',
-                        status: 'Interview',
-                        statusPill: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-                        appliedDate: '2023-10-15',
-                        posted: 'Posted 3 days ago',
+                jobs: @json([]), // keep your existing jobs logic if dynamic
 
-                        summary: {
-                            experience: '5+ years',
-                            tools: 'Figma, Prototyping',
-                            team: 'Design + Product'
-                        },
-
-                        description: [
-                            'You will own end-to-end product design for core features and collaborate closely with PMs and engineers.',
-                            'Your goal is to simplify complex workflows and create clean, modern UI experiences for enterprise users.'
-                        ],
-                        responsibilities: [
-                            'Lead design from concept to delivery (wireframes → high fidelity)',
-                            'Build prototypes and validate with quick user tests',
-                            'Work with engineers to ensure design is implemented correctly',
-                            'Maintain and improve the design system',
-                            'Mentor junior designers and provide feedback'
-                        ],
-                        requirements: [
-                            '5+ years experience in product design',
-                            'Strong portfolio with UX + UI case studies',
-                            'Proficiency in Figma and prototyping tools',
-                            'Experience with design systems',
-                            'Excellent communication and teamwork'
-                        ],
-                        niceToHave: [
-                            'Experience designing SaaS dashboards',
-                            'Basic front-end knowledge (HTML/CSS)',
-                            'Accessibility awareness (WCAG)',
-                            'Experience leading workshops'
-                        ],
-                        companyInfo: {
-                            industry: 'Technology / SaaS',
-                            size: '200-500 employees',
-                            founded: '2015',
-                            about: 'TechFlow builds enterprise workflow software that helps teams automate tasks, track progress, and collaborate faster.'
-                        },
-                        benefits: [
-                            'Competitive salary and equity',
-                            'Health, dental, and vision insurance',
-                            '401(k) matching',
-                            'Unlimited PTO',
-                            'Remote work flexibility',
-                            'Professional development budget'
-                        ]
-                    },
-
-                    {
-                        id: 2,
-                        badge: 'CS',
-                        badgeBg: 'bg-emerald-500',
-                        title: 'UX Researcher',
-                        company: 'Creative Studio',
-                        location: 'New York, NY',
-                        type: 'Contract',
-                        salary: '$90k - $110k',
-                        status: 'Applied',
-                        statusPill: 'bg-blue-50 text-blue-700 border-blue-100',
-                        appliedDate: '2023-10-12',
-                        posted: 'Posted 5 days ago',
-
-                        summary: {
-                            experience: '3+ years',
-                            tools: 'Interviews, Surveys',
-                            team: 'Research + Design'
-                        },
-
-                        description: [
-                            'You will plan and conduct user research to improve product usability and discover insights for future features.',
-                            'You will work with designers to turn research into clear recommendations and measurable improvements.'
-                        ],
-                        responsibilities: [
-                            'Run interviews, surveys, and usability tests',
-                            'Create research plans and discussion guides',
-                            'Synthesize findings into insights and recommendations',
-                            'Partner with designers and PMs to prioritize improvements',
-                            'Maintain a research repository for the team'
-                        ],
-                        requirements: [
-                            '3+ years UX research experience',
-                            'Strong qualitative research skills',
-                            'Clear storytelling and presentation skills',
-                            'Experience running usability tests',
-                            'Understanding of UX principles'
-                        ],
-                        niceToHave: [
-                            'Experience in e-commerce or marketplace apps',
-                            'Quantitative analysis basics',
-                            'Familiarity with analytics tools',
-                            'Workshop facilitation'
-                        ],
-                        companyInfo: {
-                            industry: 'Design / Agency',
-                            size: '50-100 employees',
-                            founded: '2018',
-                            about: 'Creative Studio partners with startups and brands to deliver research-backed design solutions and product strategy.'
-                        },
-                        benefits: [
-                            'Flexible schedule',
-                            'Remote days available',
-                            'Training stipend',
-                            'Contract renewal opportunities'
-                        ]
-                    },
-
-                    {
-                        id: 3,
-                        badge: 'WE',
-                        badgeBg: 'bg-red-500',
-                        title: 'Frontend Developer',
-                        company: 'WebSolutions',
-                        location: 'Austin, TX',
-                        type: 'Full-time',
-                        salary: '$100k - $130k',
-                        status: 'Rejected',
-                        statusPill: 'bg-red-50 text-red-700 border-red-100',
-                        appliedDate: '2023-10-08',
-                        posted: 'Posted 1 week ago',
-
-                        summary: {
-                            experience: '2-4 years',
-                            tools: 'HTML/CSS/JS',
-                            team: 'Engineering'
-                        },
-
-                        description: [
-                            'You will build responsive UI components and improve performance across the web app.',
-                            'You will collaborate with backend devs and designers to implement clean and accessible interfaces.'
-                        ],
-                        responsibilities: [
-                            'Build reusable UI components',
-                            'Implement responsive layouts with Tailwind',
-                            'Optimize performance and accessibility',
-                            'Work with APIs and integrate backend data',
-                            'Write clean, maintainable code'
-                        ],
-                        requirements: [
-                            '2+ years frontend development experience',
-                            'Strong HTML/CSS/JavaScript skills',
-                            'Experience with Tailwind (or similar)',
-                            'Basic understanding of REST APIs',
-                            'Good communication skills'
-                        ],
-                        niceToHave: [
-                            'Experience with Alpine.js',
-                            'Knowledge of Laravel Blade',
-                            'Testing basics (unit/UI)',
-                            'Animation/UX polish skills'
-                        ],
-                        companyInfo: {
-                            industry: 'Web Development',
-                            size: '20-50 employees',
-                            founded: '2012',
-                            about: 'WebSolutions builds custom web platforms for clients, focusing on performance, UX, and scalable architecture.'
-                        },
-                        benefits: [
-                            'Health insurance',
-                            'Performance bonus',
-                            'Hybrid work options',
-                            'Learning resources'
-                        ]
-                    }
-                ],
-
-                notifications: [
-                    {
-                        id: 1,
-                        title: 'Interview Scheduled',
-                        time: '2 hours ago',
-                        body: 'TechFlow has scheduled an interview for Senior Product Designer role.',
-                        icon: 'calendar-check',
-                        iconWrap: 'bg-emerald-50 border-emerald-100',
-                        iconColor: 'text-emerald-600'
-                    },
-                    {
-                        id: 2,
-                        title: 'Application Viewed',
-                        time: '5 hours ago',
-                        body: 'Creative Studio viewed your application for UX Researcher.',
-                        icon: 'eye',
-                        iconWrap: 'bg-blue-50 border-blue-100',
-                        iconColor: 'text-blue-600'
-                    },
-                    {
-                        id: 3,
-                        title: 'New Job Alert',
-                        time: '1 day ago',
-                        body: '3 new jobs match your “Remote Designer” alert.',
-                        icon: 'bell',
-                        iconWrap: 'bg-amber-50 border-amber-100',
-                        iconColor: 'text-amber-600'
-                    }
-                ],
+                notifications: [], // START EMPTY (no hardcoded data)
 
                 openJob(job) {
                     this.selectedJob = job;
@@ -766,16 +566,9 @@
 
                 markAllRead() {
                     this.notifications = [];
-                    this.$nextTick(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    });
                 },
-
-                init() {
-                    this.$nextTick(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    });
-                }
+                
+    
             }
         }
     </script>

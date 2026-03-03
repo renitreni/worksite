@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Worksite') }} | Candidate Login</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -16,6 +14,7 @@
             display: none !important;
         }
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
 
@@ -72,7 +71,8 @@
                                 <i data-lucide="mail" class="w-5 h-5"></i>
                             </span>
                             <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                                placeholder="you@example.com" class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                placeholder="you@example.com"
+                                class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                         </div>
                     </div>
@@ -90,7 +90,8 @@
                             </span>
 
                             <input :type="showPass ? 'text' : 'password'" name="password" required
-                                placeholder="••••••••" class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
+                                placeholder="••••••••"
+                                class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
                                focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
 
                             <button type="button" @click="showPass=!showPass"
@@ -115,7 +116,8 @@
            inline-flex items-center justify-center gap-2">
 
                         <svg x-show="isSubmitting" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4">
                             </circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                         </svg>
@@ -146,7 +148,9 @@
         </div>
     </main>
 
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+    </script>
     <script>
         window.__unverified = {
             show: {{ session('unverified_modal') ? 'true' : 'false' }},

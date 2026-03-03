@@ -10,7 +10,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/css/intlTelInput.css">
 
@@ -55,6 +54,7 @@
             display: none !important;
         }
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
 

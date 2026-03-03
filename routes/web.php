@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Candidate\JobBrowseController;
 use App\Http\Controllers\Candidate\AgencyController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\NotificationController;
 
 
 
@@ -30,6 +31,15 @@ Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show
 
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])->name('agency.details');
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/mark-all', [NotificationController::class, 'markAllRead']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markSingleRead']);
+    Route::get('/all-notifications', [NotificationController::class, 'all'])
+        ->name('notifications.all');
+});
 
 /*
 |--------------------------------------------------------------------------

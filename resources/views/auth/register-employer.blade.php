@@ -10,7 +10,6 @@
 
     <!-- Lucide + Alpine -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <!-- Intl Tel Input (CSS only) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/css/intlTelInput.css">
@@ -57,6 +56,8 @@
             display: none !important;
         }
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 
 <!-- ✅ keep dropdown working on mobile -->
@@ -99,10 +100,10 @@
                 {{-- Stepper (4) --}}
                 <div class="mt-4">
                     <div class="flex items-center justify-center gap-2">
-                        <span class="h-2 w-8 rounded-full" :class="step===1 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
-                        <span class="h-2 w-8 rounded-full" :class="step===2 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
-                        <span class="h-2 w-8 rounded-full" :class="step===3 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
-                        <span class="h-2 w-8 rounded-full" :class="step===4 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
+                        <span class="h-2 w-8 rounded-full" :class="step === 1 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
+                        <span class="h-2 w-8 rounded-full" :class="step === 2 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
+                        <span class="h-2 w-8 rounded-full" :class="step === 3 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
+                        <span class="h-2 w-8 rounded-full" :class="step === 4 ? 'bg-[#16A34A]' : 'bg-gray-200'"></span>
                     </div>
                     <p class="mt-2 text-xs text-gray-500">
                         <span x-show="step===1">Step 1: Company</span>
@@ -137,7 +138,8 @@
                                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                     <i data-lucide="building-2" class="w-5 h-5"></i>
                                 </span>
-                                <input type="text" name="company_name" placeholder="Worksite Recruitment Inc." required
+                                <input type="text" name="company_name" placeholder="Worksite Recruitment Inc."
+                                    required
                                     class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
@@ -149,7 +151,8 @@
                                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                     <i data-lucide="mail" class="w-5 h-5"></i>
                                 </span>
-                                <input type="email" name="email" placeholder="hr@company.com" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                <input type="email" name="email" placeholder="hr@company.com" required
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -175,7 +178,8 @@
                                     <i data-lucide="map-pin" class="w-5 h-5"></i>
                                 </span>
                                 <input type="text" name="company_address" placeholder="Barangay, City, Province"
-                                    required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    required
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -184,9 +188,10 @@
                             <label class="text-sm font-semibold text-gray-700">Contact / Tel Number</label>
 
                             <!-- ✅ intl-tel-input will convert this into flag dropdown + dial code -->
-                            <input id="employer_phone" type="tel" name="company_contact" class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm
-  focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]" placeholder="Enter your number"
-                                required>
+                            <input id="employer_phone" type="tel" name="company_contact"
+                                class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm
+  focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]"
+                                placeholder="Enter your number" required>
 
 
 
@@ -213,7 +218,8 @@
                                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                     <i data-lucide="user" class="w-5 h-5"></i>
                                 </span>
-                                <input type="text" name="representative_name" placeholder="Maria Santos" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                <input type="text" name="representative_name" placeholder="Maria Santos" required
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -224,7 +230,8 @@
                                 <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                     <i data-lucide="briefcase" class="w-5 h-5"></i>
                                 </span>
-                                <input type="text" name="position" placeholder="HR Manager / Recruiter" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                <input type="text" name="position" placeholder="HR Manager / Recruiter" required
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -251,7 +258,8 @@
                                 </span>
 
                                 <input x-model="password" :type="showPass ? 'text' : 'password'" name="password"
-                                    placeholder="Create a strong password" required class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
+                                    placeholder="Create a strong password" required
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
 
                                 <button type="button" @click="showPass=!showPass; refreshIcons()"
@@ -305,12 +313,14 @@
                                     <i data-lucide="check" class="w-5 h-5"></i>
                                 </span>
                                 <input x-model="confirmPassword" :type="showPass ? 'text' : 'password'"
-                                    name="password_confirmation" placeholder="Re-type your password" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    name="password_confirmation" placeholder="Re-type your password" required
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
 
                             <p class="mt-2 text-[11px]"
-                                :class="confirmPassword.length === 0 ? 'text-gray-500' : (passwordsMatch ? 'text-green-700' : 'text-red-600')">
+                                :class="confirmPassword.length === 0 ? 'text-gray-500' : (passwordsMatch ? 'text-green-700' :
+                                    'text-red-600')">
                                 <span x-show="confirmPassword.length === 0">Re-type your password to confirm.</span>
                                 <span x-show="confirmPassword.length > 0 && passwordsMatch">Passwords match.</span>
                                 <span x-show="confirmPassword.length > 0 && !passwordsMatch">Passwords do not
@@ -324,14 +334,16 @@
                                 Back
                             </button>
 
-                            <button type="submit" :disabled="!canSubmit || isSubmitting" :class="(!canSubmit || isSubmitting)
-        ? 'bg-gray-300 cursor-not-allowed'
-        : 'bg-[#16A34A] hover:bg-green-700'"
+                            <button type="submit" :disabled="!canSubmit || isSubmitting"
+                                :class="(!canSubmit || isSubmitting) ?
+                                'bg-gray-300 cursor-not-allowed' :
+                                'bg-[#16A34A] hover:bg-green-700'"
                                 class="w-1/2 rounded-xl py-2.5 text-sm font-semibold text-white transition inline-flex items-center justify-center gap-2">
 
-                                <svg x-show="isSubmitting" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
+                                <svg x-show="isSubmitting" class="h-4 w-4 animate-spin" viewBox="0 0 24 24"
+                                    fill="none">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor"
                                         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                 </svg>
@@ -375,10 +387,18 @@
                 },
 
                 // rules
-                get ruleLen() { return this.password.length >= 8; },
-                get ruleUpper() { return /[A-Z]/.test(this.password); },
-                get ruleLower() { return /[a-z]/.test(this.password); },
-                get ruleSymbol() { return /[^A-Za-z0-9]/.test(this.password); },
+                get ruleLen() {
+                    return this.password.length >= 8;
+                },
+                get ruleUpper() {
+                    return /[A-Z]/.test(this.password);
+                },
+                get ruleLower() {
+                    return /[a-z]/.test(this.password);
+                },
+                get ruleSymbol() {
+                    return /[^A-Za-z0-9]/.test(this.password);
+                },
 
                 get passwordsMatch() {
                     return this.password.length > 0 && this.password === this.confirmPassword;
@@ -446,7 +466,8 @@
             let utilsReady = false;
             if (typeof iti.loadUtils === 'function') {
                 try {
-                    await iti.loadUtils('https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
+                    await iti.loadUtils(
+                    'https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
                     utilsReady = true;
                 } catch (e) {
                     utilsReady = false;
@@ -479,13 +500,15 @@
 
 
 
-    @if(session('showApprovalModal'))
+    @if (session('showApprovalModal'))
         <script>
-            window.__approval = { show: true };
+            window.__approval = {
+                show: true
+            };
         </script>
 
-        <div x-data="{ open: false }" x-init="open = window.__approval.show; setTimeout(() => lucide.createIcons(), 0);"
-            x-show="open" x-cloak x-transition.opacity
+        <div x-data="{ open: false }" x-init="open = window.__approval.show;
+        setTimeout(() => lucide.createIcons(), 0);" x-show="open" x-cloak x-transition.opacity
             class="fixed inset-0 z-[99998] flex items-center justify-center px-4">
 
             <!-- backdrop -->

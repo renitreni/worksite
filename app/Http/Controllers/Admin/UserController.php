@@ -35,13 +35,15 @@ class UserController extends Controller
         $sub_status = trim((string) $request->query('sub_status', ''));
 
         $query = User::query()
-            ->whereIn('role', ['employer', 'candidate'])
-            ->where('role', $role) // ✅ always filtered by role
-            ->with([
+            ->where('role', $role);
+
+        if ($role === 'employer') {
+            $query->with([
                 'employerProfile.verification',
                 'employerProfile.subscription.plan',
                 'employerProfile.industries',
             ]);
+        }
 
         // archived filter
         if ($archived === '1') {

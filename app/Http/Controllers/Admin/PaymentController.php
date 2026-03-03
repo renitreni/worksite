@@ -8,6 +8,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\SubscriptionPaymentUpdated;
 
 
 
@@ -96,6 +97,13 @@ class PaymentController extends Controller
             ]);
         });
 
+
+        $payment->load(['employer', 'plan']);
+
+        $payment->employer?->notify(
+            new SubscriptionPaymentUpdated($payment, 'approved')
+        );
+
         return back()->with('success', 'Payment verified. Subscription activated.');
     }
 
@@ -118,6 +126,12 @@ class PaymentController extends Controller
         // if ($payment->subscription) {
         //     $payment->subscription->update(['subscription_status' => EmployerSubscription::STATUS_INACTIVE]);
         // }
+
+        $payment->load(['employer', 'plan']);
+
+        $payment->employer?->notify(
+            new SubscriptionPaymentUpdated($payment, 'failed')
+        );
 
         return back()->with('info', 'Payment marked as failed.');
     }

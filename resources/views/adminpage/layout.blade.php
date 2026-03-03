@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,9 +9,8 @@
 
     <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="canonical" href="{{ url()->current() }}">
-
-    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         [x-cloak] {
@@ -19,13 +18,15 @@
         }
     </style>
 
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <script>
+        window.userId = @json(auth('admin')->id());
+    </script>
 </head>
 
 <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif]">
@@ -53,6 +54,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) window.lucide.createIcons();
         });
+    </script>
+    <script>
+        window.userId = @json(auth('admin')->id());
     </script>
 
 </body>

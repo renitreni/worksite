@@ -7,8 +7,7 @@ return [
     | Default Broadcaster
     |--------------------------------------------------------------------------
     */
-    'default' => env('BROADCAST_DRIVER', 'null'),
-
+    'default' => env('BROADCAST_CONNECTION', 'null'),
     /*
     |--------------------------------------------------------------------------
     | Broadcast Connections
