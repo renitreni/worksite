@@ -1,9 +1,19 @@
 @php
   use Illuminate\Support\Facades\Auth;
+  use App\Models\Setting;
 
   $adminUser = Auth::guard('admin')->user();
 
-  // Sidebar sections (with lucide icons + sub parts)
+  // Dynamic branding from System Settings
+  $siteName = Setting::get('site.name', 'WorkSITE');
+  $logoPath = Setting::get('site.logo_path', null);
+
+  // If admin stores "images/logo.png" or "/images/logo.png"
+  // normalize to something usable.
+  $logoUrl = $logoPath
+      ? (str_starts_with($logoPath, 'http') ? $logoPath : asset(ltrim($logoPath, '/')))
+      : asset('images/logo.png');
+
   $items = [
     [
       'label' => 'Dashboard',
@@ -17,17 +27,13 @@
       'icon' => 'users',
       'active' => 'admin.users.*',
     ],
+    [
+      'label' => 'Job Postings',
+      'route' => 'admin.job-posts.index',
+      'icon' => 'briefcase',
+      'active' => 'admin.job-posts.*',
+    ],
 
-    // ✅ Inserted later for superadmin: Admin Accounts
-
-      [
-    'label' => 'Job Postings',
-    'route' => 'admin.job-posts.index',
-    'icon' => 'briefcase',
-    'active' => 'admin.job-posts.*',
-      ],
-
-    // ✅ Grouped submenu
     [
       'label' => 'Manage Lists',
       'icon' => 'list-tree',
@@ -91,23 +97,49 @@
         ],
       ],
     ],
+
     [
       'label' => 'Reports',
       'route' => 'admin.reports',
       'icon' => 'bar-chart-3',
       'active' => 'admin.reports*',
     ],
+
+    /*
+    |------------------------------------------------------------
+    | NEW: System Configuration module (tabs + templates + backups)
+    |------------------------------------------------------------
+    */
     [
       'label' => 'System Settings',
-      'route' => 'admin.settings',
       'icon' => 'settings',
-      'active' => 'admin.settings*',
+      'active' => 'admin.system.*|admin.email_templates.*|admin.backups.*|admin.settings*',
+      'children' => [
+        [
+          'label' => 'System Configuration',
+          'route' => 'admin.system.index',
+          'icon' => 'sliders-horizontal',
+          'active' => 'admin.system.*',
+        ],
+        [
+          'label' => 'Email Templates',
+          'route' => 'admin.email_templates.index',
+          'icon' => 'mail',
+          'active' => 'admin.email_templates.*',
+        ],
+        [
+          'label' => 'Backups',
+          'route' => 'admin.backups.index',
+          'icon' => 'database',
+          'active' => 'admin.backups.*',
+        ],
+      ],
     ],
   ];
 
   // ✅ Only SUPERADMIN sees Admin Accounts (insert after Users)
   if ($adminUser && ($adminUser->role ?? null) === 'superadmin') {
-    array_splice($items, 6, 0, [
+    array_splice($items, 2, 0, [
       [
         'label' => 'Admin Accounts',
         'route' => 'admin.admins.index',
@@ -118,15 +150,12 @@
   }
 
   $isActive = function (array $it): bool {
-    $pattern = $it['active'] ?? ($it['route'] . '*');
-
-    // allow "a|b|c" patterns
+    $pattern = $it['active'] ?? (($it['route'] ?? '') . '*');
     $patterns = explode('|', $pattern);
 
     foreach ($patterns as $p) {
       $p = trim($p);
-      if ($p !== '' && request()->routeIs($p))
-        return true;
+      if ($p !== '' && request()->routeIs($p)) return true;
     }
     return false;
   };
@@ -145,7 +174,7 @@
   <div class="flex h-full flex-col">
 
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-      <img src="{{ asset('images/logo.png') }}" alt="WorkSITE" class="h-10 object-contain" />
+      <img src="{{ $logoUrl }}" alt="{{ $siteName }}" class="h-10 object-contain" />
       <button type="button"
         class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
         @click="sidebarOpen = false">
@@ -162,48 +191,43 @@
           @endphp
 
           @if($hasChildren)
-              @php $groupActive = $active; @endphp
+            @php $groupActive = $active; @endphp
 
-              <div x-data="{ open: {{ $groupActive ? 'true' : 'false' }} }" class="space-y-1">
-                <button type="button" @click="open = !open" title="{{ $it['label'] }}" class="w-full flex min-w-0 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold
-                          {{ $groupActive
-            ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
-            : 'text-slate-700 hover:bg-slate-50' }}">
-                  <span class="flex min-w-0 items-center gap-3 text-left">
-                    <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
-                    <span class="min-w-0 flex-1 truncate">
-                      {{ $it['label'] }}
-                    </span>
-                  </span>
+            <div x-data="{ open: {{ $groupActive ? 'true' : 'false' }} }" class="space-y-1">
+              <button type="button" @click="open = !open" title="{{ $it['label'] }}"
+                class="w-full flex min-w-0 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold
+                  {{ $groupActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
+                <span class="flex min-w-0 items-center gap-3 text-left">
+                  <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
+                  <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
+                </span>
 
-                  <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
-                    :class="open ? 'rotate-180' : ''"></i>
-                </button>
+                <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
+                  :class="open ? 'rotate-180' : ''"></i>
+              </button>
 
-                <div x-show="open" x-collapse class="pl-4">
-                  <div class="space-y-1">
-                    @foreach($it['children'] as $ch)
-                            @php $chActive = $isActive($ch); @endphp
-                            <a href="{{ route($ch['route']) }}" @click="sidebarOpen = false" title="{{ $ch['label'] }}" class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold
-                                                {{ $chActive
-                      ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
-                      : 'text-slate-700 hover:bg-slate-50' }}">
-                              <i data-lucide="{{ $ch['icon'] ?? 'dot' }}" class="h-4 w-4 shrink-0 opacity-80"></i>
-                              <span class="min-w-0 flex-1 truncate">{{ $ch['label'] }}</span>
-                            </a>
-                    @endforeach
-                  </div>
+              <div x-show="open" x-collapse class="pl-4">
+                <div class="space-y-1">
+                  @foreach($it['children'] as $ch)
+                    @php $chActive = $isActive($ch); @endphp
+                    <a href="{{ route($ch['route']) }}" @click="sidebarOpen = false" title="{{ $ch['label'] }}"
+                      class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold
+                        {{ $chActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
+                      <i data-lucide="{{ $ch['icon'] ?? 'dot' }}" class="h-4 w-4 shrink-0 opacity-80"></i>
+                      <span class="min-w-0 flex-1 truncate">{{ $ch['label'] }}</span>
+                    </a>
+                  @endforeach
                 </div>
               </div>
+            </div>
 
           @else
-              <a href="{{ route($it['route']) }}" @click="sidebarOpen = false" title="{{ $it['label'] }}" class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
-                        {{ $active
-            ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
-            : 'text-slate-700 hover:bg-slate-50' }}">
-                <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
-                <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
-              </a>
+            <a href="{{ route($it['route']) }}" @click="sidebarOpen = false" title="{{ $it['label'] }}"
+              class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
+                {{ $active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
+              <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
+              <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
+            </a>
           @endif
         @endforeach
       </div>
@@ -215,7 +239,7 @@
 {{-- Desktop sidebar --}}
 <aside class="sticky top-0 hidden h-screen w-72 border-r border-slate-200 bg-white lg:flex lg:flex-col">
   <div class="px-6 py-6">
-    <img src="{{ asset('images/logo.png') }}" alt="WorkSITE" class="w-full max-h-36 object-contain" />
+    <img src="{{ $logoUrl }}" alt="{{ $siteName }}" class="w-full max-h-36 object-contain" />
   </div>
 
   <nav class="px-3 flex-1 overflow-y-auto">
@@ -230,15 +254,12 @@
           @php $groupActive = $active; @endphp
 
           <div x-data="{ open: {{ $groupActive ? 'true' : 'false' }} }" class="space-y-1">
-            <button type="button" @click="open = !open" title="{{ $it['label'] }}" class="w-full flex min-w-0 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold
-                  {{ $groupActive
-          ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
-          : 'text-slate-700 hover:bg-slate-50' }}">
+            <button type="button" @click="open = !open" title="{{ $it['label'] }}"
+              class="w-full flex min-w-0 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold
+                {{ $groupActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
               <span class="flex min-w-0 items-center gap-3 text-left">
                 <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
-                <span class="min-w-0 flex-1 truncate">
-                  {{ $it['label'] }}
-                </span>
+                <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
               </span>
 
               <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
@@ -248,24 +269,21 @@
             <div x-show="open" x-collapse class="pl-4">
               <div class="space-y-1">
                 @foreach($it['children'] as $ch)
-                      @php $chActive = $isActive($ch); @endphp
-                      <a href="{{ route($ch['route']) }}" title="{{ $ch['label'] }}" class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold
-                              {{ $chActive
-                  ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
-                  : 'text-slate-700 hover:bg-slate-50' }}">
-                        <i data-lucide="{{ $ch['icon'] ?? 'dot' }}" class="h-4 w-4 shrink-0 opacity-80"></i>
-                        <span class="min-w-0 flex-1 truncate">{{ $ch['label'] }}</span>
-                      </a>
+                  @php $chActive = $isActive($ch); @endphp
+                  <a href="{{ route($ch['route']) }}" title="{{ $ch['label'] }}"
+                    class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold
+                      {{ $chActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
+                    <i data-lucide="{{ $ch['icon'] ?? 'dot' }}" class="h-4 w-4 shrink-0 opacity-80"></i>
+                    <span class="min-w-0 flex-1 truncate">{{ $ch['label'] }}</span>
+                  </a>
                 @endforeach
               </div>
             </div>
           </div>
-
         @else
-          <a href="{{ route($it['route']) }}" title="{{ $it['label'] }}" class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
-                {{ $active
-          ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
-          : 'text-slate-700 hover:bg-slate-50' }}">
+          <a href="{{ route($it['route']) }}" title="{{ $it['label'] }}"
+            class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
+              {{ $active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
             <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
             <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
           </a>
@@ -275,11 +293,8 @@
   </nav>
 </aside>
 
-{{-- Lucide init (important) --}}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) window.lucide.createIcons();
   });
-
-  // If sidebar content changes dynamically (rare), call lucide.createIcons() again.
 </script>

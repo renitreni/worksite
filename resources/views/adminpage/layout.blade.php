@@ -1,11 +1,17 @@
 <!doctype html>
 <html lang="en">
 
+@php
+    use App\Models\Setting;
+
+    $siteName = Setting::get('site.name', config('app.name', 'JobAbroad'));
+@endphp
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>@yield('title', config('app.name', 'JobAbroad') . ' Admin Dashboard')</title>
+    <title>@yield('title', $siteName . ' Admin Dashboard')</title>
 
     <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -49,6 +55,7 @@
 
         </main>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) window.lucide.createIcons();

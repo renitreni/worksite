@@ -4,12 +4,17 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\CandidateProfile;
-use App\Models\EmployerProfile;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, HasRoles;
+
+    /**
+     * Spatie permissions are guard-specific.
+     * Since your admin routes use auth:admin, keep this as 'admin'.
+     */
+    protected string $guard_name = 'admin';
 
     protected $fillable = [
         'first_name',
@@ -37,7 +42,7 @@ class User extends Authenticatable
 
     public function candidateProfile()
     {
-        return $this->hasOne(CandidateProfile::class);
+        return $this->hasOne(\App\Models\CandidateProfile::class);
     }
 
     public function employerProfile()
