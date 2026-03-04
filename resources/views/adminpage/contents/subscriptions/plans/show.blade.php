@@ -4,11 +4,11 @@
 
 @section('content')
     <div class="w-full max-w-7xl mx-auto space-y-6">
-
+        @include('adminpage.components.flash')
         <div class="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
             {{-- Header --}}
-            <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white">
+            <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-linear-to-r from-emerald-50 to-white">
                 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                     <div>
                         <div class="text-xs text-slate-500">Subscription Plan</div>
