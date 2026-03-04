@@ -1,4 +1,4 @@
-<div x-data="notificationBell()" x-init="init()" class="relative">
+<div x-cloak x-data="notificationBell()" x-init="init()" class="relative">
 
     <!-- 🔔 Bell -->
     <button @click="open = !open"

@@ -54,10 +54,7 @@ class EmployerAuthController extends Controller
         ]);
 
 
-        // Notify all admins
-        User::where('role', 'admin')->orWhere('role', 'superadmin')->get()->each(function ($admin) use ($user) {
-            $admin->notify(new AdminUserRegistered($user));
-        });
+
 
         // ✅ Create employer profile (NO status here anymore)
         $profile = EmployerProfile::create([
@@ -81,6 +78,12 @@ class EmployerAuthController extends Controller
             'rejection_reason' => null,
             'suspended_reason' => null,
         ]);
+
+
+        // Notify all admins
+        User::where('role', 'admin')->orWhere('role', 'superadmin')->get()->each(function ($admin) use ($user) {
+            $admin->notify(new AdminUserRegistered($user));
+        });
 
 
 
