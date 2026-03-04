@@ -9,6 +9,16 @@ use App\Http\Requests\Admin\System\UpdateEmailTemplateRequest;
 
 class EmailTemplateController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth('admin')->user()->role !== 'superadmin') {
+                abort(403);
+            }
+
+            return $next($request);
+        });
+    }
     public function index()
     {
         $templates = EmailTemplate::query()

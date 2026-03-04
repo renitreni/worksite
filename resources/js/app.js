@@ -115,6 +115,9 @@ document.addEventListener("livewire:init", () => {
     });
 });
 
+document.addEventListener("livewire:navigated", () => {
+    createIcons({ icons });
+});
 /* -------------------------------------------------
 |  Toast (Notyf)
 -------------------------------------------------- */

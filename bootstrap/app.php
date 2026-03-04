@@ -4,10 +4,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-use Spatie\Permission\Middleware\PermissionMiddleware;
-use Spatie\Permission\Middleware\RoleMiddleware as SpatieRoleMiddleware;
-use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
-
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         channels: __DIR__ . '/../routes/channels.php',
@@ -15,57 +11,38 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
-
     ->withMiddleware(function (Middleware $middleware): void {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Middleware Aliases
-        |--------------------------------------------------------------------------
-        */
-        $middleware->alias([
-            // Your custom middleware
-            'role'   => \App\Http\Middleware\RoleMiddleware::class,
-            'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
-
-            // Spatie permission middleware
-            'permission' => PermissionMiddleware::class,
-
-            // avoid conflict with your custom role middleware
-            'spatie.role' => SpatieRoleMiddleware::class,
-
-            'role_or_permission' => RoleOrPermissionMiddleware::class,
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Guest Redirects
-        |--------------------------------------------------------------------------
-        */
         $middleware->redirectGuestsTo(function ($request) {
 
-            // Do NOT redirect broadcasting auth routes
+            // 🚀 VERY IMPORTANT: Do NOT redirect broadcasting auth
             if ($request->is('broadcasting/*')) {
                 return null;
             }
 
-            // Admin routes go to admin login
             if ($request->is('admin/*')) {
                 return route('admin.login');
             }
 
-            // Default redirect
-            return route('login');
-        });
-    })
+            if ($request->is('employer/*')) {
+                return route('employer.login');
+            }
 
+            // Default login page
+            return route('home');
+        });
+
+        $middleware->alias([
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
 
     ->withBroadcasting(
         __DIR__ . '/../routes/channels.php',
-        attributes: ['middleware' => ['web', 'auth']]
-    )
+        attributes: ['middleware' => ['web', 'auth:web,admin']]
 
-    ->create();
+    )->create();

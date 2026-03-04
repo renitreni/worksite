@@ -6,7 +6,7 @@
 @php
     $image = !empty($item['image'])
         ? asset('storage/' . $item['image'])
-        : asset('images/industry-fallback.jpg');
+        : asset('images/industry-fallback.png');
 
     $skills = collect($item['skills'] ?? [])->take(3)->values();
 @endphp

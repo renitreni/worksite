@@ -16,10 +16,19 @@ class BackupController extends Controller
 {
     public function __construct()
     {
-        // Your routes are already inside auth:admin group,
-        // but keeping it doesn't hurt if you want extra safety.
-        $this->middleware(['auth:admin', 'permission:backups.run'])->only(['index', 'run']);
-        $this->middleware(['auth:admin', 'permission:backups.restore'])->only(['restore']);
+        $this->middleware('auth:admin');
+
+        $this->middleware(function ($request, $next) {
+
+            $user = auth('admin')->user();
+
+            // Superadmin only access
+            if ($user->role !== 'superadmin') {
+                abort(403);
+            }
+
+            return $next($request);
+        })->only(['index', 'run', 'restore']);
     }
 
     public function index()
@@ -102,7 +111,8 @@ class BackupController extends Controller
         ]);
 
         $tempDir = storage_path('app/backup-restore-temp/' . $restoreRun->id);
-        if (!is_dir($tempDir)) mkdir($tempDir, 0777, true);
+        if (!is_dir($tempDir))
+            mkdir($tempDir, 0777, true);
 
         try {
             // 1) Copy zip to temp
@@ -153,16 +163,18 @@ class BackupController extends Controller
         $base = 'Laravel/' . config('backup.backup.name');
         $disk = Storage::disk('local');
 
-        if (!$disk->exists($base)) return null;
+        if (!$disk->exists($base))
+            return null;
 
         $files = collect($disk->allFiles($base))
-            ->filter(fn ($p) => str_ends_with(strtolower($p), '.zip'))
+            ->filter(fn($p) => str_ends_with(strtolower($p), '.zip'))
             ->values();
 
-        if ($files->isEmpty()) return null;
+        if ($files->isEmpty())
+            return null;
 
         // pick newest by lastModified
-        $newest = $files->sortByDesc(fn ($p) => $disk->lastModified($p))->first();
+        $newest = $files->sortByDesc(fn($p) => $disk->lastModified($p))->first();
 
         return $newest;
     }
@@ -171,7 +183,8 @@ class BackupController extends Controller
     {
         $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
         foreach ($rii as $file) {
-            if ($file->isDir()) continue;
+            if ($file->isDir())
+                continue;
             $path = $file->getPathname();
             if (str_ends_with(strtolower($path), '.sql')) {
                 return $path;
@@ -200,9 +213,12 @@ class BackupController extends Controller
         // Process can't use "<", so we pipe content to stdin.
         $process = new Process([
             $mysqlBin,
-            '-h', (string) $dbHost,
-            '-P', (string) $dbPort,
-            '-u', (string) $dbUser,
+            '-h',
+            (string) $dbHost,
+            '-P',
+            (string) $dbPort,
+            '-u',
+            (string) $dbUser,
             '-p' . (string) $dbPass,
             (string) $dbName,
         ]);
@@ -228,7 +244,8 @@ class BackupController extends Controller
 
     private function deleteDirectory(string $dir): void
     {
-        if (!is_dir($dir)) return;
+        if (!is_dir($dir))
+            return;
 
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),

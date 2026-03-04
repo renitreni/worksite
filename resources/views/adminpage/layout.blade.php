@@ -33,6 +33,7 @@
     <script>
         window.userId = @json(auth('admin')->id());
     </script>
+    @livewireStyles
 </head>
 
 <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif]">
@@ -50,7 +51,7 @@
             @include('adminpage.components.navbar')
 
             {{-- Page content --}}
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <div wire:navigate class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 @yield('content')
             </div>
 
@@ -58,13 +59,9 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) window.lucide.createIcons();
-        });
-    </script>
-    <script>
         window.userId = @json(auth('admin')->id());
     </script>
+    @livewireScripts
 
 </body>
 

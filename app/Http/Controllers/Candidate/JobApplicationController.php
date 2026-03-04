@@ -79,16 +79,6 @@ class JobApplicationController extends Controller
             'cover_letter_file_path' => $coverLetterFilePath,
         ]);
 
-        // Send notification to employer
-        $employerUser = $job->employerProfile->user; // assumes JobPost->employerProfile()->user exists
-        $employerUser->notify(new EmployerNotification([
-            'title'     => 'New Application',
-            'body'      => $user->name . ' applied to ' . $job->title,
-            'icon'      => 'user-plus',
-            'iconWrap'  => 'bg-blue-50 border-blue-100',
-            'iconColor' => 'text-blue-600',
-            'time'      => now()->diffForHumans(),
-        ]));
 
         return back()->with('success', 'Application submitted successfully!');
     }

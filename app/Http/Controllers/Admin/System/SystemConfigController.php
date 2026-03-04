@@ -13,6 +13,16 @@ use App\Http\Requests\Admin\System\UpdateSecuritySettingsRequest;
 
 class SystemConfigController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth('admin')->user()->role !== 'superadmin') {
+                abort(403);
+            }
+
+            return $next($request);
+        });
+    }
     public function index()
     {
         // Match your blade tabs: general, notifications, security, backups
@@ -22,7 +32,7 @@ class SystemConfigController extends Controller
             ->whereIn('group', $groups)
             ->get()
             ->groupBy('group')
-            ->map(fn ($rows) => $rows->keyBy('key'));
+            ->map(fn($rows) => $rows->keyBy('key'));
 
         // Backups tab data
         $runs = BackupRun::query()
@@ -62,16 +72,16 @@ class SystemConfigController extends Controller
         DB::transaction(function () use ($data) {
             $adminId = Auth::guard('admin')->id();
 
-            Setting::set('notify.email_enabled', (bool)($data['notify']['email_enabled'] ?? false), 'boolean', 'notifications', $adminId);
-            Setting::set('notify.sms_enabled', (bool)($data['notify']['sms_enabled'] ?? false), 'boolean', 'notifications', $adminId);
+            Setting::set('notify.email_enabled', (bool) ($data['notify']['email_enabled'] ?? false), 'boolean', 'notifications', $adminId);
+            Setting::set('notify.sms_enabled', (bool) ($data['notify']['sms_enabled'] ?? false), 'boolean', 'notifications', $adminId);
 
             Setting::set('notify.from_email', $data['notify']['from_email'], 'string', 'notifications', $adminId);
             Setting::set('notify.from_name', $data['notify']['from_name'], 'string', 'notifications', $adminId);
 
             Setting::set('notify.admin_alert_email', $data['notify']['admin_alert_email'], 'string', 'notifications', $adminId);
 
-            Setting::set('notify.new_job_post_alert_admin', (bool)($data['notify']['new_job_post_alert_admin'] ?? false), 'boolean', 'notifications', $adminId);
-            Setting::set('notify.new_user_signup_alert_admin', (bool)($data['notify']['new_user_signup_alert_admin'] ?? false), 'boolean', 'notifications', $adminId);
+            Setting::set('notify.new_job_post_alert_admin', (bool) ($data['notify']['new_job_post_alert_admin'] ?? false), 'boolean', 'notifications', $adminId);
+            Setting::set('notify.new_user_signup_alert_admin', (bool) ($data['notify']['new_user_signup_alert_admin'] ?? false), 'boolean', 'notifications', $adminId);
         });
 
         return back()->with('success', 'Notification settings updated.');
@@ -84,10 +94,10 @@ class SystemConfigController extends Controller
         DB::transaction(function () use ($data) {
             $adminId = Auth::guard('admin')->id();
 
-            Setting::set('security.force_email_verification', (bool)($data['security']['force_email_verification'] ?? false), 'boolean', 'security', $adminId);
-            Setting::set('security.password_min_length', (int)$data['security']['password_min_length'], 'integer', 'security', $adminId);
-            Setting::set('security.login_throttle_per_minute', (int)$data['security']['login_throttle_per_minute'], 'integer', 'security', $adminId);
-            Setting::set('security.session_timeout_minutes', (int)$data['security']['session_timeout_minutes'], 'integer', 'security', $adminId);
+            Setting::set('security.force_email_verification', (bool) ($data['security']['force_email_verification'] ?? false), 'boolean', 'security', $adminId);
+            Setting::set('security.password_min_length', (int) $data['security']['password_min_length'], 'integer', 'security', $adminId);
+            Setting::set('security.login_throttle_per_minute', (int) $data['security']['login_throttle_per_minute'], 'integer', 'security', $adminId);
+            Setting::set('security.session_timeout_minutes', (int) $data['security']['session_timeout_minutes'], 'integer', 'security', $adminId);
         });
 
         return back()->with('success', 'Security settings updated.');
