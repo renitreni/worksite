@@ -33,7 +33,7 @@
             {{-- Notification Bell --}}
             <x-notification-bell />
             {{-- Profile Dropdown --}}
-            <div x-data="{ open: false }" class="relative">
+            <div x-cloak x-data="{ open: false }" class="relative">
 
                 <button type="button" @click="open = !open" @keydown.escape.window="open = false"
                     class="flex items-center gap-2 sm:gap-3 rounded-2xl border border-gray-200 bg-white px-2 sm:px-3 py-2 hover:bg-gray-50 transition">
