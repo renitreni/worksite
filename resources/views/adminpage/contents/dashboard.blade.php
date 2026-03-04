@@ -3,621 +3,292 @@
 @section('page_title','Dashboard Overview')
 
 @section('content')
-@php
-  $users = [
-    'candidates' => 1984,
-    'employers'  => 330,
-  ];
-  $users['total'] = $users['candidates'] + $users['employers'];
+<div class="space-y-6">
 
-  $jobs = [
-    'active'   => 312,
-    'pending'  => 28,
-    'closed'   => 97,
-    'removed'  => 16,
-  ];
-  $jobs['total'] = array_sum($jobs);
+    {{-- ROW 1: KPI Cards + Useful Extras --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">
 
-  $billing = [
-    'revenue_month' => 86420,
-    'pending_payments' => 4,
-    'expired_subs' => 14,
-  ];
+        {{-- Total Users -> Users page --}}
+        <a wire:navigate href="{{ route('admin.users.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">Total Users</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" data-metric="users.total">
+                        {{ $dashboard['users']['total'] ?? 0 }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Employers:
+                        <span class="font-medium text-gray-700" data-metric="users.employers">{{ $dashboard['users']['employers'] ?? 0 }}</span>
+                        • Employees:
+                        <span class="font-medium text-gray-700" data-metric="users.employees">{{ $dashboard['users']['employees'] ?? 0 }}</span>
+                    </p>
+                </div>
 
-  $kpis = [
-    ['label'=>'Total Users', 'value'=>number_format($users['total']), 'delta'=>'+6.2%', 'hint'=>'vs last 7 days'],
-    ['label'=>'Candidates', 'value'=>number_format($users['candidates']), 'delta'=>'+4.1%', 'hint'=>'active profiles'],
-    ['label'=>'Employers', 'value'=>number_format($users['employers']), 'delta'=>'+2.1%', 'hint'=>'registered'],
-    ['label'=>'Jobs Active', 'value'=>number_format($jobs['active']), 'delta'=>'+3.1%', 'hint'=>'active now'],
-    ['label'=>'Jobs Pending', 'value'=>number_format($jobs['pending']), 'delta'=>'+9', 'hint'=>'needs review'],
-    ['label'=>'Revenue', 'value'=>'₱ '.number_format($billing['revenue_month']), 'delta'=>'+12.4%', 'hint'=>'this month'],
-  ];
-
-  $jobsBreakdown = [
-    ['label'=>'Active',  'value'=>$jobs['active']],
-    ['label'=>'Pending', 'value'=>$jobs['pending']],
-    ['label'=>'Closed',  'value'=>$jobs['closed']],
-    ['label'=>'Removed', 'value'=>$jobs['removed']],
-  ];
-
-  $actions = [
-    ['title'=>'Approve Employers', 'count'=>6, 'desc'=>'New employer registrations pending review', 'btn'=>'Review', ['label'=>'Users','href'=>route('admin.users.index')],],
-    ['title'=>'Review Job Posts', 'count'=>$jobs['pending'], 'desc'=>'Jobs waiting for approval/rejection', 'btn'=>'Open Queue', 'href'=>route('admin.jobs')],
-    ['title'=>'Verify Payments', 'count'=>$billing['pending_payments'], 'desc'=>'Pending payments to activate subscriptions', 'btn'=>'Verify', 'href'=>route('admin.billing')],
-  ];
-
-  $activity = [
-    ['who'=>'ACME Corp', 'what'=>'submitted a new job post', 'when'=>'2m ago', 'tag'=>'Jobs'],
-    ['who'=>'QuickShip PH', 'what'=>'payment marked as completed', 'when'=>'14m ago', 'tag'=>'Billing'],
-    ['who'=>'Mark Reyes', 'what'=>'account suspended (expired subscription)', 'when'=>'1h ago', 'tag'=>'Users'],
-    ['who'=>'TechTalent Hub', 'what'=>'job post approved', 'when'=>'3h ago', 'tag'=>'Jobs'],
-  ];
-
-  $revenueBars = [18,22,15,28,30,24,40,35,46,39,52,48];
-  $jobTrend    = [12,18,16,22,30,28,34,26,24,29,35,38];
-
-  $barWidth = function(int $pct): string {
-    return match(true) {
-      $pct >= 95 => 'w-full',
-      $pct >= 90 => 'w-11/12',
-      $pct >= 80 => 'w-4/5',
-      $pct >= 75 => 'w-3/4',
-      $pct >= 66 => 'w-2/3',
-      $pct >= 60 => 'w-3/5',
-      $pct >= 50 => 'w-1/2',
-      $pct >= 40 => 'w-2/5',
-      $pct >= 33 => 'w-1/3',
-      $pct >= 25 => 'w-1/4',
-      $pct >= 20 => 'w-1/5',
-      default   => 'w-1/12',
-    };
-  };
-
-  $chip = function(string $tone): string {
-    return match($tone) {
-      'good' => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-      'warn' => 'bg-amber-50 text-amber-700 ring-amber-200',
-      'bad'  => 'bg-rose-50 text-rose-700 ring-rose-200',
-      default=> 'bg-slate-100 text-slate-700 ring-slate-200',
-    };
-  };
-
-  $months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  $revenueValues = array_map(fn($b) => 10000 + ($b * 1200), $revenueBars);
-  $jobValues     = array_map(fn($t) => (int)$t, $jobTrend);
-@endphp
-
-<div
-  class="space-y-6"
-  x-data="dashUI({
-    months: @js($months),
-    revenueBars: @js($revenueBars),
-    revenueValues: @js($revenueValues),
-    jobBars: @js($jobTrend),
-    jobValues: @js($jobValues),
-  })"
-  x-init="init()"
->
-  <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-    <div class="min-w-0">
-      <div class="text-sm font-semibold text-slate-900">Live Overview</div>
-      <div class="mt-1 text-xs text-slate-500">
-        Last updated: <span class="font-semibold text-slate-700" x-text="lastUpdated"></span>
-        <span class="hidden sm:inline">•</span>
-        <span class="block sm:inline">All values are placeholders</span>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <select
-        x-model="range"
-        @change="applyRange()"
-        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm sm:w-auto"
-      >
-        <option value="7d">Last 7 days</option>
-        <option value="30d">Last 30 days</option>
-        <option value="month">This month</option>
-        <option value="year">This year</option>
-      </select>
-
-      <button
-        type="button"
-        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50 sm:w-auto"
-        @click="refresh()"
-      >
-        Refresh
-      </button>
-
-      <a
-        href="{{ route('admin.reports') }}"
-        class="w-full rounded-xl bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-emerald-700 sm:w-auto"
-      >
-        Generate Report
-      </a>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-    @foreach($kpis as $k)
-      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-sm text-slate-500">{{ $k['label'] }}</p>
-            <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900">{{ $k['value'] }}</p>
-          </div>
-          <div class="shrink-0 text-right">
-            <div class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100">
-              {{ $k['delta'] }}
-            </div>
-            <div class="mt-1 text-[11px] text-slate-500">{{ $k['hint'] }}</div>
-          </div>
-        </div>
-        <div class="mt-4 h-2 w-full rounded-full bg-slate-100">
-          <div class="h-2 w-2/3 rounded-full bg-emerald-600"></div>
-        </div>
-      </div>
-    @endforeach
-  </div>
-
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">Highlights</div>
-      <div class="mt-1 text-xs text-slate-500">Quick signals from current charts</div>
-
-      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div class="text-xs text-slate-500">Top revenue month</div>
-          <div class="mt-1 text-lg font-bold text-slate-900" x-text="highlights.topRevenueLabel"></div>
-          <div class="mt-1 text-sm font-semibold text-slate-700" x-text="highlights.topRevenueValue"></div>
-          <div class="mt-2 text-xs text-slate-500" x-text="highlights.revChange"></div>
-        </div>
-
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div class="text-xs text-slate-500">Top jobs month</div>
-          <div class="mt-1 text-lg font-bold text-slate-900" x-text="highlights.topJobsLabel"></div>
-          <div class="mt-1 text-sm font-semibold text-slate-700" x-text="highlights.topJobsValue"></div>
-          <div class="mt-2 text-xs text-slate-500" x-text="highlights.jobsChange"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">Users Split</div>
-      <div class="mt-1 text-xs text-slate-500">Candidates vs Employers</div>
-
-      @php
-        $uTotal = max(1, $users['total']);
-        $candPct = (int) round(($users['candidates'] / $uTotal) * 100);
-        $empPct  = 100 - $candPct;
-      @endphp
-
-      <div class="mt-4 space-y-3">
-        <div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-semibold text-slate-800">Candidates</span>
-            <span class="text-slate-600">{{ number_format($users['candidates']) }} ({{ $candPct }}%)</span>
-          </div>
-          <div class="mt-2 h-2 w-full rounded-full bg-slate-100">
-            <div class="h-2 rounded-full bg-emerald-600 {{ $barWidth($candPct) }}"></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-semibold text-slate-800">Employers</span>
-            <span class="text-slate-600">{{ number_format($users['employers']) }} ({{ $empPct }}%)</span>
-          </div>
-          <div class="mt-2 h-2 w-full rounded-full bg-slate-100">
-            <div class="h-2 rounded-full bg-slate-700 {{ $barWidth($empPct) }}"></div>
-          </div>
-        </div>
-      </div>
-
-      <a
-        href="{{ route('admin.users.index') }}"
-        class="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-      >
-        Manage Users
-      </a>
-    </div>
-
-    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">Payments & Risk</div>
-      <div class="mt-1 text-xs text-slate-500">Operational alerts</div>
-
-      <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
-        <a href="{{ route('admin.billing') }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="text-xs text-slate-500">Pending payments</div>
-              <div class="mt-1 text-2xl font-bold text-slate-900">{{ $billing['pending_payments'] }}</div>
-            </div>
-            <div class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 {{ $chip($billing['pending_payments'] ? 'warn' : 'good') }}">
-              {{ $billing['pending_payments'] ? 'Needs verification' : 'All clear' }}
-            </div>
-          </div>
-          <div class="mt-2 text-xs font-semibold text-emerald-700">Open Billing →</div>
-        </a>
-
-        <a href="{{ route('admin.billing') }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="text-xs text-slate-500">Expired subscriptions</div>
-              <div class="mt-1 text-2xl font-bold text-slate-900">{{ $billing['expired_subs'] }}</div>
-            </div>
-            <div class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 {{ $chip($billing['expired_subs'] >= 10 ? 'bad' : 'warn') }}">
-              Action recommended
-            </div>
-          </div>
-          <div class="mt-2 text-xs font-semibold text-emerald-700">Review Expired →</div>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-5">
-    <div class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div class="text-sm font-semibold text-slate-900">Revenue Trend</div>
-          <div class="mt-1 text-xs text-slate-500">Hover or tap bars to see values</div>
-        </div>
-        <div class="flex gap-2">
-          <button type="button" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('revenue')">Revenue</button>
-          <button type="button" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-50" @click="setMode('jobs')">Jobs</button>
-        </div>
-      </div>
-
-      <div x-show="mode==='revenue'" class="mt-5">
-        <div x-ref="revenueWrap" class="relative flex h-40 items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <template x-for="(b, i) in charts.revenueBars" :key="'r'+i">
-            <button
-              type="button"
-              class="group relative flex-1"
-              @mouseenter="showTipFromEl($event.currentTarget, 'Revenue: ' + charts.months[i], '₱ ' + numberWithCommas(charts.revenueValues[i]), 'revenueWrap')"
-              @mousemove="moveTipFromEl($event.currentTarget, 'revenueWrap')"
-              @mouseleave="hideTip()"
-              @click="toggleTipFromEl($event.currentTarget, 'Revenue: ' + charts.months[i], '₱ ' + numberWithCommas(charts.revenueValues[i]), 'revenueWrap')"
-            >
-              <div class="w-full rounded-lg bg-emerald-600/80 group-hover:bg-emerald-700/90" :class="heightClass(b)"></div>
-            </button>
-          </template>
-
-          <div
-            x-show="tip.show"
-            x-transition.opacity
-            class="pointer-events-none absolute z-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg"
-            :style="`left:${tip.x}px; top:${tip.y}px; transform: translate(-50%, -105%);`"
-          >
-            <div class="font-semibold text-slate-900" x-text="tip.title"></div>
-            <div class="text-slate-600" x-text="tip.value"></div>
-          </div>
-        </div>
-
-        <div class="mt-3 grid grid-cols-12 gap-2 text-[11px] text-slate-500">
-          <template x-for="(m, i) in charts.months" :key="'rm'+i">
-            <div class="text-center" x-text="m"></div>
-          </template>
-        </div>
-      </div>
-
-      <div x-show="mode==='jobs'" class="mt-5">
-        <div x-ref="jobsWrap" class="relative flex h-40 items-end gap-2 rounded-2xl border border-slate-200 bg-white p-4">
-          <template x-for="(b, i) in charts.jobBars" :key="'j'+i">
-            <button
-              type="button"
-              class="group relative flex-1"
-              @mouseenter="showTipFromEl($event.currentTarget, 'Jobs Posted: ' + charts.months[i], charts.jobValues[i] + ' jobs', 'jobsWrap')"
-              @mousemove="moveTipFromEl($event.currentTarget, 'jobsWrap')"
-              @mouseleave="hideTip()"
-              @click="toggleTipFromEl($event.currentTarget, 'Jobs Posted: ' + charts.months[i], charts.jobValues[i] + ' jobs', 'jobsWrap')"
-            >
-              <div class="w-full rounded-lg bg-slate-800/80 group-hover:bg-slate-900/90" :class="heightClass(b)"></div>
-            </button>
-          </template>
-
-          <div
-            x-show="tip.show"
-            x-transition.opacity
-            class="pointer-events-none absolute z-10 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg"
-            :style="`left:${tip.x}px; top:${tip.y}px; transform: translate(-50%, -105%);`"
-          >
-            <div class="font-semibold text-slate-900" x-text="tip.title"></div>
-            <div class="text-slate-600" x-text="tip.value"></div>
-          </div>
-        </div>
-
-        <div class="mt-3 grid grid-cols-12 gap-2 text-[11px] text-slate-500">
-          <template x-for="(m, i) in charts.months" :key="'jm'+i">
-            <div class="text-center" x-text="m"></div>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <div class="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">Jobs Breakdown</div>
-      <div class="mt-1 text-xs text-slate-500">Distribution by status</div>
-
-      @php
-        $totalJobs = max(1, array_sum(array_map(fn($x)=>$x['value'], $jobsBreakdown)));
-      @endphp
-
-      <div class="mt-5 space-y-3">
-        @foreach($jobsBreakdown as $j)
-          @php
-            $pct = (int) round(($j['value']/$totalJobs)*100);
-            $wClass = $barWidth($pct);
-          @endphp
-          <div>
-            <div class="flex items-center justify-between text-sm">
-              <span class="font-semibold text-slate-800">{{ $j['label'] }}</span>
-              <span class="text-slate-600">{{ number_format($j['value']) }} ({{ $pct }}%)</span>
-            </div>
-            <div class="mt-2 h-2 w-full rounded-full bg-slate-100">
-              <div class="h-2 rounded-full bg-emerald-600 {{ $wClass }}"></div>
-            </div>
-          </div>
-        @endforeach
-      </div>
-
-      <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
-        <a href="{{ route('admin.jobs') }}" class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50">
-          Go to Job Queue
-        </a>
-
-        <a href="{{ route('admin.jobs') }}" class="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-          Review Pending ({{ number_format($jobs['pending']) }})
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-5">
-    <div class="xl:col-span-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <div class="text-sm font-semibold text-slate-900">Action Center</div>
-          <div class="mt-1 text-xs text-slate-500">Items that need admin attention</div>
-        </div>
-        <a href="{{ route('admin.users.index') }}" class="text-xs font-semibold text-emerald-700 hover:underline">Manage Users</a>
-      </div>
-
-      <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        @foreach($actions as $a)
-          <<a href="{{ $a['href'] ?? '#' }}" class="block rounded-2xl border border-slate-200 bg-slate-50 p-4 hover:bg-white">>
- 
-            <div class="text-xs text-slate-500">{{ $a['title'] }}</div>
-            <div class="mt-2 text-3xl font-bold text-slate-900">{{ $a['count'] }}</div>
-            <div class="mt-1 text-xs text-slate-600">{{ $a['desc'] }}</div>
-            <div class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700">
-              {{ $a['btn'] }}
-            </div>
-          </a>
-        @endforeach
-      </div>
-    </div>
-
-    <div class="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <div class="text-sm font-semibold text-slate-900">Recent Activity</div>
-          <div class="mt-1 text-xs text-slate-500">Latest system events</div>
-        </div>
-        <a href="{{ route('admin.reports') }}" class="text-xs font-semibold text-emerald-700 hover:underline">View Reports</a>
-      </div>
-
-      <div class="mt-5 space-y-3">
-        @foreach($activity as $x)
-          <div class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <div class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-600 text-xs font-bold text-white">
-              {{ strtoupper(substr($x['tag'],0,1)) }}
-            </div>
-            <div class="min-w-0">
-              <div class="text-sm text-slate-800">
-                <span class="font-semibold">{{ $x['who'] }}</span> {{ $x['what'] }}
-              </div>
-              <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                <span>{{ $x['when'] }}</span>
-                <span class="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 ring-1 ring-slate-200">
-                  {{ $x['tag'] }}
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
                 </span>
-              </div>
             </div>
-          </div>
-        @endforeach
-      </div>
+        </a>
 
-      <button
-        type="button"
-        class="mt-5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-50"
-        disabled
-      >
-        Load more
-      </button>
+        {{-- NEW: New Users (7d) -> Users page --}}
+        <a wire:navigate href="{{ route('admin.users.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">New Users (7 days)</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" data-metric="users.new_7d">
+                        {{ $dashboard['users']['new_7d'] ?? 0 }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">Recent registrations</p>
+                </div>
+
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14"/>
+                        <path d="M5 12h14"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+
+        {{-- Jobs (Active) -> Job postings --}}
+        <a wire:navigate href="{{ route('admin.job-posts.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">Jobs (Active)</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" data-metric="jobs.active">
+                        {{ $dashboard['jobs']['active'] ?? 0 }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Closed:
+                        <span class="font-medium text-gray-700" data-metric="jobs.closed">{{ $dashboard['jobs']['closed'] ?? 0 }}</span>
+                    </p>
+                </div>
+
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                        <path d="M2 13h20"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+
+        {{-- Jobs (Pending) -> Job postings --}}
+        <a wire:navigate href="{{ route('admin.job-posts.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">Jobs (Pending)</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" data-metric="jobs.pending">
+                        {{ $dashboard['jobs']['pending'] ?? 0 }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">Held for review</p>
+                </div>
+
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+
+        {{-- Jobs (Closed) -> Job postings --}}
+        <a wire:navigate href="{{ route('admin.job-posts.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">Jobs (Closed)</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" data-metric="jobs.closed">
+                        {{ $dashboard['jobs']['closed'] ?? 0 }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">Status = closed</p>
+                </div>
+
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+
+        {{-- NEW: New Jobs (7d) -> Job postings --}}
+        <a wire:navigate href="{{ route('admin.job-posts.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">New Jobs (7 days)</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" data-metric="jobs.new_7d">
+                        {{ $dashboard['jobs']['new_7d'] ?? 0 }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">Recently posted</p>
+                </div>
+
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <path d="M12 22V12"/>
+                        <path d="M12 12L3.5 7.5"/>
+                        <path d="M12 12l8.5-4.5"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+
+        {{-- Active Employers -> Subscriptions --}}
+        <a wire:navigate href="{{ route('admin.subscriptions.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">Active Employers</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">
+                        <span data-metric="employers.paid_active">{{ $dashboard['employers']['paid_active'] ?? 0 }}</span>
+                        <span class="text-sm font-medium text-gray-500">paid</span>
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Free:
+                        <span class="font-medium text-gray-700" data-metric="employers.free_active">{{ $dashboard['employers']['free_active'] ?? 0 }}</span>
+                    </p>
+                </div>
+
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v14"/>
+                        <path d="M13 21V11a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v10"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+
+        {{-- Revenue + Pending + Expired -> Payments --}}
+        <a wire:navigate href="{{ route('admin.subscriptions.payments.index') }}"
+           class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 block hover:shadow-md hover:-translate-y-0.5 transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-gray-500">Revenue (Subscriptions)</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1" data-metric="payments.revenue_completed">
+                        {{ number_format((float)($dashboard['payments']['revenue_completed'] ?? 0), 2) }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Pending:
+                        <span class="font-medium text-gray-700" data-metric="payments.pending_payments">{{ $dashboard['payments']['pending_payments'] ?? 0 }}</span>
+                        • Expired:
+                        <span class="font-medium text-gray-700" data-metric="payments.expired_subscriptions">{{ $dashboard['payments']['expired_subscriptions'] ?? 0 }}</span>
+                    </p>
+                </div>
+
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1v22"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </span>
+            </div>
+        </a>
+
     </div>
-  </div>
+
+    {{-- ROW 2: Quick Actions (very useful for admins) --}}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="flex items-center justify-between mb-3">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-800">Quick Actions</h3>
+                <p class="text-xs text-gray-500">Jump to common admin tasks</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <a wire:navigate href="{{ route('admin.job-posts.index') }}"
+               class="rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-800">
+                Review Job Posts
+                <div class="text-xs text-gray-500 mt-1">Moderate and manage postings</div>
+            </a>
+
+            <a wire:navigate href="{{ route('admin.users.index') }}"
+               class="rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-800">
+                Manage Users
+                <div class="text-xs text-gray-500 mt-1">Employers & employees</div>
+            </a>
+
+            <a wire:navigate href="{{ route('admin.subscriptions.payments.index') }}"
+               class="rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-800">
+                Review Payments
+                <div class="text-xs text-gray-500 mt-1">Pending & completed</div>
+            </a>
+
+            <a wire:navigate href="{{ route('admin.subscriptions.expired') }}"
+               class="rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-800">
+                Expired Subscriptions
+                <div class="text-xs text-gray-500 mt-1">Renewals & reminders</div>
+            </a>
+        </div>
+    </div>
+
 </div>
 
 <script>
-  function dashUI(charts){
-    return {
-      charts,
-      range: '7d',
-      mode: 'revenue',
-      lastUpdated: 'Just now',
-      tip: { show:false, x:0, y:0, title:'', value:'', locked:false },
-      highlights: {
-        topRevenueLabel: '',
-        topRevenueValue: '',
-        revChange: '',
-        topJobsLabel: '',
-        topJobsValue: '',
-        jobsChange: '',
-      },
+document.addEventListener('DOMContentLoaded', function () {
+  const metricsUrl = "{{ route('admin.dashboard.metrics') }}";
+  const intervalMs = 25000;
 
-      // ✅ UPDATED: use global Notyf helper (window.toast)
-      toast(type, message, title = ''){
-        if (!window.toast) return;
+  const fmtNumber = (n) => new Intl.NumberFormat(undefined).format(Number(n ?? 0));
+  const fmtMoney  = (n) => new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                          .format(Number(n ?? 0));
 
-        const allowed = ['success','info','warning','error'];
-        const safeType = allowed.includes(type) ? type : 'info';
+  let refreshing = false;
 
-        const msg = String(message || '');
-        const ttl = String(title || '');
-        const text = ttl ? `${ttl}: ${msg}` : msg;
+  async function refreshMetrics() {
+    if (refreshing) return;
+    refreshing = true;
 
-        window.toast(safeType, text);
-      },
+    try {
+      const res = await fetch(metricsUrl, { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) return;
 
-      init(){
-        this.computeHighlights();
-      },
+      const data = await res.json();
 
-      setMode(m){
-        this.mode = m;
-        this.tip.show = false;
-        this.tip.locked = false;
-      },
+      const setMetric = (key, value, formatter = (v) => v) => {
+        const el = document.querySelector(`[data-metric="${key}"]`);
+        if (el) el.textContent = formatter(value);
+      };
 
-      refresh(){
-        this.lastUpdated = new Date().toLocaleTimeString();
-        this.tip.show = false;
-        this.tip.locked = false;
-        this.computeHighlights();
-      },
+      setMetric('users.total', data.users?.total, fmtNumber);
+      setMetric('users.employers', data.users?.employers, fmtNumber);
+      setMetric('users.employees', data.users?.employees, fmtNumber);
+      setMetric('users.new_7d', data.users?.new_7d, fmtNumber);
 
-      applyRange(){
-        if(this.range === '7d'){
-          this.charts.revenueBars = [18,22,15,28,30,24,40,35,46,39,52,48];
-          this.charts.revenueValues = this.charts.revenueBars.map(b => 10000 + (b * 1200));
-          this.charts.jobBars = [12,18,16,22,30,28,34,26,24,29,35,38];
-          this.charts.jobValues = [...this.charts.jobBars];
-        } else if(this.range === '30d'){
-          this.charts.revenueBars = [20,24,18,30,33,28,42,38,44,41,49,46];
-          this.charts.revenueValues = this.charts.revenueBars.map(b => 12000 + (b * 1100));
-          this.charts.jobBars = [10,14,15,20,25,27,29,23,26,28,31,33];
-          this.charts.jobValues = [...this.charts.jobBars];
-        } else if(this.range === 'month'){
-          this.charts.revenueBars = [0,0,0,0,0,0,0,0,0,0,0,48];
-          this.charts.revenueValues = this.charts.revenueBars.map(b => (b ? 86420 : 0));
-          this.charts.jobBars = [0,0,0,0,0,0,0,0,0,0,0,38];
-          this.charts.jobValues = [...this.charts.jobBars];
-        } else {
-          this.charts.revenueBars = [12,14,16,20,26,28,31,34,36,40,44,48];
-          this.charts.revenueValues = this.charts.revenueBars.map(b => 9000 + (b * 1400));
-          this.charts.jobBars = [8,10,12,15,18,21,20,23,24,26,28,30];
-          this.charts.jobValues = [...this.charts.jobBars];
-        }
+      setMetric('jobs.active', data.jobs?.active, fmtNumber);
+      setMetric('jobs.pending', data.jobs?.pending, fmtNumber);
+      setMetric('jobs.closed', data.jobs?.closed, fmtNumber);
+      setMetric('jobs.new_7d', data.jobs?.new_7d, fmtNumber);
 
-        this.computeHighlights();
-        this.lastUpdated = new Date().toLocaleTimeString();
-        this.tip.show = false;
-        this.tip.locked = false;
-      },
+      setMetric('employers.paid_active', data.employers?.paid_active, fmtNumber);
+      setMetric('employers.free_active', data.employers?.free_active, fmtNumber);
 
-      computeHighlights(){
-        let maxR = -1, maxRi = 0;
-        this.charts.revenueValues.forEach((v,i)=>{ if(v>maxR){ maxR=v; maxRi=i; }});
-        this.highlights.topRevenueLabel = this.charts.months[maxRi] + ' (peak)';
-        this.highlights.topRevenueValue = '₱ ' + this.numberWithCommas(maxR);
+      setMetric('payments.revenue_completed', data.payments?.revenue_completed, fmtMoney);
+      setMetric('payments.pending_payments', data.payments?.pending_payments, fmtNumber);
+      setMetric('payments.expired_subscriptions', data.payments?.expired_subscriptions, fmtNumber);
 
-        const prevRi = Math.max(0, maxRi - 1);
-        const prevR = this.charts.revenueValues[prevRi] || 0;
-        this.highlights.revChange = prevR ? ('vs prev: ' + this.pctChange(prevR, maxR)) : 'vs prev: —';
-
-        let maxJ = -1, maxJi = 0;
-        this.charts.jobValues.forEach((v,i)=>{ if(v>maxJ){ maxJ=v; maxJi=i; }});
-        this.highlights.topJobsLabel = this.charts.months[maxJi] + ' (peak)';
-        this.highlights.topJobsValue = this.numberWithCommas(maxJ) + ' jobs';
-
-        const prevJi = Math.max(0, maxJi - 1);
-        const prevJ = this.charts.jobValues[prevJi] || 0;
-        this.highlights.jobsChange = prevJ ? ('vs prev: ' + this.pctChange(prevJ, maxJ)) : 'vs prev: —';
-      },
-
-      pctChange(a,b){
-        const diff = b - a;
-        const pct = (diff / a) * 100;
-        const sign = pct >= 0 ? '+' : '';
-        return sign + pct.toFixed(1) + '%';
-      },
-
-      numberWithCommas(x){
-        const s = String(x ?? 0);
-        return s.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      },
-
-      heightClass(b){
-        b = Number(b || 0);
-        if(b >= 55) return 'h-36';
-        if(b >= 50) return 'h-32';
-        if(b >= 45) return 'h-28';
-        if(b >= 40) return 'h-24';
-        if(b >= 35) return 'h-20';
-        if(b >= 30) return 'h-16';
-        if(b >= 25) return 'h-14';
-        if(b >= 20) return 'h-12';
-        if(b >= 15) return 'h-10';
-        return 'h-8';
-      },
-
-      placeTip(el, wrapRef){
-        const wrap = this.$refs[wrapRef];
-        if(!wrap || !el) return;
-
-        const wrapRect = wrap.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-
-        let x = (elRect.left + elRect.width / 2) - wrapRect.left;
-        let y = (elRect.top - wrapRect.top) - 6;
-
-        x = Math.max(16, Math.min(x, wrapRect.width - 16));
-        y = Math.max(10, y);
-
-        this.tip.x = x;
-        this.tip.y = y;
-      },
-
-      showTipFromEl(el, title, value, wrapRef){
-        if(this.tip.locked) return;
-        this.tip.title = title;
-        this.tip.value = value;
-        this.tip.show = true;
-        this.placeTip(el, wrapRef);
-      },
-
-      moveTipFromEl(el, wrapRef){
-        if(!this.tip.show || this.tip.locked) return;
-        this.placeTip(el, wrapRef);
-      },
-
-      hideTip(){
-        if(this.tip.locked) return;
-        this.tip.show = false;
-      },
-
-      toggleTipFromEl(el, title, value, wrapRef){
-        if(this.tip.locked && this.tip.title === title){
-          this.tip.locked = false;
-          this.tip.show = false;
-          return;
-        }
-
-        this.tip.locked = true;
-        this.tip.title = title;
-        this.tip.value = value;
-        this.tip.show = true;
-        this.placeTip(el, wrapRef);
-
-        setTimeout(() => {
-          this.tip.locked = false;
-          this.tip.show = false;
-        }, 1800);
-      },
+    } catch (e) {
+      // silent fail
+    } finally {
+      refreshing = false;
     }
   }
-</script>
 
+  setInterval(refreshMetrics, intervalMs);
+});
+</script>
 @endsection

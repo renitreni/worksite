@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\System\SystemConfigController;
 use App\Http\Controllers\Admin\System\EmailTemplateController;
 use App\Http\Controllers\Admin\System\BackupController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\DashboardController;
+
 /*
 |--------------------------------------------------------------------------
 | AUTH REDIRECT (DEFAULT LOGIN HANDLER)
@@ -39,7 +41,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth:admin', 'active:admin'])->group(function () {
 
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
-        Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
+       Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+       Route::get('/dashboard/metrics', [DashboardController::class, 'metrics'])->name('dashboard.metrics');
 
         // Users
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
