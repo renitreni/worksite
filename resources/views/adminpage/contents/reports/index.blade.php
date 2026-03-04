@@ -1,13 +1,10 @@
 @extends('adminpage.layout') {{-- change if your layout path differs --}}
-
+@section('title','Reports')
+@section('page_title','Reports')
 @section('content')
 <div class="px-6 py-5">
 
-    {{-- Page Title --}}
-    <div class="mb-4">
-        <p class="text-xs text-gray-500">Administrator</p>
-        <h1 class="text-xl font-semibold text-gray-900">Reports</h1>
-    </div>
+    
 
     {{-- Filters Card --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
