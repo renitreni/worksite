@@ -4,6 +4,7 @@
 @section('content')
 <div class="space-y-6">
 
+
     <div class="flex items-start justify-between gap-4">
         <div>
             <div class="text-sm text-gray-500">Administrator</div>
@@ -23,6 +24,7 @@
             </a>
         </div>
     </div>
+    @include('adminpage.components.flash')
 
     @if (session('success'))
         <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-800">

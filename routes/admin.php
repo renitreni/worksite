@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\JobPostAdminController;
 use App\Http\Controllers\Admin\System\SystemConfigController;
 use App\Http\Controllers\Admin\System\EmailTemplateController;
 use App\Http\Controllers\Admin\System\BackupController;
+use App\Http\Controllers\Admin\ReportController;
 /*
 |--------------------------------------------------------------------------
 | AUTH REDIRECT (DEFAULT LOGIN HANDLER)
@@ -74,7 +75,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Static
         Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
         Route::view('/billing', 'adminpage.contents.billing')->name('billing');
-        Route::view('/reports', 'adminpage.contents.reports')->name('reports');
+        /*
+|--------------------------------------------------------------------------
+| REPORTS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+Route::post('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
+Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
            
 
         // Subscriptions & payments

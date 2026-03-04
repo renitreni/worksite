@@ -26,10 +26,11 @@
     @endphp
 
     <div class="w-full max-w-7xl mx-auto space-y-6">
+    @include('adminpage.components.flash')
 
         {{-- Header --}}
         <div class="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white">
+            <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-linear-to-r from-emerald-50 to-white">
                 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                     <div>
                         <div class="text-xs text-slate-500">Payment Details</div>
@@ -211,7 +212,7 @@
 
                 {{-- Proof preview --}}
                 <div class="rounded-3xl border border-slate-200 bg-white overflow-hidden">
-                    <div class="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                    <div class="px-6 py-5 border-b border-slate-200 bg-linear-to-r from-slate-50 to-white">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                                 <div class="text-sm font-semibold text-slate-900">Payment Proof</div>
@@ -324,7 +325,7 @@
                                         <div class="flex justify-between gap-4">
                                             <span class="text-slate-500">Reference</span>
                                             <span
-                                                class="font-mono text-slate-800 text-right truncate max-w-[220px]">{{ $ref }}</span>
+                                                class="font-mono text-slate-800 text-right truncate max-w-55">{{ $ref }}</span>
                                         </div>
 
                                         <div class="my-2 border-t border-dashed border-slate-200"></div>

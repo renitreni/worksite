@@ -14,9 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
 
         $middleware->redirectGuestsTo(function ($request) {
-
-            // 🚀 VERY IMPORTANT: Do NOT redirect broadcasting auth
-            if ($request->is('broadcasting/*')) {
+                
+        if ($request->is('broadcasting/*')) {
                 return null;
             }
 

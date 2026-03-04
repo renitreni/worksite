@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="w-full max-w-7xl mx-auto space-y-6">
-
+        @include('adminpage.components.flash')
         @if ($errors->any())
             <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 <div class="font-semibold mb-2">Please fix the following:</div>

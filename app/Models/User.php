@@ -11,10 +11,7 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-    /**
-     * Spatie permissions are guard-specific.
-     * Since your admin routes use auth:admin, keep this as 'admin'.
-     */
+    
     protected $fillable = [
         'first_name',
         'last_name',

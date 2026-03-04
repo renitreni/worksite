@@ -12,11 +12,7 @@
 
   
 
-  @if (session('success'))
-    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
-      {{ session('success') }}
-    </div>
-  @endif
+  @include('adminpage.components.flash')
 
   {{-- Filters card (match Users layout) --}}
   <div class="rounded-3xl bg-white border border-slate-200 shadow-sm">

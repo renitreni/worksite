@@ -5,14 +5,7 @@
 @section('content')
 <div class="space-y-6">
 
-  @if($errors->any())
-    <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-      <div class="font-semibold">Please fix the errors:</div>
-      <ul class="mt-2 list-disc pl-5">
-        @foreach($errors->all() as $e) <li>{{ $e }}</li> @endforeach
-      </ul>
-    </div>
-  @endif
+  @include('adminpage.components.flash')
 
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <form method="POST" action="{{ route('admin.admins.update', $user) }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
