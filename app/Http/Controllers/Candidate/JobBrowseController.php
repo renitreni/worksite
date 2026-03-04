@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JobPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+ use App\Models\JobApplication;
 
 use function Symfony\Component\String\u;
 
@@ -55,6 +56,8 @@ class JobBrowseController extends Controller
     }
 
     // View job details
+
+
     public function show(JobPost $job)
     {
         if ($job->status !== 'open') {
@@ -64,19 +67,30 @@ class JobBrowseController extends Controller
         $job->load('employerProfile');
 
         $isSaved = Auth::check()
-            ? Auth::user()->savedJobPosts()->where('job_posts.id', $job->id)->exists()
+            ? Auth::user()->savedJobPosts()
+                ->where('job_posts.id', $job->id)
+                ->exists()
             : false;
 
-        $agencyJobs = \App\Models\JobPost::where('employer_profile_id', $job->employer_profile_id)
+        // ✅ CHECK IF USER ALREADY APPLIED
+        $alreadyApplied = false;
+
+        if (Auth::check()) {
+            $alreadyApplied = JobApplication::where('job_post_id', $job->id)
+                ->where('candidate_id', Auth::id())
+                ->exists();
+        }
+
+        $agencyJobs = JobPost::where('employer_profile_id', $job->employer_profile_id)
             ->where('status', 'open')
             ->where('id', '!=', $job->id)
             ->latest()
             ->paginate(6)
             ->withQueryString();
 
-
-
-
-        return view('mainpage.job-details-page.layout', compact('job', 'isSaved', 'agencyJobs'));
+        return view(
+            'mainpage.job-details-page.layout',
+            compact('job', 'isSaved', 'agencyJobs', 'alreadyApplied')
+        );
     }
 }

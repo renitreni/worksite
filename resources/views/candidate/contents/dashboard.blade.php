@@ -66,7 +66,7 @@
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-semibold text-gray-900">Recently Applied</h2>
 
-                    <a href="{{ route('candidate.my-applied-jobs') }}"
+                    <a href="{{ route('candidate.applied.jobs') }}"
                         class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900">
                         View All
                         <i data-lucide="arrow-right" class="h-4 w-4"></i>
