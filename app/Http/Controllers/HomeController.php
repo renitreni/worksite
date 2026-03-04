@@ -12,7 +12,7 @@ class HomeController extends Controller
     public function index()
     {
         /**
-         * ✅ Featured Jobs (open) + employer approved + employer user active
+         * ✅ Featured Jobs
          */
         $featuredJobs = JobPost::query()
             ->with([
@@ -34,7 +34,7 @@ class HomeController extends Controller
 
 
         /**
-         * ✅ Featured Agencies (approved + user active) + open jobs count
+         * ✅ Featured Agencies
          */
         $featuredAgencies = EmployerProfile::query()
             ->with([
@@ -61,9 +61,30 @@ class HomeController extends Controller
 
 
         /**
-         * ✅ Browse by Industry (DYNAMIC via pivot employer_industries)
-         * - counts OPEN jobs under each industry (approved employer + active user)
-         * - gets top job titles as tags
+         * ✅ DYNAMIC STATS
+         */
+
+        // Active Jobs (cached for 10 minutes)
+        $activeJobsCount = cache()->remember('home_active_jobs', 600, function () {
+            return JobPost::where('status', 'open')->count();
+        });
+
+        // Agencies Count (also good to cache)
+        $agenciesCount = cache()->remember('home_agencies_count', 600, function () {
+            return EmployerProfile::query()
+                ->whereHas('verification', function ($q) {
+                    $q->where('status', 'approved');
+                })
+                ->whereHas('user', function ($q) {
+                    $q->where('account_status', 'active')
+                        ->whereNull('archived_at');
+                })
+                ->count();
+        });
+
+
+        /**
+         * ✅ Industry Section (same as your code)
          */
         $industries = Industry::query()
             ->where('is_active', 1)
@@ -80,7 +101,6 @@ class HomeController extends Controller
 
         $industryCards = $industries->map(function ($industry) {
 
-            // ✅ open jobs count under this industry (pivot-based)
             $openJobsCount = JobPost::query()
                 ->where('status', 'open')
                 ->whereHas('employerProfile.industries', function ($q) use ($industry) {
@@ -95,7 +115,6 @@ class HomeController extends Controller
                 })
                 ->count();
 
-            // ✅ REAL skills from skills table (max 3)
             $skills = $industry->skills
                 ->pluck('name')
                 ->filter()
@@ -103,18 +122,20 @@ class HomeController extends Controller
                 ->values();
 
             return [
-                'id'    => $industry->id,
-                'name'  => $industry->name,
-                'jobs'  => (int) $openJobsCount,
+                'id' => $industry->id,
+                'name' => $industry->name,
+                'jobs' => (int) $openJobsCount,
                 'image' => $industry->image,
-                'skills' => $skills, // ✅ now from Skill model
+                'skills' => $skills,
             ];
         });
 
         return view('mainpage.home', compact(
             'featuredJobs',
             'featuredAgencies',
-            'industryCards'
+            'industryCards',
+            'activeJobsCount',
+            'agenciesCount'
         ));
     }
 }

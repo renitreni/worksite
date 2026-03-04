@@ -50,14 +50,14 @@
                     </div>
                 </div>
 
-                <a href="#"
+                <a href="/about"
                     class="relative text-gray-700 font-medium transition hover:text-[#16A34A]
                           after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0
                           after:bg-[#16A34A] after:transition-all hover:after:w-full">
                     About
                 </a>
 
-                <a href="#"
+                <a href="/contact"
                     class="relative text-gray-700 font-medium transition hover:text-[#16A34A]
                           after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0
                           after:bg-[#16A34A] after:transition-all hover:after:w-full">
@@ -161,8 +161,8 @@
             </div>
         </div>
 
-        <a href="#" class="block px-4 py-3 hover:bg-gray-100">About</a>
-        <a href="#" class="block px-4 py-3 hover:bg-gray-100">Contact Us</a>
+        <a href="/about" class="block px-4 py-3 hover:bg-gray-100">About</a>
+        <a href="/contact" class="block px-4 py-3 hover:bg-gray-100">Contact Us</a>
 
         <div class="px-4 py-3 flex flex-col gap-2">
             @if(!auth()->check() && !request()->is('employer/*'))

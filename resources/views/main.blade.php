@@ -31,6 +31,8 @@
             background-position: center;
             background-repeat: no-repeat;
         }
+
+        
     </style>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

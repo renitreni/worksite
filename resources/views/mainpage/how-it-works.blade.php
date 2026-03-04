@@ -1,8 +1,8 @@
-<section class="py-16">
+<section  class="py-16 bg-gray-50">
     <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Header --}}
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">How WorkSITE Works</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">How JobAbroad Works</h2>
             <p class="text-gray-600 mt-2">Get hired in 4 simple steps</p>
         </div>
 

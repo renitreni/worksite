@@ -93,7 +93,7 @@
     <!-- Divider -->
     <div class="my-10 border-t border-white/10"></div>
 
-    <!-- NEWSLETTER -->
+    {{-- <!-- NEWSLETTER -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center text-center lg:text-left">
       <div>
         <h4 class="text-xl font-semibold">Subscribe to Our Newsletter</h4>
@@ -116,10 +116,10 @@
           Subscribe
         </button>
       </form>
-    </div>
+    </div> --}}
 
     <!-- Divider -->
-    <div class="my-10 border-t border-white/10"></div>
+    {{-- <div class="my-10 border-t border-white/10"></div> --}}
 
     <!-- BOTTOM -->
     <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">

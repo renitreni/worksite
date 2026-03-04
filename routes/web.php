@@ -32,6 +32,8 @@ Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])->name('agency.details');
 
+Route::view('/about','mainpage.about-us')->name('about');
+Route::view('/contact','mainpage.contact-us')->name('contact');
 
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
