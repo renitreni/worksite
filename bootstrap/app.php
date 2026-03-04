@@ -14,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
 
         $middleware->redirectGuestsTo(function ($request) {
-                if ($request->is('broadcasting/*')) {
+                
+        if ($request->is('broadcasting/*')) {
                 return null;
             }
 

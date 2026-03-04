@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             FeatureDefinitionSeeder::class,
             SubscriptionPlanSeeder::class,
             PlanFeatureSeeder::class,
+            ReportsDemoSeeder::class
         ]);
     }
 }

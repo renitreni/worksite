@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobApplication extends Model
 {
+    public const STATUS_SUBMITTED = 'submitted';
+    public const STATUS_HIRED = 'hired';
+
     protected $fillable = [
         'job_post_id',
         'candidate_id',

@@ -97,12 +97,12 @@
             ],
         ],
 
-        [
-            'label' => 'Reports',
-            'route' => 'admin.reports',
-            'icon' => 'bar-chart-3',
-            'active' => 'admin.reports*',
-        ],
+       [
+    'label' => 'Reports',
+    'route' => 'admin.reports',
+    'icon' => 'bar-chart-3',
+    'active' => 'admin.reports*',
+],
 
         
     ];
