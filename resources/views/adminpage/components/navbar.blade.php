@@ -32,8 +32,7 @@
                     @keydown.enter.prevent="window.toast?.('info','Search is demo only')" />
             </div>
 
-            {{-- Notifications --}}
-            <x-notification-bell />
+          
 
             {{-- Logout (desktop only) --}}
             <form method="POST" action="{{ route('admin.logout') }}" class="inline">
