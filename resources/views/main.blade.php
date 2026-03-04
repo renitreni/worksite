@@ -21,8 +21,6 @@
     <meta name="twitter:description" content="@yield('twitter_description', trim($__env->yieldContent('meta_description', 'Jobabroad connects job seekers with verified overseas employers and agencies.')))">
     <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-default.png'))">
 
-    <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
         [x-cloak] {
             display: none !important;
@@ -34,8 +32,6 @@
             background-repeat: no-repeat;
         }
     </style>
-
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

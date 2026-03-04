@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\JobPost;
 use Illuminate\Http\Request;
+use App\Notifications\JobPostStatusUpdated;
 
 class JobPostAdminController extends Controller
 {
@@ -24,11 +25,11 @@ class JobPostAdminController extends Controller
                     ->orWhere('city', 'like', "%{$q}%")
                     ->orWhere('area', 'like', "%{$q}%");
             })
-            ->when(in_array($status, ['open', 'closed'], true), fn ($qr) => $qr->where('status', $status))
-            ->when($held === '1', fn ($qr) => $qr->where('is_held', true))
-            ->when($held === '0', fn ($qr) => $qr->where('is_held', false))
-            ->when($disabled === '1', fn ($qr) => $qr->where('is_disabled', true))
-            ->when($disabled === '0', fn ($qr) => $qr->where('is_disabled', false))
+            ->when(in_array($status, ['open', 'closed'], true), fn($qr) => $qr->where('status', $status))
+            ->when($held === '1', fn($qr) => $qr->where('is_held', true))
+            ->when($held === '0', fn($qr) => $qr->where('is_held', false))
+            ->when($disabled === '1', fn($qr) => $qr->where('is_disabled', true))
+            ->when($disabled === '0', fn($qr) => $qr->where('is_disabled', false))
             ->orderByDesc('created_at')
             ->paginate(10)
             ->withQueryString();
@@ -55,6 +56,15 @@ class JobPostAdminController extends Controller
             'held_by_user_id' => $request->user()?->id,
         ]);
 
+        // 🔔 Notify Employer
+        $jobPost->employerProfile?->user?->notify(
+            new JobPostStatusUpdated(
+                $jobPost,
+                'hold',
+                $request->input('hold_reason')
+            )
+        );
+
         return back()->with('success', 'Job post has been held.');
     }
 
@@ -66,6 +76,10 @@ class JobPostAdminController extends Controller
             'hold_reason' => null,
             'held_by_user_id' => $request->user()?->id,
         ]);
+
+        $jobPost->employerProfile?->user?->notify(
+            new JobPostStatusUpdated($jobPost, 'unhold')
+        );
 
         return back()->with('success', 'Job post has been released (unheld).');
     }
@@ -83,6 +97,14 @@ class JobPostAdminController extends Controller
             'disabled_by_user_id' => $request->user()?->id,
         ]);
 
+        $jobPost->employerProfile?->user?->notify(
+            new JobPostStatusUpdated(
+                $jobPost,
+                'disable',
+                $request->input('disabled_reason')
+            )
+        );
+
         return back()->with('success', 'Job post has been disabled.');
     }
 
@@ -94,6 +116,10 @@ class JobPostAdminController extends Controller
             'disabled_reason' => null,
             'disabled_by_user_id' => $request->user()?->id,
         ]);
+
+       $jobPost->employerProfile?->user?->notify(
+            new JobPostStatusUpdated($jobPost, 'enable')
+        );
 
         return back()->with('success', 'Job post has been enabled.');
     }

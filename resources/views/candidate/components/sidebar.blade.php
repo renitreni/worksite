@@ -7,7 +7,7 @@
         ['label' => 'Dashboard', 'icon' => 'layout-dashboard', 'href' => url('/candidate/dashboard'), 'active' => $is('candidate/dashboard')],
         ['label' => 'Profile', 'icon' => 'user', 'href' => url('/candidate/profile'), 'active' => $is('candidate/profile')],
         ['label' => 'My Resume', 'icon' => 'file-text', 'href' => url('/candidate/my-resume'), 'active' => $is('candidate/my-resume')],
-        ['label' => 'My Applied Jobs', 'icon' => 'briefcase', 'href' => url('/candidate/my-applied-jobs'), 'active' => $is('candidate/my-applied-jobs')],
+        ['label' => 'My Applied Jobs', 'icon' => 'briefcase', 'href' => url('/candidate/applied-jobs'), 'active' => $is('candidate/applied-jobs')],
         ['label' => 'Shortlist Jobs', 'icon' => 'bookmark', 'href' => url('/candidate/shortlist-jobs'), 'active' => $is('candidate/shortlist-jobs')],
         ['label' => 'Following Employers', 'icon' => 'users', 'href' => url('/candidate/following-employers'), 'active' => $is('candidate/following-employers')],
         ['label' => 'Job Alerts', 'icon' => 'bell', 'href' => url('/candidate/job-alerts'), 'active' => $is('candidate/job-alerts')],

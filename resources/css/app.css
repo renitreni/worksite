@@ -10,3 +10,16 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
         
 }
+
+
+@keyframes bell-shake {
+    0% { transform: rotate(0); }
+    25% { transform: rotate(-15deg); }
+    50% { transform: rotate(15deg); }
+    75% { transform: rotate(-10deg); }
+    100% { transform: rotate(0); }
+}
+
+.animate-bell {
+    animation: bell-shake 0.6s ease-in-out;
+}

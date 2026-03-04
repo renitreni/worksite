@@ -7,6 +7,7 @@ use App\Http\Controllers\Candidate\ResumeController;
 use App\Http\Controllers\Candidate\SavedJobController;
 use App\Http\Controllers\Candidate\JobReportController;
 use App\Http\Controllers\Candidate\JobApplicationController;
+use App\Http\Controllers\Candidate\AppliedJobsController;   
 
 /*
 |--------------------------------------------------------------------------
@@ -72,7 +73,13 @@ Route::prefix('candidate')->name('candidate.')->middleware(['auth', 'role:candid
     Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'store'])->name('jobs.apply');
 
     // Static views
-    Route::get('/my-applied-jobs', fn() => view('candidate.contents.my-applied-jobs'))->name('my-applied-jobs');
+    Route::get('/applied-jobs', function () {
+        return view('candidate.contents.my-applied-jobs');
+    })->name('applied.jobs');
+
+    Route::get('/applied-jobs/data', [AppliedJobsController::class, 'index'])
+        ->name('applied.jobs.data');
+
     Route::get('/shortlist-jobs', fn() => view('candidate.contents.shortlist-jobs'))->name('shortlist-jobs');
     Route::get('/following-employers', fn() => view('candidate.contents.following-employers'))->name('following-employers');
     Route::get('/job-alerts', fn() => view('candidate.contents.job-alerts'))->name('job-alerts');

@@ -1,17 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
+@php
+    use App\Models\Setting;
+
+    $siteName = Setting::get('site.name', config('app.name', 'JobAbroad'));
+@endphp
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>@yield('title', config('app.name', 'JobAbroad') . ' Admin Dashboard')</title>
+    <title>@yield('title', $siteName . ' Admin Dashboard')</title>
 
     <meta name="robots" content="noindex,nofollow">
     <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="canonical" href="{{ url()->current() }}">
-
-    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         [x-cloak] {
@@ -19,13 +24,16 @@
         }
     </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <script>
+        window.userId = @json(auth('admin')->id());
+    </script>
+    @livewireStyles
 </head>
 
 <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif]">
@@ -43,17 +51,17 @@
             @include('adminpage.components.navbar')
 
             {{-- Page content --}}
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <div wire:navigate class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 @yield('content')
             </div>
 
         </main>
     </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) window.lucide.createIcons();
-        });
+        window.userId = @json(auth('admin')->id());
     </script>
+    @livewireScripts
 
 </body>
 

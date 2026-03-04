@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobApplication extends Model
 {
+    public const STATUS_SUBMITTED = 'submitted';
+    public const STATUS_HIRED = 'hired';
+
     protected $fillable = [
         'job_post_id',
         'candidate_id',
@@ -25,5 +28,10 @@ class JobApplication extends Model
     public function candidateProfile()
     {
         return $this->belongsTo(\App\Models\CandidateProfile::class, 'candidate_id', 'user_id');
+    }
+
+    public function chats()
+    {
+        return $this->hasMany(\App\Models\Chat::class);
     }
 }

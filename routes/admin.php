@@ -14,6 +14,11 @@ use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\JobPostAdminController;
+use App\Http\Controllers\Admin\System\SystemConfigController;
+use App\Http\Controllers\Admin\System\EmailTemplateController;
+use App\Http\Controllers\Admin\System\BackupController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +41,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth:admin', 'active:admin'])->group(function () {
 
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
-        Route::view('/', 'adminpage.contents.dashboard')->name('dashboard');
+       Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+       Route::get('/dashboard/metrics', [DashboardController::class, 'metrics'])->name('dashboard.metrics');
 
         // Users
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -72,8 +78,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Static
         Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
         Route::view('/billing', 'adminpage.contents.billing')->name('billing');
-        Route::view('/reports', 'adminpage.contents.reports')->name('reports');
-        Route::view('/settings', 'adminpage.contents.settings')->name('settings');
+        /*
+|--------------------------------------------------------------------------
+| REPORTS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+Route::post('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
+Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
+           
 
         // Subscriptions & payments
         Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
@@ -140,6 +155,35 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // SUPERADMIN ONLY
     Route::middleware(['auth:admin', 'active:admin', 'role:superadmin'])->group(function () {
+             /*
+        |------------------------------------------------------------------
+        | SYSTEM CONFIGURATION (Workabroad)
+        |------------------------------------------------------------------
+        */
+        Route::prefix('system')->name('system.')->group(function () {
+            Route::get('/', [SystemConfigController::class, 'index'])->name('index');
+
+            Route::put('/general', [SystemConfigController::class, 'updateGeneral'])->name('general.update');
+            Route::put('/notifications', [SystemConfigController::class, 'updateNotifications'])->name('notifications.update');
+            Route::put('/security', [SystemConfigController::class, 'updateSecurity'])->name('security.update');
+        });
+
+        Route::prefix('email-templates')->name('email_templates.')->group(function () {
+            Route::get('/', [EmailTemplateController::class, 'index'])->name('index');
+            Route::get('/{emailTemplate}/edit', [EmailTemplateController::class, 'edit'])->name('edit');
+            Route::put('/{emailTemplate}', [EmailTemplateController::class, 'update'])->name('update');
+            Route::get('/{emailTemplate}/preview', [EmailTemplateController::class, 'preview'])->name('preview');
+        });
+
+       Route::prefix('backups')->name('backups.')->group(function () {
+    Route::get('/', [BackupController::class, 'index'])->name('index');
+    Route::post('/run', [BackupController::class, 'run'])->name('run');
+
+    
+    Route::post('/restore', [BackupController::class, 'restore'])
+        ->middleware(['permission:backups.restore', 'password.confirm:admin'])
+        ->name('restore');
+});
         Route::get('/admins', [AdminUserController::class, 'index'])->name('admins.index');
         Route::get('/admins/create', [AdminUserController::class, 'create'])->name('admins.create');
         Route::post('/admins', [AdminUserController::class, 'store'])->name('admins.store');

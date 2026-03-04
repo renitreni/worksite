@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="w-full max-w-7xl mx-auto space-y-6">
-
+        @include('adminpage.components.flash')
         @if ($errors->any())
             <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 <div class="font-semibold mb-2">Please fix the following:</div>
@@ -21,7 +21,7 @@
             @csrf
 
             {{-- Header --}}
-            <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white">
+            <div class="px-6 sm:px-8 py-6 border-b border-slate-200 bg-linear-to-r from-emerald-50 to-white">
                 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900">Create Subscription Plan</h1>

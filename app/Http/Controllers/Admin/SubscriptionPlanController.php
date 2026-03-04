@@ -45,7 +45,7 @@ class SubscriptionPlanController extends Controller
         $features = FeatureDefinition::query()->where('is_active', true)->get()->keyBy('id');
 
         $data = $request->validate([
-            'code' => ['required', 'string', 'max:50', 'regex:/^[A-Z0-9_]+$/', 'unique:subscription_plans,code'],
+            'code' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9_]+$/', 'unique:subscription_plans,code'],
             'name' => ['required', 'string', 'max:120'],
             'price' => ['required', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
@@ -98,7 +98,7 @@ class SubscriptionPlanController extends Controller
         $features = FeatureDefinition::query()->where('is_active', true)->get()->keyBy('id');
 
         $data = $request->validate([
-            'code' => ['required', 'string', 'max:50', 'regex:/^[A-Z0-9_]+$/', Rule::unique('subscription_plans', 'code')->ignore($plan->id)],
+            'code' => ['required', 'string', 'max:50', 'regex:/^[A-Za-z0-9_]+$/', Rule::unique('subscription_plans', 'code')->ignore($plan->id)],
             'name' => ['required', 'string', 'max:120'],
             'price' => ['required', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],

@@ -11,31 +11,42 @@ use Illuminate\Validation\Rule;
 
 class AdminUserController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth('admin')->user()->role !== 'superadmin') {
+                abort(403);
+            }
+
+            return $next($request);
+        });
+    }
     public function index(Request $request)
-{
-    $q = trim((string) $request->query('q', ''));
-    $archived = (string) $request->query('archived', '0'); // 0 active, 1 archived
+    {
+        $q = trim((string) $request->query('q', ''));
+        $archived = (string) $request->query('archived', '0'); // 0 active, 1 archived
 
-    $admins = User::query()
-        ->whereIn('role', ['admin', 'superadmin'])
-        ->when($archived === '1', fn ($qr) => $qr->whereNotNull('archived_at'))
-        ->when($archived !== '1', fn ($qr) => $qr->whereNull('archived_at'))
-        ->when($q !== '', function ($qr) use ($q) {
-            $qr->where(function ($w) use ($q) {
-                $w->where('name', 'like', "%{$q}%")
-                  ->orWhere('email', 'like', "%{$q}%")
-                  ->orWhere('first_name', 'like', "%{$q}%")
-                  ->orWhere('last_name', 'like', "%{$q}%")
-                  ->orWhereRaw("concat(first_name,' ',last_name) like ?", ["%{$q}%"]);
-            });
-        })
-        ->latest('id')
-        ->paginate(10)
-        ->withQueryString();
+        $admins = User::query()
+            ->whereIn('role', ['admin', 'superadmin'])
+            ->when($archived === '1', fn($qr) => $qr->whereNotNull('archived_at'))
+            ->when($archived !== '1', fn($qr) => $qr->whereNull('archived_at'))
+            ->when($q !== '', function ($qr) use ($q) {
+                $qr->where(function ($w) use ($q) {
+                    $w->where('name', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%")
+                        ->orWhere('first_name', 'like', "%{$q}%")
+                        ->orWhere('last_name', 'like', "%{$q}%")
+                        ->orWhereRaw("concat(first_name,' ',last_name) like ?", ["%{$q}%"]);
+                });
+            })
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
 
-    // ✅ IMPORTANT: return admins view, not users view
-    return view('adminpage.contents.admins.index', compact('admins', 'q', 'archived'));
-}
+        // ✅ IMPORTANT: return admins view, not users view
+        return view('adminpage.contents.admins.index', compact('admins', 'q', 'archived'));
+    }
 
     public function create()
     {
@@ -46,18 +57,18 @@ class AdminUserController extends Controller
     {
         $data = $request->validate([
             'first_name' => ['required', 'string', 'max:80'],
-            'last_name'  => ['required', 'string', 'max:80'],
-            'email'      => ['required', 'email', 'max:190', 'unique:users,email'],
-            'password'   => ['required', 'string', 'min:8', 'confirmed'],
+            'last_name' => ['required', 'string', 'max:80'],
+            'email' => ['required', 'email', 'max:190', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         User::create([
             'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
-            'name'       => $data['first_name'].' '.$data['last_name'],
-            'email'      => $data['email'],
-            'password'   => Hash::make($data['password']),
-            'role'       => 'admin',
+            'last_name' => $data['last_name'],
+            'name' => $data['first_name'] . ' ' . $data['last_name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => 'admin',
             'account_status' => 'active',
             'archived_at' => null,
         ]);
@@ -67,25 +78,25 @@ class AdminUserController extends Controller
 
     public function edit(User $user)
     {
-        abort_if(!in_array($user->role, ['admin','superadmin'], true), 404);
+        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
         return view('adminpage.contents.admins.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
-        abort_if(!in_array($user->role, ['admin','superadmin'], true), 404);
+        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
 
         $data = $request->validate([
             'first_name' => ['required', 'string', 'max:80'],
-            'last_name'  => ['required', 'string', 'max:80'],
-            'email'      => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
-            'password'   => ['nullable', 'string', 'min:8', 'confirmed'],
+            'last_name' => ['required', 'string', 'max:80'],
+            'email' => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user->first_name = $data['first_name'];
-        $user->last_name  = $data['last_name'];
-        $user->name       = $data['first_name'].' '.$data['last_name'];
-        $user->email      = $data['email'];
+        $user->last_name = $data['last_name'];
+        $user->name = $data['first_name'] . ' ' . $data['last_name'];
+        $user->email = $data['email'];
 
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
@@ -98,7 +109,7 @@ class AdminUserController extends Controller
 
     public function toggle(User $user)
     {
-        abort_if(!in_array($user->role, ['admin','superadmin'], true), 404);
+        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
 
         $currentAdminId = Auth::guard('admin')->id();
         abort_if($currentAdminId && $user->id === $currentAdminId, 403);
@@ -114,7 +125,7 @@ class AdminUserController extends Controller
 
     public function archive(User $user)
     {
-        abort_if(!in_array($user->role, ['admin','superadmin'], true), 404);
+        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
 
         $currentAdminId = Auth::guard('admin')->id();
         abort_if($currentAdminId && $user->id === $currentAdminId, 403);
@@ -130,7 +141,7 @@ class AdminUserController extends Controller
 
     public function restore(User $user)
     {
-        abort_if(!in_array($user->role, ['admin','superadmin'], true), 404);
+        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
 
         abort_if(is_null($user->archived_at), 403);
 
@@ -148,13 +159,13 @@ class AdminUserController extends Controller
 
     public function resetPassword(Request $request, User $user)
     {
-        abort_if(!in_array($user->role, ['admin','superadmin'], true), 404);
+        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
 
         $currentAdminId = Auth::guard('admin')->id();
         abort_if($currentAdminId && $user->id === $currentAdminId, 403);
 
         $data = $request->validate([
-            'password' => ['required','string','min:8','confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user->password = Hash::make($data['password']);
@@ -163,5 +174,5 @@ class AdminUserController extends Controller
         return back()->with('success', 'Password updated.');
     }
 
-    
+
 }

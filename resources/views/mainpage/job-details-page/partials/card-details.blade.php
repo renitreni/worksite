@@ -155,11 +155,22 @@ step = 2;
 
     {{-- Buttons row --}}
     <div class="mt-6 flex flex-wrap gap-3">
-        <button type="button" @click="{{ auth()->check() ? 'applyOpen=true' : 'loginApplyOpen=true' }}"
-            class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition">
-            Apply Now
-        </button>
+        @if ($alreadyApplied)
+            <button type="button" disabled
+                class="inline-flex items-center justify-center rounded-xl bg-gray-300 px-6 py-3 text-sm font-semibold text-gray-600 cursor-not-allowed">
 
+                <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
+                Already Applied
+
+            </button>
+        @else
+            <button type="button" @click="{{ auth()->check() ? 'applyOpen=true' : 'loginApplyOpen=true' }}"
+                class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition">
+
+                Apply Now
+
+            </button>
+        @endif
         {{-- SAVE --}}
         <form action="{{ route('candidate.jobs.save', $job->id) }}" method="POST">
             @csrf

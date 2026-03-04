@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use App\Models\CandidateProfile;
-use App\Models\EmployerProfile;
+use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable
 {
     use Notifiable;
 
+    
     protected $fillable = [
         'first_name',
         'last_name',
@@ -37,7 +38,7 @@ class User extends Authenticatable
 
     public function candidateProfile()
     {
-        return $this->hasOne(CandidateProfile::class);
+        return $this->hasOne(\App\Models\CandidateProfile::class);
     }
 
     public function employerProfile()

@@ -9,7 +9,7 @@
 @endphp
 
 <div class="space-y-6" x-data="adminsUI()" x-cloak>
-
+@include('adminpage.components.flash')
   {{-- Filters --}}
   <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <form method="GET" action="{{ route('admin.admins.index') }}"
