@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Worksite') }} | Candidate Login</title>
-
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -15,7 +16,7 @@
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    @livewireStyles
 </head>
 
 <body class="font-['Inter',sans-serif] bg-gray-50 text-gray-900 overflow-hidden">
@@ -222,6 +223,20 @@
                 }
             }
         }
+    </script>
+
+    @livewireScripts
+
+    <script>
+        function initLucide() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initLucide);
+        document.addEventListener("livewire:navigated", initLucide);
+        document.addEventListener("livewire:updated", initLucide);
     </script>
 
 

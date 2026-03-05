@@ -6,14 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Worksite') }} | Employer Login</title>
 
-
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
 
@@ -35,7 +38,9 @@
                 class="fixed inset-0 z-[99997] flex items-center justify-center bg-black/30 backdrop-blur-sm"
                 aria-live="polite" aria-busy="true">
                 <div class="w-[92%] max-w-sm rounded-2xl bg-white shadow-xl border border-gray-200 p-5 text-center">
-                    <div class="mx-auto h-10 w-10 rounded-full border-4 border-gray-200 border-t-[#16A34A] animate-spin"></div>
+                    <div
+                        class="mx-auto h-10 w-10 rounded-full border-4 border-gray-200 border-t-[#16A34A] animate-spin">
+                    </div>
                     <p class="mt-4 text-sm font-semibold text-gray-900">Signing you in…</p>
                     <p class="mt-1 text-xs text-gray-600">Please wait.</p>
                 </div>
@@ -54,8 +59,8 @@
 
             {{-- Form --}}
             <div class="px-6 pb-6">
-                <form x-ref="loginForm" @submit.prevent="submitForm"
-                    method="POST" action="{{ route('employer.login.store') }}" class="space-y-3.5">
+                <form x-ref="loginForm" @submit.prevent="submitForm" method="POST"
+                    action="{{ route('employer.login.store') }}" class="space-y-3.5">
                     @csrf
 
                     {{-- errors --}}
@@ -72,7 +77,8 @@
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                 <i data-lucide="mail" class="w-5 h-5"></i>
                             </span>
-                            <input type="email" name="email" value="{{ old('email') }}" placeholder="hr@company.com"
+                            <input type="email" name="email" value="{{ old('email') }}"
+                                placeholder="hr@company.com"
                                 class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                        focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]"
                                 required autofocus>
@@ -114,13 +120,13 @@
                     </label>
 
                     {{-- Submit --}}
-                    <button type="submit"
-                        :disabled="isSubmitting"
+                    <button type="submit" :disabled="isSubmitting"
                         :class="isSubmitting ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#16A34A] hover:bg-green-700'"
                         class="w-full rounded-xl py-2.5 text-sm font-semibold text-white transition shadow-sm inline-flex items-center justify-center gap-2">
 
                         <svg x-show="isSubmitting" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                         </svg>
 
@@ -169,6 +175,20 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+    </script>
+
+    @livewireScripts
+
+    <script>
+        function initLucide() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initLucide);
+        document.addEventListener("livewire:navigated", initLucide);
+        document.addEventListener("livewire:updated", initLucide);
     </script>
 </body>
 

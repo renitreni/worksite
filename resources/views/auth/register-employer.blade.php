@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Worksite') }} | Employer Register</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <!-- Lucide + Alpine -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -57,6 +57,7 @@
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
 </head>
 
@@ -467,7 +468,7 @@
             if (typeof iti.loadUtils === 'function') {
                 try {
                     await iti.loadUtils(
-                    'https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
+                        'https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/js/utils.js');
                     utilsReady = true;
                 } catch (e) {
                     utilsReady = false;
@@ -556,7 +557,19 @@
         </div>
     @endif
 
+    @livewireScripts
 
+    <script>
+        function initLucide() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initLucide);
+        document.addEventListener("livewire:navigated", initLucide);
+        document.addEventListener("livewire:updated", initLucide);
+    </script>
 
 </body>
 

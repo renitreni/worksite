@@ -6,9 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{{ config('app.name', 'Worksite') }} | Candidate Register</title>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.15.0/build/css/intlTelInput.css">
@@ -54,7 +53,9 @@
             display: none !important;
         }
     </style>
+    <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
 </head>
 
@@ -71,9 +72,22 @@
         @include('auth.partials-candidate._form')
     </main>
 
-    @include("auth.partials-candidate.email-verification-modal")
+    @include('auth.partials-candidate.email-verification-modal')
 
     @include('auth.partials-candidate._scripts')
+    @livewireScripts
+
+    <script>
+        function initLucide() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initLucide);
+        document.addEventListener("livewire:navigated", initLucide);
+        document.addEventListener("livewire:updated", initLucide);
+    </script>
 </body>
 
 </html>

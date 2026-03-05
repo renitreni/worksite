@@ -8,6 +8,9 @@
 
     <title>{{ config('app.name', default: 'Worksite') }}</title>
 
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+
     <!-- Fonts -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -21,6 +24,7 @@
 
     <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <script>
         window.Laravel = {

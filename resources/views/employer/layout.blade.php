@@ -11,6 +11,9 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Fonts -->
