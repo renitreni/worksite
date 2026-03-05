@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JobPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
- use App\Models\JobApplication;
+use App\Models\JobApplication;
 
 use function Symfony\Component\String\u;
 
@@ -21,8 +21,9 @@ class JobBrowseController extends Controller
         $industry = trim((string) $request->get('industry', ''));
 
         $jobsQuery = JobPost::query()
-            ->with(['employerProfile:id,company_name']) // company name only
+            ->with(['employerProfile:id,company_name'])
             ->where('status', 'open')
+            ->where('is_disabled', false)
             ->orderByDesc('posted_at')
             ->orderByDesc('created_at');
 
@@ -46,11 +47,19 @@ class JobBrowseController extends Controller
         $jobs = $jobsQuery->paginate(10)->withQueryString();
 
         // Optional: build quick filters from existing jobs (since you store strings)
-        $countries = JobPost::where('status', 'open')->whereNotNull('country')
-            ->distinct()->orderBy('country')->pluck('country');
+        $countries = JobPost::where('status', 'open')
+            ->where('is_disabled', false) // ✅ add this
+            ->whereNotNull('country')
+            ->distinct()
+            ->orderBy('country')
+            ->pluck('country');
 
-        $industries = JobPost::where('status', 'open')->whereNotNull('industry')
-            ->distinct()->orderBy('industry')->pluck('industry');
+        $industries = JobPost::where('status', 'open')
+            ->where('is_disabled', false) // ✅ add this
+            ->whereNotNull('industry')
+            ->distinct()
+            ->orderBy('industry')
+            ->pluck('industry');
 
         return view('mainpage.job-details-page.layout', compact('jobs', 'q', 'country', 'industry', 'countries', 'industries'));
     }
@@ -60,10 +69,9 @@ class JobBrowseController extends Controller
 
     public function show(JobPost $job)
     {
-        if ($job->status !== 'open') {
+        if ($job->status !== 'open' || $job->is_disabled) {
             abort(404);
         }
-
         $job->load('employerProfile');
 
         $isSaved = Auth::check()
@@ -83,6 +91,7 @@ class JobBrowseController extends Controller
 
         $agencyJobs = JobPost::where('employer_profile_id', $job->employer_profile_id)
             ->where('status', 'open')
+            ->where('is_disabled', false) // ✅ add this
             ->where('id', '!=', $job->id)
             ->latest()
             ->paginate(6)

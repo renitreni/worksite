@@ -13,9 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+
         $middleware->redirectGuestsTo(function ($request) {
-                
-        if ($request->is('broadcasting/*')) {
+
+            if ($request->is('broadcasting/*')) {
                 return null;
             }
 
@@ -34,6 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
+            'check.user.status' => \App\Http\Middleware\CheckUserStatus::class,
+
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

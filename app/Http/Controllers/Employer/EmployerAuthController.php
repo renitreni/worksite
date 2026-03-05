@@ -114,7 +114,18 @@ class EmployerAuthController extends Controller
                 ->onlyInput('email');
         }
 
-        // ✅ Must have profile
+        $accStatus = $user->account_status ?? 'active';
+
+        if ($accStatus !== 'active') {
+            $msg = $accStatus === 'hold'
+                ? 'Your account is currently on hold. Please contact support.'
+                : 'Your account has been disabled by the administrator.';
+
+            return back()
+                ->withErrors(['email' => $msg])
+                ->onlyInput('email');
+        }
+
         $profile = $user->employerProfile;
 
         if (!$profile) {
@@ -123,28 +134,15 @@ class EmployerAuthController extends Controller
                 ->onlyInput('email');
         }
 
-        // ✅ approval check now via verification table
         $status = $profile->verification?->status ?? 'pending';
 
         if ($status !== 'approved') {
             $msg = match ($status) {
                 'pending' => 'Your employer account is still pending admin approval. Please wait.',
-                'rejected' => 'Your employer account was rejected. Please contact admin/support.',
-                'suspended' => 'Your employer account is suspended. Please contact admin/support.',
-                default => 'Your employer account is not approved yet. Please wait for admin approval.',
+                'rejected' => 'Your employer registration was rejected. Please contact support.',
+                'suspended' => 'Your employer account is currently suspended. Please contact support.',
+                default => 'Your employer account is not approved yet.',
             };
-
-            return back()
-                ->withErrors(['email' => $msg])
-                ->onlyInput('email');
-        }
-
-        // ✅ optional: also block disabled/hold at user level
-        $accStatus = $user->account_status ?? 'active';
-        if ($accStatus !== 'active') {
-            $msg = $accStatus === 'hold'
-                ? 'Your account is currently on hold. Please contact support.'
-                : 'Your account is disabled. Please contact support.';
 
             return back()
                 ->withErrors(['email' => $msg])

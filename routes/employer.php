@@ -33,66 +33,68 @@ Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
 | EMPLOYER PAGES (AUTH + ROLE)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
+Route::middleware(['auth', 'role:employer', 'check.user.status'])
+    ->prefix('employer')
+    ->name('employer.')
+    ->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // Company profile
+        Route::get('/company-profile', [EmployerProfileController::class, 'show'])->name('company-profile');
+        Route::get('/company-profile/edit', [EmployerProfileController::class, 'edit'])->name('company-profile.edit');
+        Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
+        Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
 
-    // Company profile
-    Route::get('/company-profile', [EmployerProfileController::class, 'show'])->name('company-profile');
-    Route::get('/company-profile/edit', [EmployerProfileController::class, 'edit'])->name('company-profile.edit');
-    Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
-    Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
+        Route::get('/analytics', [\App\Http\Controllers\Employer\AnalyticsController::class, 'index'])->name('analytics');
 
-    Route::get('/analytics', [\App\Http\Controllers\Employer\AnalyticsController::class, 'index'])->name('analytics');
+        // Job postings
+        Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
+        Route::get('/job-postings/create', [JobController::class, 'create'])->name('job-postings.create');
+        Route::post('/job-postings', [JobController::class, 'store'])->name('job-postings.store');
+        Route::get('/job-postings/closed', [JobController::class, 'closed'])->name('job-postings.closed');
+        Route::put('/job-postings/{job}/reopen', [JobController::class, 'reopen'])->name('job-postings.reopen');
+        Route::get('/job-postings/{job}', [JobController::class, 'show'])->name('job-postings.show');
+        Route::get('/job-postings/{job}/edit', [JobController::class, 'edit'])->name('job-postings.edit');
+        Route::put('/job-postings/{job}', [JobController::class, 'update'])->name('job-postings.update');
+        Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
 
-    // Job postings
-    Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
-    Route::get('/job-postings/create', [JobController::class, 'create'])->name('job-postings.create');
-    Route::post('/job-postings', [JobController::class, 'store'])->name('job-postings.store');
-    Route::get('/job-postings/closed', [JobController::class, 'closed'])->name('job-postings.closed');
-    Route::put('/job-postings/{job}/reopen', [JobController::class, 'reopen'])->name('job-postings.reopen');
-    Route::get('/job-postings/{job}', [JobController::class, 'show'])->name('job-postings.show');
-    Route::get('/job-postings/{job}/edit', [JobController::class, 'edit'])->name('job-postings.edit');
-    Route::put('/job-postings/{job}', [JobController::class, 'update'])->name('job-postings.update');
-    Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
+        // Combined chat interface
+        Route::get('/chat/{application?}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'index'])->name('chat.index');
 
-    // Combined chat interface
-    Route::get('/chat/{application?}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'index'])->name('chat.index');
+        // Store message
+        Route::post('/chat/{application}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'store'])->name('chat.store');
 
-    // Store message
-    Route::post('/chat/{application}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'store'])->name('chat.store');
-    
-    // Geo + skills helpers
-    Route::get('/geo/cities', [JobController::class, 'citiesByCountry'])->name('geo.cities');
-    Route::get('/geo/areas', [JobController::class, 'areasByCity'])->name('geo.areas');
-    Route::get('/industries/{industry}/skills', [JobController::class, 'skillsByIndustry'])->name('industries.skills');
+        // Geo + skills helpers
+        Route::get('/geo/cities', [JobController::class, 'citiesByCountry'])->name('geo.cities');
+        Route::get('/geo/areas', [JobController::class, 'areasByCity'])->name('geo.areas');
+        Route::get('/industries/{industry}/skills', [JobController::class, 'skillsByIndustry'])->name('industries.skills');
 
-    // Applicants
-    // Applicants pages
-    Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
-    Route::get('/applicants/{application}', [ApplicantController::class, 'show'])->name('applicants.show');
+        // Applicants
+        // Applicants pages
+        Route::get('/applicants', [ApplicantController::class, 'index'])->name('applicants.index');
+        Route::get('/applicants/{application}', [ApplicantController::class, 'show'])->name('applicants.show');
 
-    // Status actions
-    Route::put('/applicants/{application}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
-    Route::put('/applicants/{application}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
-    Route::put('/applicants/{application}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
-    Route::put('/applicants/{application}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
+        // Status actions
+        Route::put('/applicants/{application}/shortlist', [ApplicantController::class, 'shortlist'])->name('applicants.shortlist');
+        Route::put('/applicants/{application}/interview', [ApplicantController::class, 'interview'])->name('applicants.interview');
+        Route::put('/applicants/{application}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
+        Route::put('/applicants/{application}/reject', [ApplicantController::class, 'reject'])->name('applicants.reject');
 
-    // Export
-    Route::get('/applicants-export', [ApplicantController::class, 'export'])->name('applicants.export');
+        // Export
+        Route::get('/applicants-export', [ApplicantController::class, 'export'])->name('applicants.export');
 
-    // Files (CV + documents)
-    Route::get('/applicants/{application}/cv/preview', [ApplicantFileController::class, 'previewCv'])->name('applicants.cv.preview');
-    Route::get('/applicants/{application}/cv/download', [ApplicantFileController::class, 'downloadCv'])->name('applicants.cv.download');
+        // Files (CV + documents)
+        Route::get('/applicants/{application}/cv/preview', [ApplicantFileController::class, 'previewCv'])->name('applicants.cv.preview');
+        Route::get('/applicants/{application}/cv/download', [ApplicantFileController::class, 'downloadCv'])->name('applicants.cv.download');
 
-    Route::get('/applicants/{application}/attachments/{attachment}/download', [ApplicantFileController::class, 'downloadDocument'])->name('applicants.docs.download');
-    Route::get('/applicants/{application}/attachments/{attachment}/preview', [ApplicantFileController::class, 'previewDocument'])->name('applicants.docs.preview');
-    // Subscription (employer side)
-    Route::get('/subscription', [EmployerSubscriptionController::class, 'dashboard'])->name('subscription.dashboard');
-    Route::post('/subscription/select/{plan}', [EmployerSubscriptionController::class, 'selectPlan'])->name('subscription.select');
-    Route::patch('/subscription/{subscription}/cancel', [EmployerSubscriptionController::class, 'cancelPending'])
-  ->name('subscription.cancel');
-    Route::get('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'payment'])->name('subscription.payment');
-    Route::post('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'processPayment'])->name('subscription.pay');
-   
-});
+        Route::get('/applicants/{application}/attachments/{attachment}/download', [ApplicantFileController::class, 'downloadDocument'])->name('applicants.docs.download');
+        Route::get('/applicants/{application}/attachments/{attachment}/preview', [ApplicantFileController::class, 'previewDocument'])->name('applicants.docs.preview');
+        // Subscription (employer side)
+        Route::get('/subscription', [EmployerSubscriptionController::class, 'dashboard'])->name('subscription.dashboard');
+        Route::post('/subscription/select/{plan}', [EmployerSubscriptionController::class, 'selectPlan'])->name('subscription.select');
+        Route::patch('/subscription/{subscription}/cancel', [EmployerSubscriptionController::class, 'cancelPending'])
+            ->name('subscription.cancel');
+        Route::get('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'payment'])->name('subscription.payment');
+        Route::post('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'processPayment'])->name('subscription.pay');
+
+    });

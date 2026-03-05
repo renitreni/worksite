@@ -28,6 +28,7 @@ class HomeController extends Controller
                     ->whereNull('archived_at');
             })
             ->orderByDesc('posted_at')
+            ->where('is_disabled', false) // ✅ add this
             ->orderByDesc('created_at')
             ->take(9)
             ->get();
@@ -66,7 +67,9 @@ class HomeController extends Controller
 
         // Active Jobs (cached for 10 minutes)
         $activeJobsCount = cache()->remember('home_active_jobs', 600, function () {
-            return JobPost::where('status', 'open')->count();
+            return JobPost::where('status', 'open')
+                ->where('is_disabled', false)
+                ->count();
         });
 
         // Agencies Count (also good to cache)
@@ -103,6 +106,7 @@ class HomeController extends Controller
 
             $openJobsCount = JobPost::query()
                 ->where('status', 'open')
+                ->where('is_disabled', false)
                 ->whereHas('employerProfile.industries', function ($q) use ($industry) {
                     $q->where('industries.id', $industry->id);
                 })
