@@ -219,6 +219,8 @@ class EmployerAccessService
         $cvAccess = $this->cvAccessForProfile($profile);
 
         $access = $this->accessMatrix($candidateInfoLevel, $cvAccess);
+        $access['can_use_advanced_candidate_filters'] =
+            $this->hasAdvancedCandidateFilters($profile);
 
         return [$profile, $access];
     }
@@ -293,5 +295,33 @@ class EmployerAccessService
             ->where('employer_profile_id', $profile->id)
             ->where('view_date', now()->toDateString())
             ->count();
+    }
+
+    public function hasAdvancedCandidateFilters($profile): bool
+    {
+        $activeSub = $this->getActiveSubscriptionForProfile($profile);
+
+        if (!$activeSub || !$activeSub->plan) {
+            return false;
+        }
+
+        $val = $this->featureScalar($activeSub->plan, 'advanced_candidate_filters', 'false');
+
+        return in_array($val, ['1', 'true', 'yes'], true);
+    }
+
+    public function analyticsLevelForProfile($profile): string
+    {
+        $activeSub = $this->getActiveSubscriptionForProfile($profile);
+
+        if (!$activeSub || !$activeSub->plan) {
+            return 'default';
+        }
+
+        $val = $this->featureScalar($activeSub->plan, 'analytics_level', 'default');
+
+        return in_array($val, ['default', 'basic', 'advanced', 'enterprise'], true)
+            ? $val
+            : 'default';
     }
 }

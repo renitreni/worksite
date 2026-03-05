@@ -9,6 +9,7 @@ use App\Http\Controllers\Employer\ApplicantController;
 use App\Http\Controllers\Employer\SubscriptionController as EmployerSubscriptionController;
 use App\Http\Controllers\Employer\ApplicantFileController;
 use app\Http\Controllers\Employer\EmployerChatController;
+use App\Http\Controllers\Employer\AnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,5 +97,17 @@ Route::middleware(['auth', 'role:employer', 'check.user.status'])
             ->name('subscription.cancel');
         Route::get('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'payment'])->name('subscription.payment');
         Route::post('/subscription/pay/{subscription}', [EmployerSubscriptionController::class, 'processPayment'])->name('subscription.pay');
+
+        Route::get(
+            '/analytics/export/pdf',
+            [AnalyticsController::class, 'exportPdf']
+        )
+            ->name('analytics.export.pdf');
+
+        Route::get(
+            '/analytics/export/csv',
+            [AnalyticsController::class, 'exportCsv']
+        )
+            ->name('analytics.export.csv');
 
     });

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @php
     use App\Models\Setting;
@@ -51,15 +51,28 @@
             @include('adminpage.components.navbar')
 
             {{-- Page content --}}
-            <div wire:navigate class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 @yield('content')
             </div>
 
         </main>
     </div>
 
+
     <script>
-        window.userId = @json(auth('admin')->id());
+        document.addEventListener('livewire:navigated', () => {
+
+            // Reinitialize Lucide icons
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+            // Reinitialize charts if needed
+            if (typeof initCharts === 'function') {
+                initCharts();
+            }
+
+        });
     </script>
     @livewireScripts
 

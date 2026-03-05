@@ -26,18 +26,19 @@
 
 
     <!-- Styles / Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     <script>
         window.Laravel = {
             userId: {{ auth()->id() ?? 'null' }}
         }
     </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 
 <body class="font-['Inter',sans-serif] bg-gray-100 text-gray-900 antialiased">
-    <div x-data="{ mobileSidebarOpen: false }" class="min-h-screen">
+    <div x-data="{ mobileSidebarOpen: false }" x-cloak class="min-h-screen">
 
         {{-- Mobile overlay --}}
         <div x-show="mobileSidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-black/40 lg:hidden"
@@ -56,11 +57,6 @@
         </div>
     </div>
 
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) window.lucide.createIcons();
-        });
-    </script> --}}
 
     <script>
         window.userId = {{ auth()->id() }};
@@ -72,8 +68,20 @@
             display: none;
         }
     </style>
-
     @include('employer.modals.job-posting-limit')
+
+    @livewireScripts
+
+    <script>
+        function initLucide() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initLucide);
+        document.addEventListener("livewire:navigated", initLucide);
+    </script>
 </body>
 
 </html>

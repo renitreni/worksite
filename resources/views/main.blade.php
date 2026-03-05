@@ -43,6 +43,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    
 </head>
 
 <body id="top" class="font-['Inter',sans-serif] text-gray-800">
@@ -52,7 +53,6 @@
 
     @include('mainpage.components.footer')
 
-    @livewireScripts
 
     <script>
         function refreshLucide() {
@@ -65,6 +65,7 @@
             Livewire.hook('morph.updated', () => refreshLucide());
         });
     </script>
+    @livewireScripts
 
     @yield('script')
 </body>

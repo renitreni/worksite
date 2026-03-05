@@ -1,5 +1,6 @@
 import "./bootstrap";
-import Alpine from "alpinejs";
+
+
 import collapse from "@alpinejs/collapse";
 import focus from "@alpinejs/focus";
 import "notyf/notyf.min.css";
@@ -100,7 +101,7 @@ Alpine.data("notificationBell", () => ({
     },
 }));
 
-Alpine.start();
+// Alpine.start();
 
 /* -------------------------------------------------
 |  Lucide Icons
