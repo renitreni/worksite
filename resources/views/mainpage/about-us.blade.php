@@ -35,50 +35,46 @@
 
                         <a href="/jobs"
                             class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow flex items-center justify-center gap-2">
-
-                            Browse Jobs
-
-                        </a>
+                            Browse Jobs </a>
 
                         <a href="/register"
                             class="border border-green-600 text-green-600 px-6 py-3 rounded-lg font-semibold hover:bg-green-50 flex items-center justify-center gap-2">
-
-                            Create Account
-
-                        </a>
+                            Create Account </a>
 
                     </div>
 
                 </div>
 
-                {{-- IMAGE --}}
-
-                {{-- IMAGE --}}
                 {{-- IMAGE SLIDER --}}
-                <div
-                    class="relative w-full max-w-lg h-[260px] sm:h-[300px] md:h-[340px] overflow-hidden rounded-2xl shadow-xl">
 
-                    <img src="{{ asset('images/connecting.jpg') }}"
-                        class="hero-slide absolute inset-0 w-full h-full object-cover opacity-100" loading="lazy">
+                <div class="flex lg:justify-end">
 
-                    <img src="{{ asset('images/connecting-2.webp') }}"
-                        class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+                    <div class="relative w-full h-[260px] sm:h-[300px] md:h-[340px] overflow-hidden rounded-2xl shadow-xl">
 
-                    <img src="{{ asset('images/connecting-3.jpg') }}"
-                        class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+                        <img src="{{ asset('images/connecting.jpg') }}"
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-100" loading="lazy">
 
-                    <img src="{{ asset('images/connecting-4.avif') }}"
-                        class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+                        <img src="{{ asset('images/connecting-2.webp') }}"
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
 
-                    <img src="{{ asset('images/connecting-5.jpg') }}"
-                        class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+                        <img src="{{ asset('images/connecting-3.jpg') }}"
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+
+                        <img src="{{ asset('images/connecting-4.avif') }}"
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+
+                        <img src="{{ asset('images/connecting-5.jpg') }}"
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+
+                    </div>
 
                 </div>
+
             </div>
 
             {{-- SCROLL BUTTON --}}
 
-            <div class="flex justify-center mt-16 sticky bottom-6">
+            <div class="flex justify-center mt-16">
 
                 <button onclick="document.getElementById('about-section').scrollIntoView({behavior:'smooth'})"
                     class="bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-green-700 transition">
@@ -89,7 +85,10 @@
 
             </div>
 
+        </div>
+
     </section>
+
 
     {{-- ABOUT --}}
     <section id="about-section" class="py-20 bg-white">

@@ -139,7 +139,7 @@
     <div id="mobile-menu"
         class="hidden md:hidden absolute top-full left-0 w-full bg-white shadow-lg z-50 border-t border-gray-100 flex flex-col">
 
-        <a href="#" class="block px-4 py-3 hover:bg-gray-100">Home</a>
+        <a href="/" class="block px-4 py-3 hover:bg-gray-100">Home</a>
 
         <div class="border-t border-gray-200 flex flex-col">
             <button

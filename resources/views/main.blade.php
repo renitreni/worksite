@@ -32,7 +32,9 @@
             background-repeat: no-repeat;
         }
 
-        
+        html {
+            scroll-behavior: smooth !important;
+        }
     </style>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +45,7 @@
     @livewireStyles
 </head>
 
-<body class="font-['Inter',sans-serif] text-gray-800">
+<body id="top" class="font-['Inter',sans-serif] text-gray-800">
     @include('mainpage.components.navbar')
 
     @yield('content')

@@ -34,6 +34,10 @@ Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])->na
 
 Route::view('/about','mainpage.about-us')->name('about');
 Route::view('/contact','mainpage.contact-us')->name('contact');
+Route::view('/privacy-policy','mainpage.privacy-policy')->name('privacy-policy');
+Route::view('/terms-of-service','mainpage.terms-of-service')->name('terms-of-service');
+Route::view('/faqs','mainpage.faqs')->name('faqs');
+Route::view('/help-center','mainpage.help-center')->name('help-center');
 
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
