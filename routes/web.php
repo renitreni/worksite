@@ -47,6 +47,13 @@ Route::middleware('auth')->group(function () {
         ->name('notifications.all');
 });
 
+
+//help center articles
+
+Route::get('/help/{category}', function ($category) {
+    return view('mainpage.help-category', compact('category'));
+})->name('help.category');
+
 /*
 |--------------------------------------------------------------------------
 | Split route files

@@ -33,11 +33,11 @@
 
                     <div class="mt-8 flex flex-col sm:flex-row gap-4">
 
-                        <a href="/jobs"
+                        <a href="/search-jobs"
                             class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow flex items-center justify-center gap-2">
                             Browse Jobs </a>
 
-                        <a href="/register"
+                        <a href="/candidate/register"
                             class="border border-green-600 text-green-600 px-6 py-3 rounded-lg font-semibold hover:bg-green-50 flex items-center justify-center gap-2">
                             Create Account </a>
 
