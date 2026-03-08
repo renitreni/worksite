@@ -129,7 +129,7 @@
     @endphp
     @include('mainpage.components.navbar')
 
-    <div class="font-['Inter',sans-serif] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="font-['Inter',sans-serif] max-w-7xl mx-auto px-4 sm:px-6 py-24">
 
         @include('mainpage.job-details-page.partials.card-details')
         @include('mainpage.job-details-page.partials.other-jobs', ['agencyJobs' => $agencyJobs])
@@ -137,6 +137,104 @@
 
     </div>
     @include('mainpage.components.footer')
+     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            function refreshLucide() {
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+
+            refreshLucide();
+
+            document.addEventListener('livewire:initialized', () => {
+                refreshLucide();
+                Livewire.hook('morph.updated', () => refreshLucide());
+            });
+
+            /* MOBILE MENU */
+
+            const menuBtn = document.getElementById("mobile-menu-button");
+            const mobileMenu = document.getElementById("mobile-menu");
+            const iconMenu = document.getElementById("icon-menu");
+            const iconClose = document.getElementById("icon-close");
+
+            if (menuBtn && mobileMenu) {
+
+                menuBtn.addEventListener("click", function() {
+
+                    mobileMenu.classList.toggle("hidden");
+
+                    iconMenu.classList.toggle("hidden");
+                    iconClose.classList.toggle("hidden");
+
+                });
+
+            }
+
+
+            /* NAVBAR SCROLL */
+            const navbar = document.getElementById("navbar");
+            const hero = document.getElementById("hero-section");
+
+            function setNavbarWhite() {
+
+                navbar.classList.add("navbar-scrolled");
+                navbar.classList.remove("bg-transparent");
+
+                document.querySelectorAll(".nav-link").forEach(el => {
+                    el.classList.remove("text-white");
+                    el.classList.add("text-gray-700");
+                });
+
+                if (iconMenu) {
+                    iconMenu.classList.remove("text-white");
+                    iconMenu.classList.add("text-gray-700");
+                }
+
+            }
+
+            function setNavbarTransparent() {
+
+                navbar.classList.remove("navbar-scrolled");
+                navbar.classList.add("bg-transparent");
+
+                document.querySelectorAll(".nav-link").forEach(el => {
+                    el.classList.add("text-white");
+                    el.classList.remove("text-gray-700");
+                });
+
+                if (iconMenu) {
+                    iconMenu.classList.add("text-white");
+                    iconMenu.classList.remove("text-gray-700");
+                }
+
+            }
+
+
+            /* If page has hero → transparent first */
+            if (hero) {
+
+                window.addEventListener("scroll", function() {
+
+                    if (window.scrollY > hero.offsetHeight - 80) {
+                        setNavbarWhite();
+                    } else {
+                        setNavbarTransparent();
+                    }
+
+                });
+
+            } else {
+
+                /* No hero → always white navbar */
+                setNavbarWhite();
+
+            }
+
+        });
+    </script>
     <script>
         lucide.createIcons();
         document.addEventListener('alpine:init', () => {

@@ -107,16 +107,7 @@ class HomeController extends Controller
             $openJobsCount = JobPost::query()
                 ->where('status', 'open')
                 ->where('is_disabled', false)
-                ->whereHas('employerProfile.industries', function ($q) use ($industry) {
-                    $q->where('industries.id', $industry->id);
-                })
-                ->whereHas('employerProfile.verification', function ($q) {
-                    $q->where('status', 'approved');
-                })
-                ->whereHas('employerProfile.user', function ($q) {
-                    $q->where('account_status', 'active')
-                        ->whereNull('archived_at');
-                })
+                ->where('industry', $industry->name)
                 ->count();
 
             $skills = $industry->skills
@@ -140,6 +131,64 @@ class HomeController extends Controller
             'industryCards',
             'activeJobsCount',
             'agenciesCount'
+        ));
+    }
+
+    public function industryJobs(Industry $industry)
+    {
+        $jobs = JobPost::query()
+            ->where('status', 'open')
+            ->where('is_disabled', false)
+            ->where('industry', $industry->name)
+            ->latest('posted_at')
+            ->paginate(9);
+
+        // get industries ordered
+        $industries = Industry::where('is_active', 1)
+            ->orderBy('name')
+            ->pluck('id')
+            ->values();
+
+        $index = $industries->search($industry->id);
+
+        $prevIndustry = $industries[$index - 1] ?? null;
+        $nextIndustry = $industries[$index + 1] ?? null;
+
+        $otherIndustries = Industry::where('is_active', 1)
+            ->where('id', '!=', $industry->id)
+            ->with([
+                'skills' => function ($q) {
+                    $q->where('is_active', 1)
+                        ->orderBy('sort_order')
+                        ->orderBy('name');
+                }
+            ])
+            ->get()
+            ->map(function ($ind) {
+
+                $jobsCount = JobPost::where('status', 'open')
+                    ->where('is_disabled', false)
+                    ->where('industry', $ind->name)
+                    ->count();
+
+                $skills = $ind->skills
+                    ->pluck('name')
+                    ->take(3)
+                    ->values();
+
+                return [
+                    'id' => $ind->id,
+                    'name' => $ind->name,
+                    'image' => $ind->image,
+                    'jobs' => $jobsCount,
+                    'skills' => $skills,
+                ];
+            });
+
+        return view('mainpage.industry-jobs', compact(
+            'industry',
+            'jobs',
+            'otherIndustries'
         ));
     }
 }

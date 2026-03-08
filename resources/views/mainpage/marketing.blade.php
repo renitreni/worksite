@@ -4,12 +4,12 @@
 
             <!-- LEFT CONTENT -->
             <div class="text-white">
-                <h2 class="text-4xl md:text-5xl font-bold leading-tight">
+                <h2 class="hero-title text-4xl md:text-5xl font-bold leading-tight">
                     Ready to Start Your <br class="hidden sm:block">
                     Career Journey?
                 </h2>
 
-                <p class="mt-5 max-w-xl text-white/90 text-lg">
+                <p class="section-title mt-5 max-w-xl text-white/90 text-lg">
                     Join thousands of job seekers who have found their dream jobs through Worksite.
                     Create your free account today and get access to exclusive opportunities.
                 </p>

@@ -5,22 +5,20 @@
 @section('content')
 
     {{-- HERO --}}
-
-    <section class="relative bg-gradient-to-br from-green-50 to-white py-16">
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="hero-section-about"
+        class="relative bg-gradient-to-br from-green-50 to-white min-h-[calc(100vh-64px)] flex items-center pt-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
 
             <div class="grid lg:grid-cols-2 gap-12 items-center">
 
                 {{-- TEXT --}}
-
                 <div>
 
-                    <p class="text-green-600 font-semibold tracking-widest mb-3">
+                    <p class="section-title text-green-600 font-semibold tracking-widest mb-3">
                         ABOUT JOBABROAD
                     </p>
 
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 leading-tight">
+                    <h1 class="hero-title text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 leading-tight">
                         Connecting Filipino Talent to
                         <span class="text-green-600">Global Careers</span>
                     </h1>
@@ -31,57 +29,39 @@
                         recruitment agencies and global employers.
                     </p>
 
-                    <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                    <div class="mt-8 flex flex-row gap-4 flex-wrap sm:flex-nowrap">
 
                         <a href="/search-jobs"
                             class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow flex items-center justify-center gap-2">
-                            Browse Jobs </a>
+                            Browse Jobs
+                        </a>
 
                         <a href="/candidate/register"
                             class="border border-green-600 text-green-600 px-6 py-3 rounded-lg font-semibold hover:bg-green-50 flex items-center justify-center gap-2">
-                            Create Account </a>
+                            Create Account
+                        </a>
 
                     </div>
 
                 </div>
 
-                {{-- IMAGE SLIDER --}}
-
+                {{-- IMAGE --}}
                 <div class="flex lg:justify-end">
 
                     <div class="relative w-full h-[260px] sm:h-[300px] md:h-[340px] overflow-hidden rounded-2xl shadow-xl">
 
                         <img src="{{ asset('images/connecting.jpg') }}"
-                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-100" loading="lazy">
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-100">
 
                         <img src="{{ asset('images/connecting-2.webp') }}"
-                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0">
 
                         <img src="{{ asset('images/connecting-3.jpg') }}"
-                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
-
-                        <img src="{{ asset('images/connecting-4.avif') }}"
-                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
-
-                        <img src="{{ asset('images/connecting-5.jpg') }}"
-                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0" loading="lazy">
+                            class="hero-slide absolute inset-0 w-full h-full object-cover opacity-0">
 
                     </div>
 
                 </div>
-
-            </div>
-
-            {{-- SCROLL BUTTON --}}
-
-            <div class="flex justify-center mt-16">
-
-                <button onclick="document.getElementById('about-section').scrollIntoView({behavior:'smooth'})"
-                    class="bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-green-700 transition">
-
-                    <i data-lucide="chevron-down" class="animate-bounce"></i>
-
-                </button>
 
             </div>
 
@@ -89,17 +69,16 @@
 
     </section>
 
-
     {{-- ABOUT --}}
     <section id="about-section" class="py-20 bg-white">
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+            <h2 class="section-title text-3xl md:text-4xl font-bold text-gray-800 mb-6">
                 Helping Filipinos Work Abroad Safely
             </h2>
 
-            <p class="text-gray-600 text-lg leading-relaxed">
+            <p class="text-gray-600 leading-relaxed">
                 JobAbroad is a digital platform designed to simplify the overseas job search
                 process for Filipino professionals. Our system connects job seekers with
                 verified recruitment agencies and international employers who are actively
@@ -144,26 +123,26 @@
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
                                 <i data-lucide="users" class="text-green-600 w-8 h-8"></i>
-                                <h3 class="text-3xl font-bold text-green-600 mt-2">10K+</h3>
-                                <p class="text-gray-600 text-sm">Job Seekers</p>
+                                <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">10K+</h3>
+                                <p class="section-title text-gray-600 text-sm">Job Seekers</p>
                             </div>
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
                                 <i data-lucide="building-2" class="text-green-600 w-8 h-8"></i>
-                                <h3 class="text-3xl font-bold text-green-600 mt-2">500+</h3>
-                                <p class="text-gray-600 text-sm">Partner Agencies</p>
+                                <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">500+</h3>
+                                <p class="section-title text-gray-600 text-sm">Partner Agencies</p>
                             </div>
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
                                 <i data-lucide="globe" class="text-green-600 w-8 h-8"></i>
-                                <h3 class="text-3xl font-bold text-green-600 mt-2">40+</h3>
-                                <p class="text-gray-600 text-sm">Countries Hiring</p>
+                                <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">40+</h3>
+                                <p class="section-title text-gray-600 text-sm">Countries Hiring</p>
                             </div>
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
                                 <i data-lucide="briefcase" class="text-green-600 w-8 h-8"></i>
-                                <h3 class="text-3xl font-bold text-green-600 mt-2">5K+</h3>
-                                <p class="text-gray-600 text-sm">Jobs Posted</p>
+                                <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">5K+</h3>
+                                <p class="section-title text-gray-600 text-sm">Jobs Posted</p>
                             </div>
 
                         </div>
@@ -179,26 +158,26 @@
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
                     <i data-lucide="users" class="text-green-600 w-8 h-8"></i>
-                    <h3 class="text-3xl font-bold text-green-600 mt-2">10K+</h3>
-                    <p class="text-gray-600 text-sm">Job Seekers</p>
+                    <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">10K+</h3>
+                    <p class="section-title text-gray-600 text-sm">Job Seekers</p>
                 </div>
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
                     <i data-lucide="building-2" class="text-green-600 w-8 h-8"></i>
-                    <h3 class="text-3xl font-bold text-green-600 mt-2">500+</h3>
-                    <p class="text-gray-600 text-sm">Partner Agencies</p>
+                    <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">500+</h3>
+                    <p class="section-title text-gray-600 text-sm">Partner Agencies</p>
                 </div>
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
                     <i data-lucide="globe" class="text-green-600 w-8 h-8"></i>
-                    <h3 class="text-3xl font-bold text-green-600 mt-2">40+</h3>
-                    <p class="text-gray-600 text-sm">Countries Hiring</p>
+                    <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">40+</h3>
+                    <p class="section-title text-gray-600 text-sm">Countries Hiring</p>
                 </div>
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
                     <i data-lucide="briefcase" class="text-green-600 w-8 h-8"></i>
-                    <h3 class="text-3xl font-bold text-green-600 mt-2">5K+</h3>
-                    <p class="text-gray-600 text-sm">Jobs Posted</p>
+                    <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">5K+</h3>
+                    <p class="section-title text-gray-600 text-sm">Jobs Posted</p>
                 </div>
 
             </div>
@@ -224,7 +203,7 @@
 
                 <div class="order-1 lg:order-2">
 
-                    <h3 class="text-3xl font-bold text-gray-800 mb-5">
+                    <h3 class="section-title text-3xl font-bold text-gray-800 mb-5">
                         Opportunities for Filipino Job Seekers
                     </h3>
 
@@ -264,7 +243,7 @@
 
                 <div>
 
-                    <h3 class="text-3xl font-bold text-gray-800 mb-5">
+                    <h3 class="section-title text-3xl font-bold text-gray-800 mb-5">
                         Helping Employers Find Skilled Filipino Talent
                     </h3>
 
@@ -312,7 +291,7 @@
 
                 <div>
 
-                    <h2 class="text-3xl font-bold mb-4">
+                    <h2 class="section-title text-3xl font-bold mb-4">
                         Start Your Overseas Career Today
                     </h2>
 
@@ -344,6 +323,14 @@
 
     </section>
 
+    {{-- FLOATING SCROLL BUTTON --}}
+    <button id="scrollButton" onclick="document.getElementById('about-section').scrollIntoView({behavior:'smooth'})"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:bg-green-700 transition-opacity duration-300">
+
+        <i data-lucide="chevron-down" class="animate-bounce"></i>
+
+    </button>
+
 @endsection
 
 <script>
@@ -361,6 +348,25 @@
             slides[index].style.opacity = "1";
 
         }, 5000);
+
+        const hero = document.getElementById("hero-section-about");
+        const button = document.getElementById("scrollButton");
+
+        function checkHeroVisibility() {
+
+            const rect = hero.getBoundingClientRect();
+
+            if (rect.bottom > 0) {
+                button.style.opacity = "1";
+                button.style.pointerEvents = "auto";
+            } else {
+                button.style.opacity = "0";
+                button.style.pointerEvents = "none";
+            }
+
+        }
+
+        window.addEventListener("scroll", checkHeroVisibility);
 
     });
 </script>

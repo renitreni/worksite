@@ -5,11 +5,11 @@
         {{-- Header --}}
         <div class="text-center mb-16">
 
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+            <h2 class="section-title text-3xl md:text-4xl font-bold text-gray-900">
                 How JobAbroad Works
             </h2>
 
-            <p class="text-gray-600 mt-3 text-lg">
+            <p class="text-gray-600 mt-3 text-sm sm:text-base leading-relaxed">
                 Start your journey to working abroad in four simple steps.
             </p>
 
@@ -55,25 +55,24 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 relative">
 
                 @foreach ($steps as $step)
-                    <div class="group text-center relative">
+                    <div class="relative group">
 
-                        {{-- Step Circle --}}
-                        <div class="relative z-10 flex justify-center mb-6">
+                        {{-- Card --}}
+                        <div
+                            class="relative bg-white rounded-2xl shadow-sm border border-gray-200 pt-12 p-6 text-center
+                       transition duration-300 hover:-translate-y-1 hover:shadow-lg">
 
+                            {{-- Floating Step Number --}}
                             <div
-                                class="flex items-center justify-center w-14 h-14 rounded-full bg-[#16A34A] text-white font-bold text-lg shadow-md">
+                                class="absolute -top-6 left-1/2 -translate-x-1/2
+                           flex items-center justify-center
+                           w-14 h-14 rounded-full
+                           bg-[#16A34A] text-white font-bold text-lg
+                           shadow-lg ring-4 ring-white">
 
                                 {{ $step['num'] }}
 
                             </div>
-
-                        </div>
-
-
-                        {{-- Card --}}
-                        <div
-                            class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6
-                                   transition duration-300 hover:-translate-y-1 hover:shadow-lg">
 
                             {{-- Video --}}
                             <video autoplay loop muted playsinline class="h-32 mx-auto object-contain mb-5 rounded-lg">
@@ -82,19 +81,14 @@
 
                             </video>
 
-
                             {{-- Title --}}
-                            <h3 class="text-lg font-semibold text-gray-900">
-
+                            <h3 class="section-title text-lg font-semibold text-gray-900">
                                 {{ $step['title'] }}
-
                             </h3>
 
                             {{-- Description --}}
                             <p class="text-sm text-gray-600 mt-2 leading-relaxed">
-
                                 {{ $step['desc'] }}
-
                             </p>
 
                         </div>
@@ -105,6 +99,8 @@
             </div>
 
         </div>
+
+        
 
     </div>
 

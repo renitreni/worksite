@@ -18,7 +18,7 @@
 
                     <div>
 
-                        <h1 class="text-4xl md:text-5xl font-bold text-gray-900">
+                        <h1 class="hero-title text-4xl md:text-5xl font-bold text-gray-900">
                             Privacy Policy
                         </h1>
 
@@ -103,7 +103,7 @@
 
                     <div class="sticky top-28">
 
-                        <h3 class="font-semibold text-gray-900 mb-6">
+                        <h3 class="section-title font-semibold text-gray-900 mb-6">
                             Privacy Policy
                         </h3>
 
@@ -155,7 +155,7 @@
 
                         <div :id="section.id" class="scroll-mt-32">
 
-                            <h2 class="text-lg font-semibold mb-3" x-text="section.title"></h2>
+                            <h2 class="section-title text-lg font-semibold mb-3" x-text="section.title"></h2>
 
                             <p class="text-gray-600 text-sm leading-relaxed whitespace-pre-line" x-text="section.text"></p>
 

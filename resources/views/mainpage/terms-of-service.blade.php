@@ -16,7 +16,7 @@
 
                 <div>
 
-                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                    <h1 class="hero-title text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
                         Terms of Use
                     </h1>
 
@@ -107,7 +107,7 @@
 
                 <div class="sticky top-28">
 
-                    <h3 class="font-semibold text-gray-900 mb-6">
+                    <h3 class="section-title font-semibold text-gray-900 mb-6">
                         Terms of Use
                     </h3>
 
@@ -161,7 +161,7 @@
                     {{-- SECTION 1 --}}
                     <section id="binding" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-tile text-lg font-semibold text-[#16A34A] mb-4">
                             1. Binding Agreement
                         </h2>
 
@@ -183,7 +183,7 @@
                     {{-- SECTION 2 --}}
                     <section id="definitions" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             2. Definitions
                         </h2>
 
@@ -208,7 +208,7 @@
                     {{-- SECTION 3 --}}
                     <section id="registration" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             3. User Registration
                         </h2>
 
@@ -234,7 +234,7 @@
                     {{-- SECTION 4 --}}
                     <section id="security" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             4. Password and Account Security
                         </h2>
 
@@ -259,7 +259,7 @@
                     {{-- SECTION 5 --}}
                     <section id="intellectual" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             5. Intellectual Property
                         </h2>
 
@@ -280,7 +280,7 @@
                     {{-- SECTION 6 --}}
                     <section id="availability" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             6. Website Availability
                         </h2>
 
@@ -301,7 +301,7 @@
                     {{-- SECTION 7 --}}
                     <section id="usage" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             7. Acceptable Use
                         </h2>
 
@@ -324,7 +324,7 @@
                     {{-- SECTION 8 --}}
                     <section id="services" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             8. Platform Services
                         </h2>
 
@@ -345,7 +345,7 @@
                     {{-- SECTION 9 --}}
                     <section id="employers" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             9. Employer Responsibilities
                         </h2>
 
@@ -366,7 +366,7 @@
                     {{-- SECTION 10 --}}
                     <section id="law" class="scroll-mt-32">
 
-                        <h2 class="text-lg font-semibold text-[#16A34A] mb-4">
+                        <h2 class="section-title text-lg font-semibold text-[#16A34A] mb-4">
                             10. Applicable Law
                         </h2>
 

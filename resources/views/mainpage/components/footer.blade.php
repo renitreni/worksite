@@ -11,7 +11,7 @@
                         class="w-10 h-10 rounded-xl bg-[#16A34A]/30 flex items-center justify-center border border-white/10">
                         <i data-lucide="briefcase" class="w-5 h-5 text-white"></i>
                     </div>
-                    <span class="text-2xl font-bold tracking-tight">Jobabroad</span>
+                    <span class="section-title text-2xl font-bold tracking-tight">Jobabroad</span>
                 </div>
 
                 <p class="mt-4 text-white/70 leading-relaxed max-w-md">
@@ -57,7 +57,7 @@
                 <div class="grid grid-cols-2 gap-8 md:block md:justify-self-center">
                     <!-- Quick Links -->
                     <div>
-                        <h4 class="text-lg font-semibold">Quick Links</h4>
+                        <h4 class="section-title text-lg font-semibold">Quick Links</h4>
                         <ul class="mt-4 space-y-3 text-white/80">
                             <li><a href="/about"
                                     class="hover:text-white transition hover:underline underline-offset-4">About Us</a>
@@ -96,7 +96,7 @@
 
                 <!-- Desktop Support column -->
                 <div class="hidden md:block md:justify-self-end md:text-right">
-                    <h4 class="text-lg font-semibold">Support</h4>
+                    <h4 class="section-title text-lg font-semibold">Support</h4>
                     <ul class="mt-4 space-y-3 text-white/80">
                         <li><a href="/contact"
                                 class="hover:text-white transition hover:underline underline-offset-4">Contact Us</a>

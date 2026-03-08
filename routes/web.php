@@ -32,6 +32,9 @@ Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])->name('agency.details');
 
+Route::get('/industries/{industry}', [HomeController::class, 'industryJobs'])
+    ->name('industries.jobs');
+
 Route::view('/about','mainpage.about-us')->name('about');
 Route::view('/contact','mainpage.contact-us')->name('contact');
 Route::view('/privacy-policy','mainpage.privacy-policy')->name('privacy-policy');

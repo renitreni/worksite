@@ -9,15 +9,11 @@
 
         {{-- Illustration --}}
         <img src="images/help/illustration.jpg" alt="Help Center Illustration"
-            class="absolute -top-6 right-6 w-100 opacity-30 pointer-events-none hidden md:block">
+            class="absolute top-7 right-6 w-100 opacity-30 pointer-events-none hidden md:block">
 
         <div class="max-w-4xl mx-auto text-center px-6 relative z-10">
 
-            <span class="inline-block bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">
-                JobAbroad Support
-            </span>
-
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mt-4">
+            <h1 class="hero-title text-4xl md:text-5xl font-bold text-gray-900 mt-4">
                 Help Center
             </h1>
 
@@ -41,9 +37,7 @@
 
                 <div class="flex items-center gap-3 mb-3">
 
-                    <i data-lucide="user" class="w-7 h-7 text-[#16A34A]"></i>
-
-                    <h2 class="text-3xl font-bold text-gray-900">
+                    <h2 class="section-title text-3xl font-bold text-gray-900">
                         Candidate Help
                     </h2>
 
@@ -92,9 +86,7 @@
 
                 <div class="flex items-center gap-3 mb-3">
 
-                    <i data-lucide="briefcase" class="w-7 h-7 text-[#16A34A]"></i>
-
-                    <h2 class="text-3xl font-bold text-gray-900">
+                    <h2 class="section-title text-3xl font-bold text-gray-900">
                         Employer Help
                     </h2>
 
@@ -148,7 +140,7 @@
             </video>
             <div>
 
-                <h2 class="text-3xl font-bold text-gray-900">
+                <h2 class="section-title text-3xl font-bold text-gray-900">
                     Still need help?
                 </h2>
 

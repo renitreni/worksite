@@ -1,10 +1,10 @@
 <div>
     {{-- HEADER --}}
-    <header class="w-full">
+    <header class="w-full py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
             <div class="mb-6 sm:mb-8">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+                <h1 class="section-title text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
                     Find Trusted <span class="text-[#16A34A]">Agencies</span>
                 </h1>
                 <p class="mt-2 text-gray-600 max-w-2xl">

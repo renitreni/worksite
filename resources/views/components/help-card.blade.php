@@ -6,7 +6,7 @@
 
     <div class="p-5 flex flex-col flex-grow">
 
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">
+        <h3 class="section-title text-lg font-semibold text-gray-900 mb-2">
             {{ $title }}
         </h3>
 

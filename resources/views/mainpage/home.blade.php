@@ -1,6 +1,7 @@
 @extends('main')
 
 @section('content')
+
   @include('mainpage.hero-section')
   @include('mainpage.browse-by-industry')
   @include('mainpage.featured-agency')

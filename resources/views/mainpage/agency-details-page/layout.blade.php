@@ -39,7 +39,7 @@
 <body class="font-['Inter',sans-serif] text-gray-900">
     @include('mainpage.components.navbar')
 
-    <main class="min-h-[calc(100vh-64px)]">
+    <main class="min-h-[calc(100vh-64px)] py-16">
 
         @yield('content')
     </main>
