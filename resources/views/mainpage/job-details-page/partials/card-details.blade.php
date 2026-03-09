@@ -25,6 +25,7 @@ step = 2;
     class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
     {{-- Header --}}
     <div class="flex items-start gap-5">
+
         {{-- Logo --}}
         <div class="shrink-0">
             @if ($logo)
@@ -43,15 +44,46 @@ step = 2;
             <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 leading-tight">
                 {{ $job->title }}
             </h1>
+
             <p class="mt-1 text-sm font-semibold text-slate-600 uppercase tracking-wide">
                 {{ $company }}
             </p>
-            <p class="mt-2 text-sm text-slate-600">
-                <span class="font-semibold">Min. Experience:</span>
-                {{ $job->min_experience_years !== null ? $job->min_experience_years . ' year(s)' : 'Not specified' }}
-            </p>
         </div>
+
     </div>
+
+    {{-- HOLD WARNING --}}
+    @if ($job->is_held)
+        <div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 shadow-sm">
+
+            <div class="flex items-start gap-3">
+
+                {{-- Icon --}}
+                <div class="flex-shrink-0">
+                    <span
+                        class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 border border-amber-200">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i>
+                    </span>
+                </div>
+
+                {{-- Text --}}
+                <div class="flex-1 text-sm text-amber-900">
+
+                    <p class="font-semibold">
+                        Administrative Review Notice
+                    </p>
+
+                    <p class="mt-1 text-amber-800">
+                        This job posting is currently under administrative review by the JobAbroad team.
+                        The listing remains visible to candidates while it is being reviewed.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+    @endif
 
     {{-- Key facts --}}
     <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

@@ -36,16 +36,7 @@ class ApplicantController extends Controller
 
         $status = $request->query('status', 'all');
 
-        $applications = JobApplication::query()
-            ->with([
-                'jobPost:id,title',
-                'candidateProfile.user:id,name,email',
-            ])
-            ->when($status !== 'all', fn($q) => $q->where('status', $status))
-            ->latest()
-            ->get();
-
-        return view('employer.contents.applicants.index', compact('applications', 'status', 'access', 'viewedTodayIds'));
+        return view('employer.contents.applicants.index', compact('status', 'access', 'viewedTodayIds'));
     }
 
     public function show(JobApplication $application)

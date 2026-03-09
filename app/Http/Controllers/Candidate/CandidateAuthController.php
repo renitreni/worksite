@@ -183,22 +183,42 @@ class CandidateAuthController extends Controller
 
         $request->session()->regenerate();
 
-        // block dashboard if not verified
-        if (!Auth::user()->email_verified_at) {
-            $user = Auth::user();
+        $user = Auth::user();
+
+        // 🚫 Block disabled accounts
+        if ($user->account_status === 'disabled') {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Your account has been disabled by the administrator.'
+            ]);
+        }
+
+        // ⏸ Block accounts on hold
+        if ($user->account_status === 'hold') {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Your account is currently under review.'
+            ]);
+        }
+
+        // 📧 Block dashboard if not verified
+        if (!$user->email_verified_at) {
             Auth::logout();
 
             // send fresh code
             $this->sendVerificationCode($user);
 
             return back()->with([
-                'unverified_modal' => true,        // ✅ show "not verified" modal
+                'unverified_modal' => true,
                 'verify_user_id' => $user->id,
                 'verify_email' => $user->email,
-                'show_verify_modal' => false,      // ✅ don't show code modal immediately
-            ])->withErrors(['email' => 'Please verify your email to continue.']);
+                'show_verify_modal' => false,
+            ])->withErrors([
+                        'email' => 'Please verify your email to continue.'
+                    ]);
         }
-
 
         return redirect()->route('home');
     }

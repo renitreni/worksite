@@ -6,8 +6,7 @@
 @endphp
 
 <header class="sticky top-0 z-30 bg-white border-b border-gray-200">
-    <div class="h-16 px-3 sm:px-6 lg:px-8 flex items-center gap-2 sm:gap-3">
-
+    <div class="h-16 min-h-[64px] px-3 sm:px-6 lg:px-8 flex items-center gap-2 sm:gap-3">
         {{-- Mobile hamburger --}}
         <button type="button"
             class="lg:hidden inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition"
@@ -30,8 +29,7 @@
         {{-- Right Section --}}
         <div class="flex items-center gap-2 sm:gap-3 shrink-0">
 
-            {{-- Notification Bell --}}
-            <x-notification-bell />
+            <x-notification-bell wire:ignore />
             {{-- Profile Dropdown --}}
             <div x-cloak x-data="{ open: false }" class="relative">
 
@@ -61,7 +59,7 @@
                 </button>
 
                 {{-- Dropdown --}}
-                <div x-show="open" x-transition @click.outside="open = false"
+                <div x-show="open" x-transition.opacity.scale.origin.top.right @click.outside="open = false"
                     class="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50">
 
                     <a href="#" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">

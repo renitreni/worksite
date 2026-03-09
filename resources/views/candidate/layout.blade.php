@@ -8,6 +8,9 @@
 
     <title>{{ config('app.name', default: 'Worksite') }}</title>
 
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+
     <!-- Fonts -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -21,6 +24,7 @@
 
     <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
     <script>
         window.Laravel = {
@@ -30,8 +34,7 @@
 </head>
 
 <body class="font-['Inter',sans-serif] bg-gray-100 text-gray-900 antialiased">
-    <div x-data="{ mobileSidebarOpen: false }" class="min-h-screen">
-
+    <div x-data="{ mobileSidebarOpen: false }" x-cloak class="min-h-screen">
         {{-- Mobile overlay --}}
         <div x-show="mobileSidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-black/40 lg:hidden"
             @click="mobileSidebarOpen = false" x-cloak></div>
@@ -66,7 +69,19 @@
     </script>
 
 
+    @livewireScripts
 
+    <script>
+        function initLucide() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", initLucide);
+        document.addEventListener("livewire:navigated", initLucide);
+        document.addEventListener("livewire:updated", initLucide);
+    </script>
 </body>
 
 </html>

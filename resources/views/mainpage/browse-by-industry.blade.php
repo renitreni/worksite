@@ -1,76 +1,147 @@
-<section class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section id="industries" class="py-16 bg-gradient-to-b from-white to-gray-50">
 
-        <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
-                Browse by Industry
+    <div class="max-w-7xl mx-auto px-6">
+
+        <!-- Header -->
+        <div class="text-center max-w-2xl mx-auto">
+
+            <h2 class="section-title text-3xl md:text-4xl font-semibold text-gray-900">
+                Browse Jobs by Industry
             </h2>
-            <p class="text-gray-600 mt-3 max-w-xl mx-auto">
-                Discover the most in-demand OFW job categories and opportunities.
+
+            <p class="mt-4 text-gray-600 text-sm sm:text-base leading-relaxed">
+                Explore the most in-demand overseas career opportunities across
+                industries trusted by Filipino workers.
             </p>
+
         </div>
 
+        @if (($industryCards ?? collect())->count())
+
+            <!-- INDUSTRY CHIPS -->
+            <div class="mt-10 overflow-x-auto">
+
+                <div class="flex gap-2 w-max sm:flex-wrap sm:w-full sm:justify-center">
+
+                    @foreach ($industryCards->take(6) as $item)
+                        <a href="{{ route('industries.jobs', $item['id']) }}"
+                            class="px-4 py-2 text-xs sm:text-sm
+                            bg-white border border-gray-200
+                            rounded-full
+                            text-gray-700
+                            whitespace-nowrap
+                            hover:border-green-500 hover:text-green-600
+                            transition">
+
+                            {{ $item['name'] }}
+
+                        </a>
+                    @endforeach
+
+                </div>
+
+            </div>
+
+        @endif
+
+
+        <!-- Divider -->
+        <div class="mt-12 border-t border-gray-100"></div>
+
+
         @if (($industryCards ?? collect())->count() === 0)
-            <div class="max-w-2xl mx-auto bg-white border border-gray-200 rounded-2xl p-8 text-center">
-                <p class="text-gray-700 font-medium">No industries yet.</p>
-                <p class="text-gray-500 text-sm mt-1">Once industries and jobs are available, they will appear here.</p>
+
+            <!-- Empty State -->
+            <div class="max-w-xl mx-auto bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-sm mt-12">
+
+                <p class="text-gray-700 font-medium">
+                    No industries available yet
+                </p>
+
+                <p class="text-gray-500 text-sm mt-2">
+                    Industries will appear here once job categories are added.
+                </p>
+
             </div>
         @else
-            <div x-data="{
+            <!-- GRID + ALPINE -->
+            <div class="mt-12" x-data="{
                 total: {{ $industryCards->count() }},
                 step: 4,
                 shown: 4,
+                initial: 4,
                 init() {
-                    // ✅ md+ show 8 initially, mobile show 4
-                    this.shown = window.matchMedia('(min-width: 768px)').matches ? 8 : 4;
-            
-                    // ✅ keep correct when resizing
-                    window.addEventListener('resize', () => {
-                        const desired = window.matchMedia('(min-width: 768px)').matches ? 8 : 4;
-                        // only increase if user hasn't loaded more yet
-                        if (this.shown <= 8) this.shown = desired;
-                    });
+                    this.initial = window.innerWidth >= 768 ? 8 : 4;
+                    this.shown = this.initial;
                 },
                 loadMore() {
                     this.shown = Math.min(this.shown + this.step, this.total);
+                },
+                seeLess() {
+                    this.shown = this.initial;
+            
+                    this.$nextTick(() => {
+                        document.getElementById('industries')
+                            .scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
                 }
             }">
 
+                <!-- Industry Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
                     @foreach ($industryCards as $i => $item)
-                        <x-industry-card :item="$item" :href="route('jobs.index', ['industry_id' => $item['id']])" x-show="{{ $i }} < shown"
-                            x-transition.opacity.duration.200ms />
+                        <x-industry-card x-cloak :item="$item" x-show="{{ $i }} < shown"
+                            x-transition.opacity />
                     @endforeach
+
                 </div>
 
-                <div class="mt-12 flex justify-center" x-show="shown < total" x-cloak>
 
-                    <button type="button" @click="loadMore()"
+                <!-- Buttons -->
+                <div class="mt-16 flex justify-center gap-4">
+
+                    <!-- LOAD MORE -->
+                    <button x-show="shown < total" x-cloak @click="loadMore()"
                         class="inline-flex items-center gap-2
-               rounded-xl border border-slate-300
-               bg-white px-8 py-3
-               text-sm font-semibold text-slate-700
-               shadow-sm
-               transition-all duration-200
-               hover:border-slate-400
-               hover:bg-slate-50
-               active:scale-[0.98]
-               focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        bg-green-600 hover:bg-green-700
+                        text-white font-semibold
+                        px-8 py-3 rounded-xl
+                        shadow-md hover:shadow-lg
+                        transition duration-200">
 
                         Load More
 
-                        <!-- subtle arrow -->
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+
                         </svg>
 
                     </button>
 
+
+                    <!-- SEE LESS -->
+                    <button x-show="shown >= total && total > initial" x-cloak @click="seeLess()"
+                        class="inline-flex items-center gap-2
+                        border border-green-600
+                        text-green-700
+                        px-8 py-3 rounded-xl
+                        font-semibold
+                        hover:bg-green-50
+                        transition">
+
+                        See Less
+
+                    </button>
+
                 </div>
+
             </div>
+
         @endif
 
     </div>
+
 </section>

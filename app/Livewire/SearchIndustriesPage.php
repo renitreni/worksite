@@ -34,7 +34,7 @@ class SearchIndustriesPage extends Component
             ->open()
             ->notHeld()
             ->notDisabled()
-            ->whereColumn('job_posts.industry', 'industries.name'); // ✅ string match
+            ->whereColumn('job_posts.industry', 'industries.name');
 
         return Industry::query()
             ->where('is_active', true)
@@ -45,38 +45,52 @@ class SearchIndustriesPage extends Component
             ->addSelect([
                 'jobs_count' => $jobsCountSub,
             ])
-            ->orderBy('sort_order')
+            ->orderByDesc('jobs_count')   // ⭐ MOST JOBS FIRST
+            ->orderBy('sort_order')       // fallback
             ->orderBy('name');
     }
 
     /**
-     * Always return 3 skills per industry.
+     * Generate 3 skills per industry.
      * Priority:
-     * 1) Top skills used in that industry's jobs (open/notHeld/notDisabled)
-     *    - sorted by usage count desc
-     *    - tie-break by skills.sort_order
-     * 2) If none found, fallback to global top 3 skills (skills table sort_order)
+     * 1) Skills used in job posts (ranked by frequency)
+     * 2) Fallback to industry's own skills table
      */
     private function skillsMap(array $industryNames): array
     {
-        // ✅ Global skill order map (for sorting)
-        $allSkills = Skill::query()
+        $map = [];
+
+        /**
+         * ------------------------------------------------
+         * 1️⃣ Load fallback skills from industries table
+         * ------------------------------------------------
+         */
+        $industrySkills = Skill::query()
             ->where('is_active', true)
+            ->whereHas('industry', function ($q) use ($industryNames) {
+                $q->whereIn('name', $industryNames);
+            })
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->pluck('sort_order', 'name')
+            ->get()
+            ->groupBy(fn($s) => $s->industry->name)
+            ->map(fn($g) => $g->pluck('name')->take(3)->values()->all())
             ->toArray();
 
-        // ✅ Fallback top 3 skills (always show kahit walang jobs)
-        $fallbackTop3 = array_slice(array_keys($allSkills), 0, 3);
-
-        // Initialize map with fallback (so even 0 job industries have skills)
-        $map = [];
+        /**
+         * ------------------------------------------------
+         * 2️⃣ Initialize fallback map
+         * ------------------------------------------------
+         */
         foreach ($industryNames as $name) {
-            $map[$name] = $fallbackTop3;
+            $map[$name] = $industrySkills[$name] ?? [];
         }
 
-        // Pull skills string from jobs
+        /**
+         * ------------------------------------------------
+         * 3️⃣ Get skills used in job posts
+         * ------------------------------------------------
+         */
         $rows = JobPost::query()
             ->open()
             ->notHeld()
@@ -84,19 +98,21 @@ class SearchIndustriesPage extends Component
             ->whereIn('industry', $industryNames)
             ->get(['industry', 'skills']);
 
-        // Count skill usage per industry
-        $counts = []; // $counts[industry][skill] = frequency
+        $counts = [];
 
         foreach ($rows as $r) {
+
             $industry = (string) $r->industry;
             $raw = $r->skills;
 
-            if (!$raw) continue;
+            if (!$raw)
+                continue;
 
             $skills = [];
 
-            // ✅ supports JSON array or CSV
             $rawStr = trim((string) $raw);
+
+            // JSON support
             if (str_starts_with($rawStr, '[')) {
                 $decoded = json_decode($rawStr, true);
                 if (is_array($decoded)) {
@@ -104,12 +120,13 @@ class SearchIndustriesPage extends Component
                 }
             }
 
+            // CSV fallback
             if (empty($skills)) {
                 $skills = preg_split('/[,|]/', $rawStr) ?: [];
             }
 
             $skills = collect($skills)
-                ->map(fn ($s) => trim((string) $s))
+                ->map(fn($s) => trim((string) $s))
                 ->filter()
                 ->values()
                 ->all();
@@ -120,48 +137,46 @@ class SearchIndustriesPage extends Component
             }
         }
 
-        // Build top 3 per industry from counts (if any)
+        /**
+         * ------------------------------------------------
+         * 4️⃣ Select top 3 skills per industry
+         * ------------------------------------------------
+         */
         foreach ($industryNames as $industry) {
+
             $list = $counts[$industry] ?? [];
 
             if (empty($list)) {
-                // keep fallbackTop3
-                continue;
+                continue; // keep fallback
             }
-
-            // sort by:
-            // 1) usage desc
-            // 2) skills.sort_order asc (if exists, else 999999)
-            // 3) name asc
-            $sorted = collect($list)
-                ->sort(function ($aCount, $bCount, $aKey = null, $bKey = null) {
-                    // not used: we’ll do custom below
-                    return 0;
-                });
 
             $keys = array_keys($list);
 
-            usort($keys, function ($a, $b) use ($list, $allSkills) {
+            usort($keys, function ($a, $b) use ($list) {
+
                 $ca = $list[$a] ?? 0;
                 $cb = $list[$b] ?? 0;
 
-                if ($ca !== $cb) return $cb <=> $ca; // usage desc
+                if ($ca !== $cb) {
+                    return $cb <=> $ca; // highest usage first
+                }
 
-                $sa = $allSkills[$a] ?? 999999;
-                $sb = $allSkills[$b] ?? 999999;
-
-                if ($sa !== $sb) return $sa <=> $sb; // sort_order asc
-
-                return strcmp($a, $b); // name asc
+                return strcmp($a, $b); // alphabetical
             });
 
             $top3 = array_slice($keys, 0, 3);
 
-            // If less than 3, pad using fallback (unique)
+            // pad if less than 3
             if (count($top3) < 3) {
-                foreach ($fallbackTop3 as $fb) {
-                    if (count($top3) >= 3) break;
-                    if (!in_array($fb, $top3, true)) $top3[] = $fb;
+
+                foreach ($map[$industry] as $fallback) {
+
+                    if (count($top3) >= 3)
+                        break;
+
+                    if (!in_array($fallback, $top3)) {
+                        $top3[] = $fallback;
+                    }
                 }
             }
 
@@ -176,6 +191,7 @@ class SearchIndustriesPage extends Component
         $industries = $this->query()->paginate(8);
 
         $names = $industries->getCollection()->pluck('name')->all();
+
         $skillsMap = $this->skillsMap($names);
 
         return view('livewire.search-industries-page', compact('industries', 'skillsMap'));

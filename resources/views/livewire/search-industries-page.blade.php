@@ -1,9 +1,9 @@
 <div>
-    <header class="w-full">
+    <header class="w-full py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
             <div class="mb-6 sm:mb-8">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+                <h1 class="section-title text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
                     Browse Job <span class="text-[#16A34A]">Industries</span>
                 </h1>
                 <p class="mt-2 text-gray-600 max-w-2xl">
@@ -66,6 +66,7 @@
             @forelse($industries as $ind)
                 @php
                     $item = [
+                        'id' => $ind->id,
                         'name' => $ind->name,
                         'image' => $ind->image ?? null,
                         'jobs' => (int) ($ind->jobs_count ?? 0),
@@ -73,10 +74,10 @@
                     ];
 
                     // optional: clicking industry leads to jobs page filtered by industry
-                    $href = route('search-jobs', ['industry' => $ind->name]);
+
                 @endphp
 
-                <x-industry-card :item="$item" :href="$href" />
+                <x-industry-card :item="$item" />
             @empty
                 <div class="col-span-full bg-white border border-gray-200 rounded-2xl p-8 text-center">
                     <p class="text-gray-700 font-medium">No industries found.</p>

@@ -1,9 +1,9 @@
-@extends('mainpage.agency-details-page.layout')
+@extends('main')
 
 @section('title', 'Agency Profile | Worksite')
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
 
         {{-- HEADER --}}
         @include('mainpage.agency-details-page.agency.partials._header', [

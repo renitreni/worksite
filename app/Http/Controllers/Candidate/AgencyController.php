@@ -12,17 +12,22 @@ class AgencyController extends Controller
 {
     public function jobs(EmployerProfile $employerProfile)
     {
-        // ✅ optional: block unapproved agencies
-        $employerProfile->loadMissing('verification');
-        if (!$employerProfile->verification || $employerProfile->verification->status !== 'approved') {
+        $employerProfile->loadMissing(['verification', 'user']);
+
+        // ✅ Block unapproved OR disabled agencies
+        if (
+            !$employerProfile->verification ||
+            $employerProfile->verification->status !== 'approved' ||
+            !$employerProfile->user ||
+            $employerProfile->user->account_status !== 'active' ||
+            $employerProfile->user->archived_at
+        ) {
             abort(404);
         }
 
-        $employerProfile->load(['user:id,email']);
-
-
         $jobs = $employerProfile->jobPosts()
             ->where('status', 'open')
+            ->where('is_disabled', false) // ✅ hide disabled jobs
             ->orderByDesc('posted_at')
             ->orderByDesc('created_at')
             ->paginate(9);
@@ -30,6 +35,7 @@ class AgencyController extends Controller
         $featuredJobs = JobPost::query()
             ->with(['employerProfile:id,company_name'])
             ->where('status', 'open')
+            ->where('is_disabled', false) // ✅ hide disabled jobs
             ->orderByDesc('posted_at')
             ->orderByDesc('created_at')
             ->take(9)
@@ -44,21 +50,26 @@ class AgencyController extends Controller
 
     public function show(EmployerProfile $employerProfile)
     {
-        // ✅ optional: block unapproved agencies
-        $employerProfile->loadMissing('verification');
-        if (!$employerProfile->verification || $employerProfile->verification->status !== 'approved') {
+        $employerProfile->loadMissing(['verification', 'user']);
+
+        // ✅ Block unapproved OR disabled agencies
+        if (
+            !$employerProfile->verification ||
+            $employerProfile->verification->status !== 'approved' ||
+            !$employerProfile->user ||
+            $employerProfile->user->account_status !== 'active' ||
+            $employerProfile->user->archived_at
+        ) {
             abort(404);
         }
 
-        // ✅ Views count: authenticated only + once per day per user
+        // ✅ Count profile views once per user per day
         if (Auth::check()) {
-            $userId = Auth::id();
-            $today = now()->toDateString();
 
             $inserted = DB::table('employer_profile_views')->insertOrIgnore([
                 'employer_profile_id' => $employerProfile->id,
-                'user_id' => $userId,
-                'viewed_on' => $today,
+                'user_id' => Auth::id(),
+                'viewed_on' => now()->toDateString(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -68,21 +79,22 @@ class AgencyController extends Controller
             }
         }
 
-        // jobs list (open only)
+        // ✅ Jobs list
         $jobs = $employerProfile->jobPosts()
             ->where('status', 'open')
+            ->where('is_disabled', false) // ✅ hide disabled jobs
             ->orderByDesc('posted_at')
             ->orderByDesc('created_at')
             ->paginate(6);
 
         $openJobsCount = $employerProfile->jobPosts()
             ->where('status', 'open')
+            ->where('is_disabled', false) // ✅ exclude disabled
             ->count();
 
-        // ✅ load correct relations (pivot industries, not industry)
         $employerProfile->load([
             'user:id,name,email',
-            'industries:id,name',     // ✅ MANY industries via pivot
+            'industries:id,name',
             'verification:id,employer_profile_id,status',
         ]);
 

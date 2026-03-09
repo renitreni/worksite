@@ -1,11 +1,16 @@
-<section class="py-16">
+<section class="py-16 bg-gray-50">
     <div class="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
-        <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Featured Agencies</h2>
-            <p class="text-gray-600 mt-3 max-w-xl mx-auto">
-                Connect with trusted recruitment agencies hiring now
+        <div class="text-center max-w-2xl mx-auto mb-14">
+
+            <h2 class="section-title text-3xl md:text-4xl font-semibold text-gray-900">
+                Featured Agencies
+            </h2>
+
+            <p class="mt-4 text-gray-600 text-sm sm:text-base leading-relaxed">
+                Connect with trusted recruitment agencies actively hiring overseas workers.
             </p>
+
         </div>
 
         @php $totalAgencies = $featuredAgencies->count(); @endphp
@@ -48,8 +53,8 @@
                 </button>
 
                 <!-- TRACK -->
-                <div x-ref="carousel" @mouseenter="pause=true" @mouseleave="pause=false"
-                    class="flex overflow-x-hidden space-x-5 scrollbar-hide snap-x snap-mandatory">
+                <div x-ref="carousel" @mouseenter="pause = true" @mouseleave="pause = false"
+                    class="flex overflow-hidden gap-5">
                     @foreach ($featuredAgencies as $agency)
                         <x-agency-card :agency="$agency" />
                     @endforeach
@@ -58,175 +63,170 @@
         @endif
     </div>
 
-    <!-- Alpine.js Carousel -->
     <script>
         function carousel(total) {
             return {
-                total,
 
+                total,
                 pause: false,
-                speed: 0.6,
+                speed: 0.5,
 
                 rafId: null,
                 cardWidth: 0,
                 halfWidth: 0,
                 el: null,
 
-                perView: 4,
                 showArrows: false,
                 canLoop: false,
 
                 originalCount: 0,
-                onResize: null,
+                resumeTimer: null,
 
                 init() {
+
                     this.el = this.$refs.carousel;
                     this.originalCount = this.el.children.length;
 
                     this.updateMode();
 
-                    this.onResize = () => {
-                        const prevCanLoop = this.canLoop;
+                    window.addEventListener("resize", () => {
                         this.updateMode();
-
-                        if (prevCanLoop !== this.canLoop) {
-                            this.syncClones();
-                            this.measure();
-
-                            if (this.canLoop) this.start();
-                            else {
-                                this.stop();
-                                this.el.scrollLeft = 0;
-                            }
-                        } else {
-                            this.measure();
-                        }
-                    };
-
-                    window.addEventListener("resize", this.onResize);
-
-                    this.$nextTick(() => {
-                        if (window.lucide) lucide.createIcons();
                         this.syncClones();
                         this.measure();
-                        if (this.canLoop) this.start(); // ✅ only start if should loop
-                        else this.stop(); // ✅ ensure stopped
                     });
+
+                    this.$nextTick(() => {
+
+                        if (window.lucide) lucide.createIcons();
+
+                        this.syncClones();
+                        this.measure();
+
+                        if (this.canLoop) this.start();
+
+                    });
+
                 },
 
-                // ✅ single source of truth
                 updateMode() {
+
                     const w = window.innerWidth;
 
-                    // thresholds (your requested behavior)
-                    // mobile: 1 card fits, so loop when total > 1
-                    // tablet: 3 cards fits, so loop when total > 3
-                    // desktop: 4 cards fits, so loop when total > 4
-                    let threshold = 4;
+                    let threshold = 3;
 
-                    if (w < 640) threshold = 1; // mobile
-                    else if (w < 1024) threshold = 3; // tablet
-                    else threshold = 4; // desktop
+                    if (w < 640) threshold = 1;
+                    else if (w < 1024) threshold = 2;
+                    else threshold = 3;
 
                     this.canLoop = this.total > threshold;
                     this.showArrows = this.canLoop;
 
-                    if (!this.canLoop) this.stop();
                 },
 
                 syncClones() {
+
                     if (!this.el) return;
 
-                    // remove clones
                     while (this.el.children.length > this.originalCount) {
                         this.el.removeChild(this.el.lastElementChild);
                     }
 
-                    // add clones only when looping
                     if (this.canLoop) {
+
                         const originals = Array.from(this.el.children).slice(0, this.originalCount);
-                        originals.forEach(node => this.el.appendChild(node.cloneNode(true)));
+
+                        originals.forEach(node => {
+                            this.el.appendChild(node.cloneNode(true));
+                        });
+
                     }
+
                 },
 
                 measure() {
-                    if (!this.el || this.el.children.length === 0) return;
+
+                    if (!this.el.children.length) return;
+
                     const first = this.el.children[0];
-                    const styles = window.getComputedStyle(this.el);
-                    const gap = parseFloat(styles.columnGap || styles.gap || 20);
+                    const gap = 20;
 
                     this.cardWidth = first.offsetWidth + gap;
                     this.halfWidth = this.el.scrollWidth / 2;
+
                 },
 
                 start() {
-                    if (!this.canLoop || this.rafId) return;
+
+                    if (this.rafId) return;
 
                     const animate = () => {
-                        if (this.canLoop && !this.pause) {
+
+                        if (!this.pause && this.canLoop) {
+
                             this.el.scrollLeft += this.speed;
+
                             if (this.el.scrollLeft >= this.halfWidth) {
                                 this.el.scrollLeft -= this.halfWidth;
                             }
+
                         }
+
                         this.rafId = requestAnimationFrame(animate);
+
                     };
 
                     this.rafId = requestAnimationFrame(animate);
+
                 },
 
                 stop() {
+
                     if (this.rafId) cancelAnimationFrame(this.rafId);
                     this.rafId = null;
+
                 },
 
-                normalize() {
-                    if (!this.halfWidth) return;
-                    if (this.el.scrollLeft < 0) this.el.scrollLeft += this.halfWidth;
-                    if (this.el.scrollLeft >= this.halfWidth) this.el.scrollLeft -= this.halfWidth;
-                },
+                pauseAutoplay() {
 
-                snapToNearest() {
-                    if (!this.cardWidth) return;
-                    this.normalize();
-                    const target = Math.round(this.el.scrollLeft / this.cardWidth) * this.cardWidth;
-                    this.el.scrollTo({
-                        left: target,
-                        behavior: "smooth"
-                    });
-                },
-
-                next() {
-                    if (!this.showArrows) return;
                     this.pause = true;
-                    this.normalize();
+
+                    clearTimeout(this.resumeTimer);
+
+                    this.resumeTimer = setTimeout(() => {
+                        this.pause = false;
+                    }, 3000); // 3 seconds
+
+                },
+                next() {
+
+                    if (!this.showArrows) return;
+
+                    this.pauseAutoplay();
+
+                    const containerWidth = this.el.offsetWidth;
+                    const target = this.el.scrollLeft + this.cardWidth;
+
                     this.el.scrollTo({
-                        left: this.el.scrollLeft + this.cardWidth,
+                        left: target - (containerWidth / 2 - this.cardWidth / 2),
                         behavior: "smooth"
                     });
-                    setTimeout(() => {
-                        this.snapToNearest();
-                        this.pause = false;
-                    }, 350);
+
                 },
 
                 prev() {
+
                     if (!this.showArrows) return;
-                    this.pause = true;
-                    this.normalize();
+
+                    this.pauseAutoplay();
+
+                    const containerWidth = this.el.offsetWidth;
+                    const target = this.el.scrollLeft - this.cardWidth;
+
                     this.el.scrollTo({
-                        left: this.el.scrollLeft - this.cardWidth,
+                        left: target - (containerWidth / 2 - this.cardWidth / 2),
                         behavior: "smooth"
                     });
-                    setTimeout(() => {
-                        this.snapToNearest();
-                        this.pause = false;
-                    }, 350);
-                },
 
-                destroy() {
-                    this.stop();
-                    if (this.onResize) window.removeEventListener("resize", this.onResize);
                 }
             }
         }

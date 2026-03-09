@@ -1,6 +1,4 @@
-@props([
-    'agency',
-])
+@props(['agency'])
 
 @php
     $companyName = $agency->company_name ?? 'Agency';
@@ -26,10 +24,8 @@
     <div class="p-5">
         <div class="flex items-start gap-4">
             {{-- LOGO / PLACEHOLDER --}}
-            @if($logoExists)
-                <img
-                    src="{{ asset('storage/' . $agency->logo_path) }}"
-                    alt="{{ $companyName }}"
+            @if ($logoExists)
+                <img src="{{ asset('storage/' . $agency->logo_path) }}" alt="{{ $companyName }}"
                     class="w-16 h-16 rounded-xl object-cover border border-gray-200 bg-white shrink-0">
             @else
                 <div class="w-16 h-16 rounded-xl grid place-items-center ring-1 {{ $bgClasses[$pick] }} shrink-0">
@@ -39,18 +35,18 @@
 
             <div class="min-w-0 flex-1">
                 <!-- Company name: fixed 2 lines -->
-                <h3 class="text-base font-semibold text-gray-900 leading-snug line-clamp-2 min-h-[2.6rem]">
+                <h3 class="section-title text-base font-semibold text-gray-900 leading-snug line-clamp-2 min-h-[2.6rem]">
                     {{ $companyName }}
                 </h3>
 
-                <p class="mt-1 text-sm font-medium text-green-700">
-                    {{ $agency->open_jobs_count ?? 0 }} jobs available
+                <p class="mt-1 text-sm font-semibold text-green-600">
+                     {{ $agency->open_jobs_count ?? 0 }} jobs available
                 </p>
             </div>
         </div>
 
         <!-- Description: fixed 2 lines -->
-        <p class="mt-4 text-sm text-gray-600 leading-relaxed line-clamp-2 min-h-[2.5rem]">
+        <p class="mt-4 text-sm text-gray-500 leading-relaxed line-clamp-2 min-h-[2.5rem]">
             {{ $agency->description ?? 'Trusted recruitment agency hiring now.' }}
         </p>
 
@@ -82,17 +78,15 @@
     <!-- Card Footer -->
     <div class="px-5 pb-5 pt-0">
         <div class="flex items-center gap-3">
-            <a
-                href="{{ route('agency.details', $agency->id) }}"
-                class="text-white bg-[#16A34A] px-4 py-2.5 rounded-xl font-semibold
+            <a href="{{ route('agency.details', $agency->id) }}"
+                class="text-white bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-xl font-semibold
                        hover:bg-green-700 transition text-center flex-1 text-sm">
                 View Profile
             </a>
 
-            <button
-                type="button"
+            <button type="button"
                 class="w-11 h-11 rounded-xl border border-gray-200 grid place-items-center
-                       text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition">
+                       text-gray-500 hover:bg-green-50 hover:text-green-600 transition">
                 <i data-lucide="bookmark" class="w-5 h-5"></i>
             </button>
         </div>

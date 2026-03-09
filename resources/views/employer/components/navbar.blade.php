@@ -1,6 +1,5 @@
-<header class="sticky top-0 z-30 bg-white border-b border-gray-200">
-    <div class="h-16 px-3 sm:px-6 lg:px-8 flex items-center">
-
+<header wire:ignore.self class="sticky top-0 z-30 bg-white border-b border-gray-200">
+    <div class="h-16 min-h-[64px] px-3 sm:px-6 lg:px-8 flex items-center">
         {{-- Mobile hamburger --}}
         <button type="button"
             class="lg:hidden inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition"
@@ -37,11 +36,10 @@
                 <i data-lucide="bar-chart-2" class="h-5 w-5 text-gray-600"></i>
             </button>
 
-            <x-notification-bell />
-
+            <x-notification-bell wire:ignore />
 
             {{-- Profile Dropdown --}}
-            <div x-data="{ open: false }" class="relative">
+            <div x-cloak x-data="{ open: false }" class="relative">
                 <button type="button" @click="open = !open"
                     class="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-2 sm:px-3 py-2 hover:bg-gray-50 transition cursor-pointer">
                     <div class="h-9 w-9 rounded-full bg-gray-200 flex items-center justify-center ring-2 ring-gray-100">
@@ -56,7 +54,7 @@
                     </div>
                     <i data-lucide="chevron-down" class="hidden md:block h-4 w-4 text-gray-500"></i>
                 </button>
-                <div x-show="open" x-transition @click.outside="open = false"
+                <div x-show="open" x-transition.opacity.scale.origin.top.right @click.outside="open = false"
                     class="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50">
                     <a href="{{ route('employer.company-profile') }}"
                         class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
@@ -80,7 +78,3 @@
         </div>
     </div>
 </header>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => window.lucide?.createIcons());
-</script>

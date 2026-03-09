@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @php
     use App\Models\Setting;
@@ -17,6 +17,10 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="canonical" href="{{ url()->current() }}">
+
+    
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
 
     <style>
         [x-cloak] {
@@ -52,14 +56,27 @@
 
             {{-- Page content --}}
             <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-    @yield('content')
-</div>
+        @yield('content')
+            </div>
 
         </main>
     </div>
 
+
     <script>
-        window.userId = @json(auth('admin')->id());
+        document.addEventListener('livewire:navigated', () => {
+
+            // Reinitialize Lucide icons
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+            // Reinitialize charts if needed
+            if (typeof initCharts === 'function') {
+                initCharts();
+            }
+
+        });
     </script>
     @livewireScripts
 

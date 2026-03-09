@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\SubscriptionPaymentUpdated;
+use App\Mail\SubscriptionPaymentApprovedMail;
+use App\Mail\SubscriptionPaymentFailedMail;
+use Illuminate\Support\Facades\Mail;
 
 
 
@@ -104,6 +107,9 @@ class PaymentController extends Controller
             new SubscriptionPaymentUpdated($payment, 'approved')
         );
 
+        Mail::to($payment->employer->email)
+            ->send(new SubscriptionPaymentApprovedMail($payment));
+
         return back()->with('success', 'Payment verified. Subscription activated.');
     }
 
@@ -132,6 +138,9 @@ class PaymentController extends Controller
         $payment->employer?->notify(
             new SubscriptionPaymentUpdated($payment, 'failed')
         );
+
+        Mail::to($payment->employer->email)
+            ->send(new SubscriptionPaymentFailedMail($payment));
 
         return back()->with('info', 'Payment marked as failed.');
     }

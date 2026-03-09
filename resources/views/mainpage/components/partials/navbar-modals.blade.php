@@ -21,7 +21,8 @@
                 <!-- ✅ change routes here if you have separate login pages -->
                 <a href="/candidate/login"
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
-                    <div class="mt-0.5 h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center border border-green-200">
+                    <div
+                        class="mt-0.5 h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center border border-green-200">
                         <i data-lucide="user" class="w-5 h-5 text-green-700"></i>
                     </div>
                     <div class="flex-1">
@@ -36,7 +37,8 @@
 
                 <a href="/employer/login"
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
-                    <div class="mt-0.5 h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
+                    <div
+                        class="mt-0.5 h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
                         <i data-lucide="briefcase" class="w-5 h-5 text-emerald-700"></i>
                     </div>
                     <div class="flex-1">
@@ -82,7 +84,8 @@
             <div class="p-5 space-y-3">
                 <a href="/candidate/register"
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
-                    <div class="mt-0.5 h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center border border-green-200">
+                    <div
+                        class="mt-0.5 h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center border border-green-200">
                         <i data-lucide="user" class="w-5 h-5 text-green-700"></i>
                     </div>
                     <div class="flex-1">
@@ -97,7 +100,8 @@
 
                 <a href="/employer/register"
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
-                    <div class="mt-0.5 h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
+                    <div
+                        class="mt-0.5 h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
                         <i data-lucide="briefcase" class="w-5 h-5 text-emerald-700"></i>
                     </div>
                     <div class="flex-1">
@@ -121,86 +125,3 @@
     </div>
 </div>
 
-<!-- ✅ Scripts -->
-<script>
-
-    // Mobile main menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    mobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-
-    // Mobile Search dropdown toggle
-    const mobileSearchBtn = document.getElementById('mobile-search-btn');
-    const mobileSearchDropdown = document.getElementById('mobile-search-dropdown');
-    const mobileSearchIcon = document.getElementById('mobile-search-icon');
-
-    mobileSearchBtn.addEventListener('click', () => {
-        mobileSearchDropdown.classList.toggle('hidden');
-        mobileSearchIcon.classList.toggle('rotate-180');
-    });
-
-    // ✅ REGISTER MODAL (no scrollbar hiding)
-    const registerModal = document.getElementById('registerModal');
-    const registerOverlay = document.getElementById('registerOverlay');
-    const registerBtnDesktop = document.getElementById('registerBtnDesktop');
-    const registerBtnMobile = document.getElementById('registerBtnMobile');
-    const registerCloseBtn = document.getElementById('registerCloseBtn');
-    const registerCancelBtn = document.getElementById('registerCancelBtn');
-
-    function openRegisterModal() {
-        registerModal.classList.remove('hidden');
-        lucide.createIcons();
-    }
-
-    function closeRegisterModal() {
-        registerModal.classList.add('hidden');
-    }
-
-    registerBtnDesktop?.addEventListener('click', openRegisterModal);
-    registerBtnMobile?.addEventListener('click', () => {
-        openRegisterModal();
-        mobileMenu.classList.add('hidden');
-    });
-
-    registerCloseBtn?.addEventListener('click', closeRegisterModal);
-    registerCancelBtn?.addEventListener('click', closeRegisterModal);
-    registerOverlay?.addEventListener('click', closeRegisterModal);
-
-    // ✅ LOGIN MODAL (no scrollbar hiding)
-    const loginModal = document.getElementById('loginModal');
-    const loginOverlay = document.getElementById('loginOverlay');
-    const loginBtnDesktop = document.getElementById('loginBtnDesktop');
-    const loginBtnMobile = document.getElementById('loginBtnMobile');
-    const loginCloseBtn = document.getElementById('loginCloseBtn');
-    const loginCancelBtn = document.getElementById('loginCancelBtn');
-
-    function openLoginModal() {
-        loginModal.classList.remove('hidden');
-        lucide.createIcons();
-    }
-
-    function closeLoginModal() {
-        loginModal.classList.add('hidden');
-    }
-
-    loginBtnDesktop?.addEventListener('click', openLoginModal);
-    loginBtnMobile?.addEventListener('click', () => {
-        openLoginModal();
-        mobileMenu.classList.add('hidden');
-    });
-
-    loginCloseBtn?.addEventListener('click', closeLoginModal);
-    loginCancelBtn?.addEventListener('click', closeLoginModal);
-    loginOverlay?.addEventListener('click', closeLoginModal);
-
-    // ESC closes whichever is open
-    document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') return;
-
-        if (!loginModal.classList.contains('hidden')) closeLoginModal();
-        if (!registerModal.classList.contains('hidden')) closeRegisterModal();
-    });
-</script>

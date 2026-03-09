@@ -32,6 +32,15 @@ Route::get('/jobs/{job}', [JobBrowseController::class, 'show'])->name('jobs.show
 Route::get('/agency/{employerProfile}/jobs', [AgencyController::class, 'jobs'])->name('agency.jobs');
 Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])->name('agency.details');
 
+Route::get('/industries/{industry}', [HomeController::class, 'industryJobs'])
+    ->name('industries.jobs');
+
+Route::view('/about','mainpage.about-us')->name('about');
+Route::view('/contact','mainpage.contact-us')->name('contact');
+Route::view('/privacy-policy','mainpage.privacy-policy')->name('privacy-policy');
+Route::view('/terms-of-service','mainpage.terms-of-service')->name('terms-of-service');
+Route::view('/faqs','mainpage.faqs')->name('faqs');
+Route::view('/help-center','mainpage.help-center')->name('help-center');
 
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -40,6 +49,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/all-notifications', [NotificationController::class, 'all'])
         ->name('notifications.all');
 });
+
+
+//help center articles
+
+Route::get('/help/{category}', function ($category) {
+    return view('mainpage.help-category', compact('category'));
+})->name('help.category');
 
 /*
 |--------------------------------------------------------------------------

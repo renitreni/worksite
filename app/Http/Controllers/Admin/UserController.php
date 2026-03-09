@@ -10,6 +10,10 @@ use App\Models\EmployerSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\EmployerAccountApprovedMail;
+use App\Mail\EmployerAccountRejectedMail;
+use App\Mail\AccountDisabledMail;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -217,8 +221,20 @@ class UserController extends Controller
         abort_if($currentAdminId && $user->id === $currentAdminId, 403);
 
         $current = $user->account_status ?? 'active';
-        $user->account_status = ($current === 'active') ? 'disabled' : 'active';
+        $newStatus = ($current === 'active') ? 'disabled' : 'active';
+
+        $user->account_status = $newStatus;
         $user->save();
+
+        // Send email when disabled
+        if ($newStatus === 'disabled') {
+            Mail::to($user->email)->send(
+                new AccountDisabledMail(
+                    $user->name,
+                    $user->role
+                )
+            );
+        }
 
         return back()->with('success', 'User status updated.');
     }
@@ -233,6 +249,16 @@ class UserController extends Controller
 
         $user->account_status = $data['account_status'];
         $user->save();
+
+        // Send email if disabled
+        if ($data['account_status'] === 'disabled') {
+            Mail::to($user->email)->send(
+                new AccountDisabledMail(
+                    $user->name,
+                    $user->role
+                )
+            );
+        }
 
         return back()->with('success', 'User status updated.');
     }
@@ -270,8 +296,17 @@ class UserController extends Controller
             ]
         );
 
-        $user->account_status = 'active';
-        $user->save();
+        // Update user status
+        $user->update([
+            'account_status' => 'active'
+        ]);
+
+        Mail::to($user->email)->send(
+            new EmployerAccountApprovedMail(
+                $user->name,
+                $profile->company_name
+            )
+        );
 
         return back()->with('success', 'Employer approved successfully.');
     }
@@ -297,7 +332,8 @@ class UserController extends Controller
             ]
         );
 
-        $profile->verification()->updateOrCreate(
+        // ✅ Save verification to variable
+        $verification = $profile->verification()->updateOrCreate(
             ['employer_profile_id' => $profile->id],
             [
                 'status' => 'rejected',
@@ -307,8 +343,18 @@ class UserController extends Controller
             ]
         );
 
-        $user->account_status = 'hold';
-        $user->save();
+        // ✅ Send email
+        Mail::to($user->email)->send(
+            new EmployerAccountRejectedMail(
+                $user->name,
+                $profile->company_name,
+                $verification->rejection_reason
+            )
+        );
+
+        $user->update([
+            'account_status' => 'hold'
+        ]);
 
         return back()->with('success', 'Employer rejected successfully.');
     }

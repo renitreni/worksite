@@ -471,11 +471,10 @@
 
     </div>
 
-    {{-- Load Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        function initDashboardCharts() {
 
             // =========================
             // Helpers
@@ -542,7 +541,7 @@
                     setMetric('payments.revenue_completed', data.payments?.revenue_completed, fmtMoney);
                     setMetric('payments.pending_payments', data.payments?.pending_payments, fmtNumber);
                     setMetric('payments.expired_subscriptions', data.payments?.expired_subscriptions,
-                    fmtNumber);
+                        fmtNumber);
 
                 } catch (e) {
                     // if you want: console.debug(e);
@@ -789,6 +788,11 @@
             fetchAnalytics(currentRange);
             setInterval(() => fetchAnalytics(currentRange), analyticsIntervalMs);
 
-        });
+
+        }
+
+        document.addEventListener('DOMContentLoaded', initDashboardCharts);
+        document.addEventListener('livewire:navigated', initDashboardCharts);
     </script>
+
 @endsection

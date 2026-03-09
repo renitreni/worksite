@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\JobPost;
 use Illuminate\Http\Request;
 use App\Notifications\JobPostStatusUpdated;
+use App\Mail\JobPostHeldMail;
+use App\Mail\JobPostDisabledMail;
+use Illuminate\Support\Facades\Mail;
+
 
 class JobPostAdminController extends Controller
 {
@@ -45,23 +49,35 @@ class JobPostAdminController extends Controller
 
     public function hold(Request $request, JobPost $jobPost)
     {
-        $request->validate([
+        $data = $request->validate([
             'hold_reason' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $jobPost->update([
             'is_held' => true,
             'held_at' => now(),
-            'hold_reason' => $request->input('hold_reason'),
+            'hold_reason' => $data['hold_reason'],
             'held_by_user_id' => $request->user()?->id,
         ]);
 
-        // 🔔 Notify Employer
+        // 🔔 Notify Employer (database notification)
         $jobPost->employerProfile?->user?->notify(
             new JobPostStatusUpdated(
                 $jobPost,
                 'hold',
-                $request->input('hold_reason')
+                $data['hold_reason']
+            )
+        );
+
+        // 📧 Send Email
+        $company = $jobPost->employerProfile->company_name;
+        $user = $jobPost->employerProfile->user;
+
+        Mail::to($user->email)->send(
+            new JobPostHeldMail(
+                $company,
+                $jobPost->title,
+                $data['hold_reason']
             )
         );
 
@@ -86,14 +102,14 @@ class JobPostAdminController extends Controller
 
     public function disable(Request $request, JobPost $jobPost)
     {
-        $request->validate([
+        $data = $request->validate([
             'disabled_reason' => ['required', 'string', 'max:3000'],
         ]);
 
         $jobPost->update([
             'is_disabled' => true,
             'disabled_at' => now(),
-            'disabled_reason' => $request->input('disabled_reason'),
+            'disabled_reason' => $data['disabled_reason'],
             'disabled_by_user_id' => $request->user()?->id,
         ]);
 
@@ -101,13 +117,23 @@ class JobPostAdminController extends Controller
             new JobPostStatusUpdated(
                 $jobPost,
                 'disable',
-                $request->input('disabled_reason')
+                $data['disabled_reason']
+            )
+        );
+
+        $company = $jobPost->employerProfile->company_name;
+        $user = $jobPost->employerProfile->user;
+
+        Mail::to($user->email)->send(
+            new JobPostDisabledMail(
+                $company,
+                $jobPost->title,
+                $data['disabled_reason']
             )
         );
 
         return back()->with('success', 'Job post has been disabled.');
     }
-
     public function enable(Request $request, JobPost $jobPost)
     {
         $jobPost->update([
@@ -117,7 +143,7 @@ class JobPostAdminController extends Controller
             'disabled_by_user_id' => $request->user()?->id,
         ]);
 
-       $jobPost->employerProfile?->user?->notify(
+        $jobPost->employerProfile?->user?->notify(
             new JobPostStatusUpdated($jobPost, 'enable')
         );
 
