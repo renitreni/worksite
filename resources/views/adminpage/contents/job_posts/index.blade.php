@@ -40,7 +40,7 @@
 
         <select name="held"
           class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <option value="">Held</option>
+          
           <option value="1" {{ ($held ?? '') === '1' ? 'selected' : '' }}>Held</option>
           <option value="0" {{ ($held ?? '') === '0' ? 'selected' : '' }}>Not held</option>
         </select>

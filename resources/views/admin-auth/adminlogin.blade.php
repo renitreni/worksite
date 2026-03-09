@@ -80,7 +80,7 @@
                   name="email"
                   value="{{ old('email') }}"
                   class="w-full bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none"
-                  placeholder="admin@worksite.com"
+                  placeholder="name@example.com"
                   autocomplete="username"
                   required
                 />
@@ -98,7 +98,7 @@
                   type="password"
                   name="password"
                   class="w-full bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none"
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   autocomplete="current-password"
                   required
                 />
