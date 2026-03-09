@@ -15,8 +15,16 @@ class SavedJobController extends Controller
     {
         $userId = Auth::id();
 
-        // only allow open jobs to be saved (optional)
+        // Optional: only allow open jobs
         if ($job->status !== 'open') {
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This job is not available.'
+                ]);
+            }
+
             return back()->with('danger', 'This job is not available.');
         }
 
@@ -25,7 +33,16 @@ class SavedJobController extends Controller
             ->first();
 
         if ($existing) {
+
             $existing->delete();
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'saved' => false
+                ]);
+            }
+
             return back()->with('success', 'Removed from saved jobs.');
         }
 
@@ -34,18 +51,39 @@ class SavedJobController extends Controller
             'job_post_id' => $job->id,
         ]);
 
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'saved' => true
+            ]);
+        }
+
         return back()->with('success', 'Job saved successfully.');
     }
 
-    // Optional: list saved jobs page later
     public function index()
     {
-        $jobs = Auth::user()
-            ->savedJobPosts()
-            ->with('employerProfile:id,company_name,logo_path')
-            ->latest('saved_jobs.created_at')
+        $savedJobs = SavedJob::with([
+            'jobPost.employerProfile'
+        ])
+            ->where('user_id', Auth::id())
+            ->latest()
             ->get();
 
-        return view('mainpage.job-details-page.layout', compact('jobs'));
+        return view('candidate.contents.saved-jobs', compact('savedJobs'));
+    }
+
+
+    public function destroy($id)
+    {
+        $saved = SavedJob::where('user_id', Auth::id())
+            ->where('job_post_id', $id)
+            ->first();
+
+        if ($saved) {
+            $saved->delete();
+        }
+
+        return back()->with('success', 'Job removed from saved.');
     }
 }

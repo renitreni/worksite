@@ -54,89 +54,6 @@
         </script>
     @endverbatim
 
-    <style>
-        [x-cloak] {
-            display: none !important;
-        }
-
-        .hero-bg {
-            background-attachment: scroll !important;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        html {
-            scroll-behavior: smooth !important;
-        }
-
-        .hero-title {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .section-title {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .dropdown-link {
-            display: block;
-            padding: 10px 16px;
-            font-size: 14px;
-            color: #374151;
-        }
-
-        .dropdown-link:hover {
-            background: #f0fdf4;
-            color: #16A34A;
-        }
-
-        .nav-link {
-            position: relative;
-            transition: all .25s ease;
-        }
-
-        .nav-link:hover {
-            color: #22c55e;
-        }
-
-        #navbar {
-            transition: background .3s ease, box-shadow .3s ease;
-        }
-
-        /* SCROLLED NAVBAR */
-
-        .navbar-scrolled {
-            background: white !important;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .navbar-scrolled .nav-link {
-            color: #374151 !important;
-        }
-
-        .navbar-scrolled .nav-link:hover {
-            color: #16A34A !important;
-        }
-
-        /* Mobile icon color when scrolled */
-        .navbar-scrolled #icon-menu,
-        .navbar-scrolled #icon-close {
-            color: #374151 !important;
-        }
-
-        #mobile-menu {
-            background: white;
-        }
-
-        #icon-menu,
-        #icon-close {
-            transition: all .3s ease;
-        }
-    </style>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
@@ -154,10 +71,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
 
-            /* -----------------------
-               LUCIDE ICONS
-            ----------------------- */
-
             if (window.lucide) {
                 lucide.createIcons();
             }
@@ -167,10 +80,6 @@
             const mobileMenu = document.getElementById("mobile-menu");
             const iconMenu = document.getElementById("icon-menu");
             const iconClose = document.getElementById("icon-close");
-            /* -----------------------
-               NAVBAR COLOR CONTROL
-            ----------------------- */
-
             const navbar = document.getElementById("navbar");
             const hero = document.querySelector("#hero-section");
 
@@ -210,14 +119,8 @@
 
             }
 
-
-            /* -----------------------
-               HERO OBSERVER
-            ----------------------- */
-
             if (hero) {
 
-                /* set initial state */
                 if (hero.getBoundingClientRect().bottom > 80) {
                     setNavbarTransparent();
                 } else {

@@ -82,6 +82,7 @@ class JobBrowseController extends Controller
 
         // ✅ CHECK IF USER ALREADY APPLIED
         $alreadyApplied = false;
+        $ep = $job->employerProfile;
 
         if (Auth::check()) {
             $alreadyApplied = JobApplication::where('job_post_id', $job->id)
@@ -99,7 +100,7 @@ class JobBrowseController extends Controller
 
         return view(
             'mainpage.job-details-page.layout',
-            compact('job', 'isSaved', 'agencyJobs', 'alreadyApplied')
+            compact('job', 'isSaved', 'agencyJobs', 'alreadyApplied', 'ep')
         );
     }
 }

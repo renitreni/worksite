@@ -60,4 +60,9 @@ class EmployerProfile extends Model
             ->latestOfMany();
     }
 
+    public function followers()
+    {
+        return $this->hasMany(AgencyFollow::class);
+    }
+
 }

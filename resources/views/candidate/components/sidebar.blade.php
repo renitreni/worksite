@@ -4,16 +4,48 @@
 
     $items = [
         ['label' => 'Home', 'icon' => 'home', 'href' => url('/'), 'active' => request()->is('/')],
-        ['label' => 'Dashboard', 'icon' => 'layout-dashboard', 'href' => url('/candidate/dashboard'), 'active' => $is('candidate/dashboard')],
-        ['label' => 'Profile', 'icon' => 'user', 'href' => url('/candidate/profile'), 'active' => $is('candidate/profile')],
-        ['label' => 'My Resume', 'icon' => 'file-text', 'href' => url('/candidate/my-resume'), 'active' => $is('candidate/my-resume')],
-        ['label' => 'My Applied Jobs', 'icon' => 'briefcase', 'href' => url('/candidate/applied-jobs'), 'active' => $is('candidate/applied-jobs')],
-        ['label' => 'Shortlist Jobs', 'icon' => 'bookmark', 'href' => url('/candidate/shortlist-jobs'), 'active' => $is('candidate/shortlist-jobs')],
-        ['label' => 'Following Employers', 'icon' => 'users', 'href' => url('/candidate/following-employers'), 'active' => $is('candidate/following-employers')],
-        ['label' => 'Job Alerts', 'icon' => 'bell', 'href' => url('/candidate/job-alerts'), 'active' => $is('candidate/job-alerts')],
-        ['label' => 'Messages', 'icon' => 'messages-square', 'href' => url('/candidate/messages'), 'active' => $is('candidate/messages')],
-        ['label' => 'Meetings', 'icon' => 'calendar', 'href' => url('/candidate/meetings'), 'active' => $is('candidate/meetings')],
-        ['label' => 'Delete Profile', 'icon' => 'trash-2', 'href' => url('/candidate/delete-profile'), 'active' => $is('candidate/delete-profile')],
+        [
+            'label' => 'Dashboard',
+            'icon' => 'layout-dashboard',
+            'href' => url('/candidate/dashboard'),
+            'active' => $is('candidate/dashboard'),
+        ],
+        [
+            'label' => 'Profile',
+            'icon' => 'user',
+            'href' => url('/candidate/profile'),
+            'active' => $is('candidate/profile'),
+        ],
+        [
+            'label' => 'My Resume',
+            'icon' => 'file-text',
+            'href' => url('/candidate/my-resume'),
+            'active' => $is('candidate/my-resume'),
+        ],
+        [
+            'label' => 'My Applied Jobs',
+            'icon' => 'briefcase',
+            'href' => url('/candidate/applied-jobs'),
+            'active' => $is('candidate/applied-jobs'),
+        ],
+        [
+            'label' => 'Following Employers',
+            'icon' => 'users',
+            'href' => url('/candidate/following-employers'),
+            'active' => $is('candidate/following-employers'),
+        ],
+        [
+            'label' => 'Saved Jobs',
+            'icon' => 'bookmark',
+            'href' => url('/candidate/saved-jobs'),
+            'active' => $is('candidate/saved-jobs'),
+        ],
+        [
+            'label' => 'Messages',
+            'icon' => 'messages-square',
+            'href' => url('/candidate/messages'),
+            'active' => $is('candidate/messages'),
+        ],
     ];
 @endphp
 
@@ -27,10 +59,11 @@
 
     <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
         @foreach ($items as $item)
-            <a href="{{ $item['href'] }}" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
+            <a href="{{ $item['href'] }}"
+                class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
                        {{ $item['active']
-            ? 'bg-blue-50 text-blue-700 border border-blue-100'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                           ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                           : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
                 <i data-lucide="{{ $item['icon'] }}"
                     class="h-5 w-5 {{ $item['active'] ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-600' }}"></i>
                 <span class="truncate">{{ $item['label'] }}</span>
@@ -59,11 +92,7 @@
     x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
     <div class="h-16 flex items-center justify-between px-5 border-b border-gray-100">
-        <img
-        src="{{ asset('images/logo.png') }}"
-        alt="WorkSITE"
-        class="h-20 object-contain"
-      />
+        <img src="{{ asset('images/logo.png') }}" alt="WorkSITE" class="h-20 object-contain" />
         <button @click="mobileSidebarOpen = false"
             class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200">
             <i data-lucide="x" class="h-5 w-5"></i>
@@ -72,10 +101,11 @@
 
     <nav class="px-4 py-5 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
         @foreach ($items as $item)
-            <a href="{{ $item['href'] }}" @click="mobileSidebarOpen = false" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
+            <a href="{{ $item['href'] }}" @click="mobileSidebarOpen = false"
+                class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
                        {{ $item['active']
-            ? 'bg-blue-50 text-blue-700 border border-blue-100'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
+                           ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                           : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
                 <i data-lucide="{{ $item['icon'] }}"
                     class="h-5 w-5 {{ $item['active'] ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-600' }}"></i>
                 <span>{{ $item['label'] }}</span>

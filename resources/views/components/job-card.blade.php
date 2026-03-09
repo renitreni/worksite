@@ -22,6 +22,12 @@
 
     $locationText = $job->country ?? '—';
     $postedText = ($job->posted_at ?? $job->created_at)->diffForHumans();
+
+    $isSaved = auth()->check()
+        ? \App\Models\SavedJob::where('user_id', auth()->id())
+            ->where('job_post_id', $job->id)
+            ->exists()
+        : false;
 @endphp
 
 
@@ -34,7 +40,8 @@ transition-all duration-300">
     <div class="flex items-start justify-between gap-3">
 
         <div class="min-w-0">
-            <h3 class="section-title text-base md:text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-[#16A34A]">
+            <h3
+                class="section-title text-base md:text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-[#16A34A]">
                 {{ $job->title }}
             </h3>
 
@@ -43,10 +50,35 @@ transition-all duration-300">
             </p>
         </div>
 
-        <button type="button" class="text-gray-400 group-hover:text-[#16A34A] transition">
-            <i data-lucide="bookmark" class="w-5 h-5"></i>
-        </button>
+        @auth
+            <div x-data="{ saved: {{ $isSaved ? 'true' : 'false' }} }">
 
+                <button
+                    @click.prevent="
+fetch('{{ route('candidate.jobs.save', $job->id) }}',{
+    method:'POST',
+    headers:{
+        'X-CSRF-TOKEN':'{{ csrf_token() }}',
+        'X-Requested-With':'XMLHttpRequest',
+        'Content-Type':'application/json',
+        'Accept':'application/json'
+    }
+})
+.then(res => res.json())
+.then(data => {
+    if(data.success){
+        saved = data.saved
+    }
+})
+"
+                    class="transition" :class="saved ? 'text-[#16A34A]' : 'text-gray-400 hover:text-[#16A34A]'">
+
+                    <i data-lucide="bookmark" class="w-5 h-5 transition" :class="saved ? 'fill-[#16A34A]' : ''"></i>
+
+                </button>
+
+            </div>
+        @endauth
     </div>
 
 

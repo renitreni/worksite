@@ -98,10 +98,22 @@ class AgencyController extends Controller
             'verification:id,employer_profile_id,status',
         ]);
 
+        $isFollowing = false;
+
+        if (Auth::check()) {
+            $isFollowing = $employerProfile->followers()
+                ->where('user_id', Auth::id())
+                ->exists();
+        }
+
+        $followersCount = $employerProfile->followers()->count();
+
         return view('mainpage.agency-details-page.agency.show', [
             'agency' => $employerProfile,
             'jobs' => $jobs,
             'openJobsCount' => $openJobsCount,
+            'isFollowing' => $isFollowing,
+            'followersCount' => $followersCount,
         ]);
     }
 }

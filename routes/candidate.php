@@ -8,13 +8,17 @@ use App\Http\Controllers\Candidate\SavedJobController;
 use App\Http\Controllers\Candidate\JobReportController;
 use App\Http\Controllers\Candidate\JobApplicationController;
 use App\Http\Controllers\Candidate\AppliedJobsController;
+use App\Http\Controllers\Candidate\FollowingEmployerController;
+use App\Http\Controllers\Candidate\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
 | AUTH - CANDIDATE (GUEST ONLY)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('guest')->prefix('candidate')->name('candidate.')->group(function () {
+
     Route::get('/register', [CandidateAuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [CandidateAuthController::class, 'register'])->name('register.store');
 
@@ -23,25 +27,40 @@ Route::middleware('guest')->prefix('candidate')->name('candidate.')->group(funct
 
     Route::post('/verify-email', [CandidateAuthController::class, 'verifyEmailCode'])->name('verify.email');
     Route::post('/resend-verification', [CandidateAuthController::class, 'resendEmailCode'])->name('verify.resend');
+
 });
 
 Route::post('/candidate/logout', [CandidateAuthController::class, 'logout'])
     ->middleware('auth')
     ->name('candidate.logout');
 
+
 /*
 |--------------------------------------------------------------------------
 | CANDIDATE PAGES (AUTH + ROLE)
 |--------------------------------------------------------------------------
 */
+
 Route::prefix('candidate')
     ->name('candidate.')
     ->middleware(['auth', 'role:candidate', 'check.user.status'])
     ->group(function () {
-        Route::get('/', fn() => view('candidate.layout'))->name('index');
 
-        Route::get('/home', fn() => view('candidate.contents.home'))->name('home');
-        Route::get('/dashboard', fn() => view('candidate.contents.dashboard'))->name('dashboard');
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Profile
+        |--------------------------------------------------------------------------
+        */
 
         Route::get('/profile', [CandidateProfileController::class, 'show'])->name('profile.show');
         Route::patch('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
@@ -50,16 +69,15 @@ Route::prefix('candidate')
         Route::post('/profile/email/verify', [CandidateProfileController::class, 'verifyEmailCode'])->name('profile.email.verify');
         Route::post('/profile/email/resend', [CandidateProfileController::class, 'resendEmailCode'])->name('profile.email.resend');
 
-        // Save/Unsave
-        Route::post('/jobs/{job}/save', [SavedJobController::class, 'toggle'])->name('jobs.save');
-        Route::get('/saved-jobs', [SavedJobController::class, 'index'])->name('candidate.saved.index');
 
-        // Report
-        Route::get('/jobs/{job}/report', [JobReportController::class, 'create'])->name('jobs.report');
-        Route::post('/jobs/{job}/report', [JobReportController::class, 'store'])->name('jobs.report.store');
+        /*
+        |--------------------------------------------------------------------------
+        | Resume
+        |--------------------------------------------------------------------------
+        */
 
-        // Resume
         Route::get('/my-resume', [ResumeController::class, 'index'])->name('resume.index');
+
         Route::post('/my-resume/resume-file', [ResumeController::class, 'uploadResume'])->name('resume.upload');
         Route::delete('/my-resume/resume-file', [ResumeController::class, 'deleteResume'])->name('resume.delete');
 
@@ -72,10 +90,35 @@ Route::prefix('candidate')
         Route::post('/my-resume/education', [ResumeController::class, 'storeEducation'])->name('resume.edu.store');
         Route::delete('/my-resume/education/{education}', [ResumeController::class, 'deleteEducation'])->name('resume.edu.delete');
 
-        // Apply
-        Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'store'])->name('jobs.apply');
 
-        // Static views
+        /*
+        |--------------------------------------------------------------------------
+        | Job Actions
+        |--------------------------------------------------------------------------
+        */
+
+        // Save / Unsave
+        Route::post('/jobs/{job}/save', [SavedJobController::class, 'toggle'])
+            ->name('jobs.save');
+
+        // Apply
+        Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'store'])
+            ->name('jobs.apply');
+
+        // Report Job
+        Route::get('/jobs/{job}/report', [JobReportController::class, 'create'])
+            ->name('jobs.report');
+
+        Route::post('/jobs/{job}/report', [JobReportController::class, 'store'])
+            ->name('jobs.report.store');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Pages
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/applied-jobs', function () {
             return view('candidate.contents.my-applied-jobs');
         })->name('applied.jobs');
@@ -83,10 +126,32 @@ Route::prefix('candidate')
         Route::get('/applied-jobs/data', [AppliedJobsController::class, 'index'])
             ->name('applied.jobs.data');
 
-        Route::get('/shortlist-jobs', fn() => view('candidate.contents.shortlist-jobs'))->name('shortlist-jobs');
-        Route::get('/following-employers', fn() => view('candidate.contents.following-employers'))->name('following-employers');
-        Route::get('/job-alerts', fn() => view('candidate.contents.job-alerts'))->name('job-alerts');
+
+        Route::get('/saved-jobs', [SavedJobController::class, 'index'])
+            ->name('saved.jobs');
+
+        Route::delete('/saved-jobs/{job}', [SavedJobController::class, 'destroy'])
+            ->name('saved.jobs.delete');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Following Employers
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/following-employers', [FollowingEmployerController::class, 'index'])
+            ->name('following.employers');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Other Pages
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/messages', fn() => view('candidate.contents.messages'))->name('messages');
         Route::get('/meetings', fn() => view('candidate.contents.meetings'))->name('meetings');
         Route::get('/delete-profile', fn() => view('candidate.contents.delete-profile'))->name('delete-profile');
+
     });

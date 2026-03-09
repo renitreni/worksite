@@ -1,5 +1,4 @@
 <div x-data="{
-    saveSuccessOpen: {{ session()->has('success') ? 'true' : 'false' }},
     reportOpen: false,
     reportReason: '',
     reportDetails: '',
@@ -105,7 +104,15 @@ step = 2;
                     <i data-lucide="user" class="w-4 h-4 text-slate-600"></i>
                 </span>
                 <div class="font-semibold text-slate-700">
-                    {{ ucfirst($job->gender ?? 'both') }}
+                    @if ($job->gender === 'both')
+                        Male & Female
+                    @elseif($job->gender === 'male')
+                        Male
+                    @elseif($job->gender === 'female')
+                        Female
+                    @else
+                        Not specified
+                    @endif
                 </div>
             </div>
 
@@ -186,31 +193,65 @@ step = 2;
     @endif
 
     {{-- Buttons row --}}
-    <div class="mt-6 flex flex-wrap gap-3">
-        @if ($alreadyApplied)
-            <button type="button" disabled
-                class="inline-flex items-center justify-center rounded-xl bg-gray-300 px-6 py-3 text-sm font-semibold text-gray-600 cursor-not-allowed">
+    <div class="mt-6 flex flex-wrap items-center gap-3">
 
-                <i data-lucide="check-circle" class="w-4 h-4 mr-2"></i>
-                Already Applied
+        {{-- APPLY --}}
+        @if ($alreadyApplied)
+            <button type="button"
+                class="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-3 text-sm font-semibold text-emerald-700">
+
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                Applied
 
             </button>
         @else
             <button type="button" @click="{{ auth()->check() ? 'applyOpen=true' : 'loginApplyOpen=true' }}"
-                class="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition">
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm">
 
+                <i data-lucide="send" class="w-4 h-4"></i>
                 Apply Now
 
             </button>
         @endif
+
+
         {{-- SAVE --}}
-        <form action="{{ route('candidate.jobs.save', $job->id) }}" method="POST">
-            @csrf
-            <button type="submit"
-                class="inline-flex items-center justify-center rounded-xl bg-yellow-400 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600 transition">
-                {{ $isSaved ? 'Saved' : 'Save Job' }}
-            </button>
-        </form>
+        @auth
+            <div x-data="{ saved: {{ $isSaved ? 'true' : 'false' }} }">
+
+                <button
+                    @click.prevent="
+                fetch('{{ route('candidate.jobs.save', $job->id) }}',{
+                    method:'POST',
+                    headers:{
+                        'X-CSRF-TOKEN':'{{ csrf_token() }}',
+                        'X-Requested-With':'XMLHttpRequest',
+                        'Accept':'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        saved = data.saved
+                    }
+                })
+                "
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition"
+                    :class="saved
+                        ?
+                        'border-emerald-300 bg-emerald-50 text-emerald-700' :
+                        'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'">
+
+                    {{-- ICON --}}
+                    <i data-lucide="bookmark" class="w-4 h-4" :class="saved ? 'fill-emerald-600 text-emerald-600' : ''"></i>
+
+                    <span x-text="saved ? 'Saved' : 'Save Job'"></span>
+
+                </button>
+
+            </div>
+        @endauth
+
     </div>
 
 
@@ -295,136 +336,80 @@ step = 2;
 
     {{-- Agency Details --}}
     <div class="mt-10" id="apply">
-        <h2 class="text-2xl font-semibold text-slate-700">Agency Details</h2>
 
-        <div class="mt-5 space-y-3 text-sm text-slate-700">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <h2 class="text-2xl font-semibold text-slate-700">
+                Agency Details
+            </h2>
+
+            <a href="{{ route('agency.details', $job->employerProfile->id) }}"
+                class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+
+                View Agency
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+
+            </a>
+        </div>
+
+        <div class="mt-5 space-y-4 text-sm text-slate-700">
+
+            {{-- Address --}}
             <div class="flex items-start gap-3">
                 <i data-lucide="map-pin" class="w-5 h-5 text-slate-500 mt-0.5"></i>
                 <div>
                     <p class="font-semibold">Address</p>
-                    <p class="text-slate-600">{{ $ep->company_address ?? 'Not specified' }}</p>
+                    <p class="text-slate-600">
+                        {{ $ep->company_address ?? 'Not specified' }}
+                    </p>
                 </div>
             </div>
 
+            {{-- Website --}}
             <div class="flex items-start gap-3">
                 <i data-lucide="globe" class="w-5 h-5 text-slate-500 mt-0.5"></i>
                 <div>
                     <p class="font-semibold">Website</p>
+
                     @if (!empty($ep->company_website))
-                        <a class="text-blue-600 hover:underline" href="{{ $ep->company_website }}" target="_blank">
+                        <a class="text-blue-600 hover:underline break-all" href="{{ $ep->company_website }}"
+                            target="_blank">
                             {{ $ep->company_website }}
                         </a>
                     @else
                         <p class="text-slate-600">Not specified</p>
                     @endif
+
                 </div>
             </div>
 
+            {{-- Contact --}}
             <div class="flex items-start gap-3">
                 <i data-lucide="phone" class="w-5 h-5 text-slate-500 mt-0.5"></i>
                 <div>
                     <p class="font-semibold">Contact</p>
-                    <p class="text-slate-600">{{ $ep->company_contact ?? 'Not specified' }}</p>
-                </div>
-            </div>
-
-            <div class="flex items-start gap-3">
-                <i data-lucide="file-text" class="w-5 h-5 text-slate-500 mt-0.5"></i>
-                <div>
-                    <p class="font-semibold">About</p>
-                    <p class="text-slate-600 whitespace-pre-line">{{ $ep->description ?? 'No description provided.' }}
+                    <p class="text-slate-600">
+                        {{ $ep->company_contact ?? 'Not specified' }}
                     </p>
                 </div>
             </div>
-        </div>
-    </div>
 
-    {{-- ✅ SAVE SUCCESS MODAL --}}
-    <div x-cloak x-show="saveSuccessOpen" x-transition.opacity
-        class="fixed inset-0 z-[9999] flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/40" @click="closeSaveModal()"></div>
-
-        <div class="relative w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl border border-slate-200">
+            {{-- Description --}}
             <div class="flex items-start gap-3">
-                <div
-                    class="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                    <i data-lucide="check" class="w-5 h-5 text-emerald-700"></i>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold text-slate-900">Success</div>
-                    <div class="mt-1 text-sm text-slate-600">
-                        {{ session('success') }}
-                    </div>
-                </div>
-                <button type="button" @click="closeSaveModal()" class="rounded-lg p-2 hover:bg-slate-100">
-                    <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    {{-- ✅ REPORT MODAL --}}
-    <div x-cloak x-show="reportOpen" x-transition.opacity
-        class="fixed inset-0 z-[9999] flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/40" @click="closeReport()"></div>
-
-        <div class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-200">
-            <div class="flex items-start justify-between gap-3">
+                <i data-lucide="file-text" class="w-5 h-5 text-slate-500 mt-0.5"></i>
                 <div>
-                    <div class="text-base font-semibold text-slate-900">Report this job</div>
-                    <div class="mt-1 text-sm text-slate-600">Tell us what’s wrong so we can review it.</div>
+                    <p class="font-semibold">About Agency</p>
+                    <p class="text-slate-600 whitespace-pre-line">
+                        {{ $ep->description ?? 'No description provided.' }}
+                    </p>
                 </div>
-                <button type="button" @click="closeReport()" class="rounded-lg p-2 hover:bg-slate-100">
-                    <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
-                </button>
             </div>
 
-            <form class="mt-5 space-y-4" method="POST"
-                action="{{ route('candidate.jobs.report.store', $job->id) }}">
-                @csrf
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Reason <span
-                            class="text-red-500">*</span></label>
-                    <select name="reason" x-model="reportReason"
-                        class="mt-1 w-full rounded-xl border-slate-300 focus:ring-emerald-200 focus:border-emerald-500">
-                        <option value="">Select a reason</option>
-                        <option value="misleading">Misleading information</option>
-                        <option value="scam">Possible scam</option>
-                        <option value="fake">Fake job posting</option>
-                        <option value="wrong_contact">Wrong contact/details</option>
-                        <option value="other">Other</option>
-                    </select>
-                    @error('reason')
-                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Details (optional)</label>
-                    <textarea name="details" rows="4" x-model="reportDetails"
-                        class="mt-1 w-full rounded-xl border-slate-300 focus:ring-emerald-200 focus:border-emerald-500"
-                        placeholder="Add more details..."></textarea>
-                    @error('details')
-                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" @click="closeReport()"
-                        class="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
-                        Cancel
-                    </button>
-
-                    <button type="submit" :disabled="!reportReason"
-                        class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                        Submit Report
-                    </button>
-                </div>
-            </form>
         </div>
+
     </div>
 
+
+    @include('mainpage.job-details-page.partials.modals')
     @include('mainpage.job-details-page.partials.apply-now-modal')
 
 </div>

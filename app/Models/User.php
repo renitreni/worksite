@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-    
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -65,5 +65,10 @@ class User extends Authenticatable
     public function candidateResume()
     {
         return $this->hasOne(\App\Models\CandidateResume::class, 'user_id', 'id');
+    }
+
+    public function followedAgencies()
+    {
+        return $this->hasMany(AgencyFollow::class);
     }
 }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Candidate\JobBrowseController;
 use App\Http\Controllers\Candidate\AgencyController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Candidate\AgencyFollowController;
+
 
 
 
@@ -51,7 +53,13 @@ Route::middleware('auth')->group(function () {
 });
 
 
-//help center articles
+Route::middleware('auth')->group(function () {
+
+    Route::post('/agency/{employerProfile}/follow',
+        [AgencyFollowController::class,'toggle']
+    )->name('agency.follow');
+
+});
 
 Route::get('/help/{category}', function ($category) {
     return view('mainpage.help-category', compact('category'));
