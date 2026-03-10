@@ -132,4 +132,9 @@ class JobPost extends Model
     {
         return $this->belongsTo(User::class, 'disabled_by_user_id');
     }
+
+    public function logs()
+    {
+        return $this->hasMany(JobPostLog::class)->latest();
+    }
 }

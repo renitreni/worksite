@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\System\EmailTemplateController;
 use App\Http\Controllers\Admin\System\BackupController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MessageController;
+
 
 
 /*
@@ -117,6 +119,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('{subscription}/suspend', [SubscriptionController::class, 'suspend'])->name('suspend');
             Route::post('{subscription}/remind', [SubscriptionController::class, 'sendExpiredReminder'])->name('remind');
         });
+
+        // Mail
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/compose', [MessageController::class, 'compose'])->name('messages.compose');
+        Route::post('/messages/send', [MessageController::class, 'send'])->name('messages.send');
+        Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+        Route::post('/messages/{message}/star', [MessageController::class, 'toggleStar'])->name('messages.star');
+        Route::post('/messages/{message}/reply', [MessageController::class, 'reply'])->name('messages.reply');
+        Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+
 
         // Industries
         Route::get('/industries', [IndustryController::class, 'index'])->name('industries.index');
