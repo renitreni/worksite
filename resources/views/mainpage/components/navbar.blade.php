@@ -1,3 +1,13 @@
+@php
+    $user = auth()->user();
+    $candidateProfile = $user?->candidateProfile;
+
+    $firstName = $user ? explode(' ', $user->name)[0] : '';
+
+    $photo =
+        $candidateProfile && $candidateProfile->photo_path ? asset('storage/' . $candidateProfile->photo_path) : null;
+@endphp
+
 <nav id="navbar" class="fixed top-0 left-0 w-full z-[1000] transition-all duration-300 bg-transparent">
     <div class="max-w-7xl mx-auto px-6">
         <div class="flex justify-between items-center h-16">
@@ -79,16 +89,23 @@
 
                             <button @click="open = !open"
                                 class="flex items-center gap-3 backdrop-blur-md
-                        border border-white/30 rounded-xl px-3 py-2 shadow-sm hover:shadow-md transition">
+    border border-white/30 rounded-xl px-3 py-2 shadow-sm hover:shadow-md transition">
 
-                                <div class="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center">
+                                {{-- PROFILE PHOTO --}}
+                                <div
+                                    class="h-9 w-9 rounded-full overflow-hidden bg-green-100 flex items-center justify-center">
 
-                                    <i data-lucide="user" class="h-4 w-4 text-green-700"></i>
+                                    @if ($photo)
+                                        <img src="{{ $photo }}" class="w-full h-full object-cover">
+                                    @else
+                                        <i data-lucide="user" class="h-4 w-4 text-green-700"></i>
+                                    @endif
 
                                 </div>
 
+                                {{-- FIRST NAME ONLY --}}
                                 <span class="nav-link text-sm font-medium text-white">
-                                    {{ auth()->user()->name }}
+                                    {{ $firstName }}
                                 </span>
 
                                 <i data-lucide="chevron-down" class="nav-link h-4 w-4 text-white"></i>

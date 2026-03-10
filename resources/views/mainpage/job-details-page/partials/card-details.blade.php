@@ -1,26 +1,23 @@
 <div x-data="{
-    reportOpen: false,
+    modal: null,
+
+    openModal(name) {
+        this.modal = name
+    },
+
+    closeModal() {
+        this.modal = null
+    },
+
     reportReason: '',
     reportDetails: '',
-    applyOpen: false,
-    loginApplyOpen: false,
-    closeSaveModal() { this.saveSuccessOpen = false },
-    openReport() { this.reportOpen = true },
+
     closeReport() {
-        this.reportOpen = false;
-        this.reportReason = '';
-        this.reportDetails = '';
-    },
-}" x-init="if (saveSuccessOpen) setTimeout(() => saveSuccessOpen = false, 2500);
-
-@if($errors->any())
-applyOpen = true;
-@endif
-
-@if($errors->has('resume') || $errors->has('cover_letter_text') || $errors->has('cover_letter_file'))
-// open uploading step if upload-related errors
-step = 2;
-@endif"
+        this.reportReason = ''
+        this.reportDetails = ''
+        this.closeModal()
+    }
+}" x-init="@if ($errors->any()) modal = 'apply' @endif"
     class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
     {{-- Header --}}
     <div class="flex items-start gap-5">
@@ -195,7 +192,6 @@ step = 2;
     {{-- Buttons row --}}
     <div class="mt-6 flex flex-wrap items-center gap-3">
 
-        {{-- APPLY --}}
         @if ($alreadyApplied)
             <button type="button"
                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-3 text-sm font-semibold text-emerald-700">
@@ -205,13 +201,23 @@ step = 2;
 
             </button>
         @else
-            <button type="button" @click="{{ auth()->check() ? 'applyOpen=true' : 'loginApplyOpen=true' }}"
-                class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm">
+            @auth
+                <button type="button" @click="openModal('apply')"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm">
 
-                <i data-lucide="send" class="w-4 h-4"></i>
-                Apply Now
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    Apply Now
 
-            </button>
+                </button>
+            @else
+                <button type="button" @click="openModal('login')"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm">
+
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    Apply Now
+
+                </button>
+            @endauth
         @endif
 
 
@@ -329,9 +335,19 @@ step = 2;
     {{-- Report bar --}}
     <div class="mt-6 rounded-xl bg-slate-100 border border-slate-200 px-4 py-3 text-center text-sm text-slate-600">
         Is this ad misleading?
-        <button type="button" @click="openReport()" class="font-semibold text-slate-900 hover:underline">
-            Report this job
-        </button>
+        @auth
+            <button type="button" @click="openModal('report')" class="font-semibold text-slate-900 hover:underline">
+
+                Report this job
+
+            </button>
+        @else
+            <button type="button" @click="openModal('login')" class="font-semibold text-slate-900 hover:underline">
+
+                Report this job
+
+            </button>
+        @endauth
     </div>
 
     {{-- Agency Details --}}

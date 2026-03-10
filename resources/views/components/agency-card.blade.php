@@ -83,12 +83,6 @@
                        hover:bg-green-700 transition text-center flex-1 text-sm">
                 View Profile
             </a>
-
-            <button type="button"
-                class="w-11 h-11 rounded-xl border border-gray-200 grid place-items-center
-                       text-gray-500 hover:bg-green-50 hover:text-green-600 transition">
-                <i data-lucide="bookmark" class="w-5 h-5"></i>
-            </button>
         </div>
     </div>
 

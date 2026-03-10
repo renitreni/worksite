@@ -196,7 +196,7 @@
 
                 <div class="order-2 lg:order-1">
 
-                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                    <img src="images/opportunities.jpg"
                         class="rounded-2xl shadow-xl w-full h-auto object-cover">
 
                 </div>
@@ -218,7 +218,7 @@
                         and apply directly to international employers.
                     </p>
 
-                    <a href="/register"
+                    <a href="candidate/register"
                         class="inline-flex items-center gap-2 mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow">
 
                         <i data-lucide="user-plus"></i>
@@ -271,7 +271,7 @@
 
                 <div>
 
-                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978"
+                    <img src="images/partner-with-us.jpg"
                         class="rounded-2xl shadow-xl w-full h-auto object-cover">
 
                 </div>
@@ -312,8 +312,8 @@
 
                 <div>
 
-                    <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
-                        class="rounded-xl shadow-lg w-full h-auto object-cover">
+                    <img src="images/explore-jobs.jpg"
+                        class="rounded-xl shadow-lg w-full h-[300px] object-cover">
 
                 </div>
 
