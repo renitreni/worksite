@@ -12,8 +12,7 @@
     ];
     $pick = (ord($initial) ?: 0) % count($bgClasses);
 
-    // safer logo check
-    $logoExists = !empty($agency->logo_path) && file_exists(public_path('storage/' . $agency->logo_path));
+    $logoExists = !empty($agency->logo_path);
 @endphp
 
 <div

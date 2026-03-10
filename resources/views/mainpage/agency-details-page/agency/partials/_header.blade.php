@@ -2,8 +2,8 @@
     $companyName = $agency->company_name ?? 'Agency';
     $initial = strtoupper(mb_substr(trim($companyName), 0, 1));
 
-    $coverExists = !empty($agency->cover_path) && file_exists(public_path('storage/' . $agency->cover_path));
-    $logoExists = !empty($agency->logo_path) && file_exists(public_path('storage/' . $agency->logo_path));
+    $coverExists = !empty($agency->cover_path);
+    $logoExists = !empty($agency->logo_path);
 
     $bgClasses = [
         'bg-emerald-100 text-emerald-700 ring-emerald-200',
