@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\EmailTemplate;
+use App\Support\EmailTemplateRenderer;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use App\Mail\SystemTemplateMail;
+use App\Support\AdminActivity;
 
 class AdminUserController extends Controller
 {
@@ -54,27 +61,73 @@ class AdminUserController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'first_name' => ['required', 'string', 'max:80'],
-            'last_name' => ['required', 'string', 'max:80'],
-            'email' => ['required', 'email', 'max:190', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+{
+    $data = $request->validate([
+        'first_name' => ['required', 'string', 'max:80'],
+        'last_name'  => ['required', 'string', 'max:80'],
+        'email'      => ['required', 'email', 'max:190', 'unique:users,email'],
+    ]);
 
-        User::create([
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'name' => $data['first_name'] . ' ' . $data['last_name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => 'admin',
-            'account_status' => 'active',
-            'archived_at' => null,
-        ]);
+    $user = User::create([
+        'first_name'        => $data['first_name'],
+        'last_name'         => $data['last_name'],
+        'name'              => $data['first_name'] . ' ' . $data['last_name'],
+        'email'             => $data['email'],
+        'password'          => Hash::make(Str::random(32)),
+        'role'              => 'admin',
+        'account_status'    => 'pending_invitation',
+        'email_verified_at' => null,
+        'archived_at'       => null,
+    ]);
 
-        return redirect()->route('admin.admins.index')->with('success', 'Admin created.');
+    $token = Str::random(64);
+
+    DB::table('password_reset_tokens')->updateOrInsert(
+        ['email' => $user->email],
+        [
+            'email'      => $user->email,
+            'token'      => Hash::make($token),
+            'created_at' => now(),
+        ]
+    );
+
+    $inviteLink = route('admin.invite.accept', [
+        'email' => $user->email,
+        'token' => $token,
+    ]);
+
+    $template = EmailTemplate::query()
+        ->where('name', 'admin_invitation')
+        ->where('is_active', true)
+        ->first();
+
+    if ($template) {
+        $rendered = EmailTemplateRenderer::render(
+            $template->subject,
+            $template->body_text,
+            $template->body_html,
+            [
+                'FULL_NAME'        => $user->name,
+                'SITE_NAME'        => 'JobAbroad',
+                'INVITE_LINK'      => $inviteLink,
+                'EXPIRES_IN_HOURS' => 24,
+                'SUPERADMIN_NAME'  => auth('admin')->user()->name ?? 'System Super Admin',
+            ]
+        );
+
+        Mail::to($user->email)->queue(
+    new SystemTemplateMail(
+        $rendered['subject'],
+        $rendered['body_html'],
+        $rendered['body_text'] ?? null
+    )
+);
     }
+
+    return redirect()
+        ->route('admin.admins.index')
+        ->with('success', 'Admin created and invitation email sent.');
+}
 
     public function edit(User $user)
     {

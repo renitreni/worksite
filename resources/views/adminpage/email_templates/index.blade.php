@@ -1,10 +1,10 @@
-@extends('adminpage.layout') {{-- change if needed --}}
+@extends('adminpage.layout')
 @section('title', 'View Emails')
 @section('page_title', 'View Email Templates')
 @section('content')
 
 <div class="max-w-6xl mx-auto p-4">
-    
+
     @if (session('success'))
         <div class="mb-4 rounded-lg bg-green-50 p-3 text-green-800">
             {{ session('success') }}
@@ -12,6 +12,18 @@
     @endif
 
     <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between border-b border-gray-100 px-4 py-4">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900">Email Templates</h2>
+                <p class="text-sm text-gray-500">Manage system email subjects and content.</p>
+            </div>
+
+            <a href="{{ route('admin.email_templates.create') }}"
+               class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+                + New Template
+            </a>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="bg-gray-50 text-gray-600">

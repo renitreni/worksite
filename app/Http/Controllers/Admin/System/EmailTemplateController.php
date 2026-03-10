@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmailTemplate;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\System\UpdateEmailTemplateRequest;
+use App\Support\EmailTemplateRenderer;
 
 class EmailTemplateController extends Controller
 {
@@ -19,14 +20,42 @@ class EmailTemplateController extends Controller
             return $next($request);
         });
     }
+
     public function index()
     {
         $templates = EmailTemplate::query()
             ->orderBy('name')
             ->paginate(15);
 
-        // keep your folder structure
         return view('adminpage.email_templates.index', compact('templates'));
+    }
+
+    public function create()
+    {
+        return view('adminpage.email_templates.create');
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:100', 'unique:email_templates,name'],
+            'subject' => ['required', 'string', 'max:255'],
+            'body_text' => ['required', 'string'],
+            'body_html' => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $template = EmailTemplate::create([
+            'name' => strtolower(trim($data['name'])),
+            'subject' => $data['subject'],
+            'body_text' => $data['body_text'],
+            'body_html' => $data['body_html'] ?? '',
+            'is_active' => (bool) ($data['is_active'] ?? false),
+        ]);
+
+        return redirect()
+            ->route('admin.email_templates.edit', $template)
+            ->with('success', 'Email template created.');
     }
 
     public function edit(EmailTemplate $emailTemplate)
@@ -42,8 +71,8 @@ class EmailTemplateController extends Controller
 
         $emailTemplate->update([
             'subject' => $data['subject'],
-            'body_html' => $data['body_html'],
-            'body_text' => $data['body_text'] ?? null,
+            'body_text' => $data['body_text'],
+            'body_html' => $data['body_html'] ?? '',
             'is_active' => (bool) ($data['is_active'] ?? false),
         ]);
 
@@ -54,11 +83,6 @@ class EmailTemplateController extends Controller
 
     public function preview(Request $request, EmailTemplate $emailTemplate)
     {
-        /**
-         * Supports BOTH placeholder styles:
-         *  - {USER_NAME}
-         *  - {{USER_NAME}}
-         */
         $samples = [
             'USER_NAME' => 'Juan Dela Cruz',
             'USER_EMAIL' => 'juan@example.com',
@@ -68,22 +92,20 @@ class EmailTemplateController extends Controller
             'COMPANY_NAME' => 'ABC Recruitment',
             'APPLICATION_LINK' => 'https://workabroad.test/applications/123',
             'STATUS' => 'Under Review',
+            'FULL_NAME' => 'Juan Dela Cruz',
+            'INVITE_LINK' => 'https://workabroad.test/admin/invite/sample-token',
+            'EXPIRES_IN_HOURS' => '24',
+            'SITE_NAME' => 'JobAbroad',
+            'SUPERADMIN_NAME' => 'System Super Admin',
         ];
 
-        $replaceMap = [];
-        foreach ($samples as $key => $value) {
-            $replaceMap['{' . $key . '}'] = $value;
-            $replaceMap['{{' . $key . '}}'] = $value;
-        }
+        $rendered = EmailTemplateRenderer::render(
+            $emailTemplate->subject,
+            $emailTemplate->body_text,
+            $emailTemplate->body_html,
+            $samples
+        );
 
-        $subject = strtr((string) $emailTemplate->subject, $replaceMap);
-        $bodyHtml = strtr((string) $emailTemplate->body_html, $replaceMap);
-        $bodyText = $emailTemplate->body_text ? strtr((string) $emailTemplate->body_text, $replaceMap) : null;
-
-        return response()->json([
-            'subject' => $subject,
-            'body_html' => $bodyHtml,
-            'body_text' => $bodyText,
-        ]);
+        return response()->json($rendered);
     }
 }
