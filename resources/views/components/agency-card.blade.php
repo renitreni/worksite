@@ -17,8 +17,9 @@
 @endphp
 
 <div
-    class="flex-none w-[390px] bg-white rounded-2xl border border-gray-200 shadow-sm
-           hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+    class="flex-none w-[92%] sm:w-[390px] snap-center
+       bg-white rounded-2xl border border-gray-200 shadow-sm
+       hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
 
     <!-- Card Header -->
     <div class="p-5">
@@ -40,7 +41,7 @@
                 </h3>
 
                 <p class="mt-1 text-sm font-semibold text-green-600">
-                     {{ $agency->open_jobs_count ?? 0 }} jobs available
+                    {{ $agency->open_jobs_count ?? 0 }} jobs available
                 </p>
             </div>
         </div>
