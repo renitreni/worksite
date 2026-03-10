@@ -6,6 +6,7 @@ use App\Http\Controllers\Candidate\JobBrowseController;
 use App\Http\Controllers\Candidate\AgencyController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Candidate\AgencyFollowController;
 
 
@@ -37,12 +38,11 @@ Route::get('/agencies/{employerProfile}', [AgencyController::class, 'show'])->na
 Route::get('/industries/{industry}', [HomeController::class, 'industryJobs'])
     ->name('industries.jobs');
 
-Route::view('/about','mainpage.about-us')->name('about');
-Route::view('/contact','mainpage.contact-us')->name('contact');
-Route::view('/privacy-policy','mainpage.privacy-policy')->name('privacy-policy');
-Route::view('/terms-of-service','mainpage.terms-of-service')->name('terms-of-service');
-Route::view('/faqs','mainpage.faqs')->name('faqs');
-Route::view('/help-center','mainpage.help-center')->name('help-center');
+Route::view('/about', 'mainpage.about-us')->name('about');
+Route::view('/privacy-policy', 'mainpage.privacy-policy')->name('privacy-policy');
+Route::view('/terms-of-service', 'mainpage.terms-of-service')->name('terms-of-service');
+Route::view('/faqs', 'mainpage.faqs')->name('faqs');
+Route::view('/help-center', 'mainpage.help-center')->name('help-center');
 
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -55,8 +55,9 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
 
-    Route::post('/agency/{employerProfile}/follow',
-        [AgencyFollowController::class,'toggle']
+    Route::post(
+        '/agency/{employerProfile}/follow',
+        [AgencyFollowController::class, 'toggle']
     )->name('agency.follow');
 
 });
@@ -65,6 +66,13 @@ Route::get('/help/{category}', function ($category) {
     return view('mainpage.help-category', compact('category'));
 })->name('help.category');
 
+
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+
+Route::post(
+    '/contact/send',
+    [ContactController::class, 'send']
+)->middleware('throttle:5,1')->name('contact.send');
 /*
 |--------------------------------------------------------------------------
 | Split route files

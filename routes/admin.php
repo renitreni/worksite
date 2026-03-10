@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\System\EmailTemplateController;
 use App\Http\Controllers\Admin\System\BackupController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MessageController;
+
 
 
 /*
@@ -32,20 +34,33 @@ Route::get('/admin', function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    // ADMIN AUTH (GUEST ONLY)
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN AUTH (GUEST ONLY)
+    |--------------------------------------------------------------------------
+    */
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+
+        // Admin invitation acceptance
+        Route::get('/invite/accept', [AdminAuthController::class, 'showInviteAcceptForm'])->name('invite.accept');
+        Route::post('/invite/accept', [AdminAuthController::class, 'acceptInvite'])->name('invite.accept.submit');
     });
 
-    // ADMIN PANEL (AUTH + ACTIVE)
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN PANEL (AUTH + ACTIVE)
+    |--------------------------------------------------------------------------
+    */
     Route::middleware(['auth:admin', 'active:admin'])->group(function () {
 
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
-       Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-       Route::get('/dashboard/metrics', [DashboardController::class, 'metrics'])->name('dashboard.metrics');
-        Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])
-    ->name('dashboard.analytics');
+
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/metrics', [DashboardController::class, 'metrics'])->name('dashboard.metrics');
+        Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
+
         // Users
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
@@ -67,30 +82,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Status / archive / approval / suspension
         Route::patch('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
         Route::patch('/users/{user}/status', [UserController::class, 'setStatus'])->name('users.status');
-
         Route::patch('/users/{user}/archive', [UserController::class, 'archive'])->name('users.archive');
         Route::patch('/users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
-
         Route::patch('/users/{user}/approve', [UserController::class, 'approve'])->name('users.approve');
         Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
-
         Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
         Route::patch('/users/{user}/unsuspend', [UserController::class, 'unsuspend'])->name('users.unsuspend');
 
         // Static
         Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');
         Route::view('/billing', 'adminpage.contents.billing')->name('billing');
-        /*
-|--------------------------------------------------------------------------
-| REPORTS
-|--------------------------------------------------------------------------
-*/
 
-Route::get('/reports', [ReportController::class, 'index'])->name('reports');
-Route::post('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
-Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
-Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
-           
+        /*
+        |--------------------------------------------------------------------------
+        | REPORTS
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+        Route::post('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
+        Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])->name('reports.export.excel');
+        Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name('reports.export.pdf');
 
         // Subscriptions & payments
         Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
@@ -100,6 +111,7 @@ Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name(
             Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
             Route::post('payments/{payment}/complete', [PaymentController::class, 'markCompleted'])->name('payments.complete');
             Route::post('payments/{payment}/fail', [PaymentController::class, 'markFailed'])->name('payments.fail');
+
             Route::get('/', [SubscriptionController::class, 'index'])->name('index');
             Route::get('expired', [SubscriptionController::class, 'expired'])->name('expired');
 
@@ -107,6 +119,16 @@ Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name(
             Route::post('{subscription}/suspend', [SubscriptionController::class, 'suspend'])->name('suspend');
             Route::post('{subscription}/remind', [SubscriptionController::class, 'sendExpiredReminder'])->name('remind');
         });
+
+        // Mail
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/compose', [MessageController::class, 'compose'])->name('messages.compose');
+        Route::post('/messages/send', [MessageController::class, 'send'])->name('messages.send');
+        Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+        Route::post('/messages/{message}/star', [MessageController::class, 'toggleStar'])->name('messages.star');
+        Route::post('/messages/{message}/reply', [MessageController::class, 'reply'])->name('messages.reply');
+        Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+
 
         // Industries
         Route::get('/industries', [IndustryController::class, 'index'])->name('industries.index');
@@ -155,16 +177,15 @@ Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name(
         Route::patch('/location-suggestions/{suggestion}/approve', [LocationSuggestionController::class, 'approve'])->name('location_suggestions.approve');
     });
 
-    // SUPERADMIN ONLY
+    /*
+    |--------------------------------------------------------------------------
+    | SUPERADMIN ONLY
+    |--------------------------------------------------------------------------
+    */
     Route::middleware(['auth:admin', 'active:admin', 'role:superadmin'])->group(function () {
-             /*
-        |------------------------------------------------------------------
-        | SYSTEM CONFIGURATION (Workabroad)
-        |------------------------------------------------------------------
-        */
+
         Route::prefix('system')->name('system.')->group(function () {
             Route::get('/', [SystemConfigController::class, 'index'])->name('index');
-
             Route::put('/general', [SystemConfigController::class, 'updateGeneral'])->name('general.update');
             Route::put('/notifications', [SystemConfigController::class, 'updateNotifications'])->name('notifications.update');
             Route::put('/security', [SystemConfigController::class, 'updateSecurity'])->name('security.update');
@@ -172,20 +193,22 @@ Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])->name(
 
         Route::prefix('email-templates')->name('email_templates.')->group(function () {
             Route::get('/', [EmailTemplateController::class, 'index'])->name('index');
+            Route::get('/create', [EmailTemplateController::class, 'create'])->name('create');
+            Route::post('/', [EmailTemplateController::class, 'store'])->name('store');
             Route::get('/{emailTemplate}/edit', [EmailTemplateController::class, 'edit'])->name('edit');
             Route::put('/{emailTemplate}', [EmailTemplateController::class, 'update'])->name('update');
             Route::get('/{emailTemplate}/preview', [EmailTemplateController::class, 'preview'])->name('preview');
         });
 
-       Route::prefix('backups')->name('backups.')->group(function () {
-    Route::get('/', [BackupController::class, 'index'])->name('index');
-    Route::post('/run', [BackupController::class, 'run'])->name('run');
+        Route::prefix('backups')->name('backups.')->group(function () {
+            Route::get('/', [BackupController::class, 'index'])->name('index');
+            Route::post('/run', [BackupController::class, 'run'])->name('run');
 
-    
-    Route::post('/restore', [BackupController::class, 'restore'])
-        ->middleware(['permission:backups.restore', 'password.confirm:admin'])
-        ->name('restore');
-});
+            Route::post('/restore', [BackupController::class, 'restore'])
+                ->middleware(['permission:backups.restore', 'password.confirm:admin'])
+                ->name('restore');
+        });
+
         Route::get('/admins', [AdminUserController::class, 'index'])->name('admins.index');
         Route::get('/admins/create', [AdminUserController::class, 'create'])->name('admins.create');
         Route::post('/admins', [AdminUserController::class, 'store'])->name('admins.store');

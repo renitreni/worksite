@@ -8,15 +8,15 @@ class UpdateEmailTemplateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // route middleware will restrict
+        return auth('admin')->check() && auth('admin')->user()->role === 'superadmin';
     }
 
     public function rules(): array
     {
         return [
             'subject' => ['required', 'string', 'max:255'],
-            'body_html' => ['required', 'string'],
-            'body_text' => ['nullable', 'string'],
+            'body_text' => ['required', 'string'],
+            'body_html' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

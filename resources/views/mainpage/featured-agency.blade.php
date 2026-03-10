@@ -54,15 +54,20 @@
 
                 <!-- TRACK -->
                 <div x-ref="carousel" @mouseenter="pause = true" @mouseleave="pause = false"
-                    class="flex overflow-hidden gap-5">
+                    class="flex gap-5
+           overflow-x-auto sm:overflow-hidden
+           snap-x sm:snap-none snap-mandatory
+           px-4 sm:px-0
+           scroll-smooth">
+
                     @foreach ($featuredAgencies as $agency)
                         <x-agency-card :agency="$agency" />
                     @endforeach
+
                 </div>
             </div>
         @endif
     </div>
-
     <script>
         function carousel(total) {
             return {
@@ -78,6 +83,7 @@
 
                 showArrows: false,
                 canLoop: false,
+                isMobile: false,
 
                 originalCount: 0,
                 resumeTimer: null,
@@ -102,7 +108,9 @@
                         this.syncClones();
                         this.measure();
 
-                        if (this.canLoop) this.start();
+                        if (this.canLoop && !this.isMobile) {
+                            this.start();
+                        }
 
                     });
 
@@ -112,6 +120,8 @@
 
                     const w = window.innerWidth;
 
+                    this.isMobile = w < 640;
+
                     let threshold = 3;
 
                     if (w < 640) threshold = 1;
@@ -119,7 +129,8 @@
                     else threshold = 3;
 
                     this.canLoop = this.total > threshold;
-                    this.showArrows = this.canLoop;
+
+                    this.showArrows = this.total > 1;
 
                 },
 
@@ -131,7 +142,7 @@
                         this.el.removeChild(this.el.lastElementChild);
                     }
 
-                    if (this.canLoop) {
+                    if (this.canLoop && !this.isMobile) {
 
                         const originals = Array.from(this.el.children).slice(0, this.originalCount);
 
@@ -157,7 +168,7 @@
 
                 start() {
 
-                    if (this.rafId) return;
+                    if (this.rafId || this.isMobile) return;
 
                     const animate = () => {
 
@@ -188,15 +199,18 @@
 
                 pauseAutoplay() {
 
+                    if (this.isMobile) return;
+
                     this.pause = true;
 
                     clearTimeout(this.resumeTimer);
 
                     this.resumeTimer = setTimeout(() => {
                         this.pause = false;
-                    }, 3000); // 3 seconds
+                    }, 3000);
 
                 },
+
                 next() {
 
                     if (!this.showArrows) return;

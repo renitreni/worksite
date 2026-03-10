@@ -31,7 +31,6 @@
     </section>
 
 
-
     <section class="bg-white py-20">
 
         <div class="max-w-7xl mx-auto px-6">
@@ -45,22 +44,56 @@
                         Send Us a Message
                     </h2>
 
-                    <form method="POST" class="space-y-6">
+                    {{-- SUCCESS MESSAGE --}}
+                    @if (session('success'))
+                        <div class="bg-green-100 text-green-700 p-4 rounded-lg mb-6">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    {{-- VALIDATION ERRORS --}}
+                    @if ($errors->any())
+                        <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+                            <ul class="list-disc ml-5 text-sm">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+
+                    <form method="POST" action="{{ route('contact.send') }}" class="space-y-6">
+
                         @csrf
 
-                        {{-- TYPE --}}
+
+                        {{-- ROLE / TYPE --}}
                         <div>
 
                             <label class="text-sm font-medium text-gray-700 block mb-2">
                                 I am a
                             </label>
 
-                            <select name="type"
+                            <select name="role"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-3
 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
 
-                                <option value="applicant">Applicant</option>
-                                <option value="agency">Recruitment Agency</option>
+                                <option value="">Select Role</option>
+
+                                <option value="Applicant">Applicant</option>
+
+                                <option value="Recruitment Agency">Recruitment Agency</option>
+
+                                <option value="Employer">Employer</option>
+
+                                <option value="HR">HR</option>
+
+                                <option value="Marketing">Marketing</option>
+
+                                <option value="Partnership">Partnership</option>
+
+                                <option value="Support">Support</option>
 
                             </select>
 
@@ -74,7 +107,8 @@ focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                                 Full Name
                             </label>
 
-                            <input type="text" name="name" placeholder="Enter your full name"
+                            <input type="text" name="name" value="{{ old('name') }}"
+                                placeholder="Enter your full name"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-3
 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
 
@@ -88,7 +122,7 @@ focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                                 Email Address
                             </label>
 
-                            <input type="email" name="email" placeholder="you@email.com"
+                            <input type="email" name="email" value="{{ old('email') }}" placeholder="you@email.com"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-3
 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
 
@@ -102,7 +136,7 @@ focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
                                 Contact Number
                             </label>
 
-                            <input type="text" name="phone" placeholder="+63 9XX XXX XXXX"
+                            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="+63 9XX XXX XXXX"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-3
 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
 
@@ -118,9 +152,10 @@ focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
 
                             <textarea name="message" rows="5" placeholder="Type your message here..."
                                 class="w-full rounded-lg border border-gray-300 px-4 py-3
-focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"></textarea>
+focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">{{ old('message') }}</textarea>
 
                         </div>
+                        <input type="text" name="website" class="hidden">
 
 
                         <button type="submit"
@@ -140,6 +175,7 @@ hover:bg-emerald-700 transition shadow-sm">
                 {{-- CONTACT INFO --}}
                 <div class="space-y-6">
 
+
                     {{-- PHONE --}}
                     <div class="bg-gray-50 border border-gray-100 rounded-xl p-6 flex gap-4 items-start">
 
@@ -154,7 +190,10 @@ hover:bg-emerald-700 transition shadow-sm">
                             </p>
 
                             <p class="text-gray-600 text-sm">
-                                (+632) 8-860-5800
+                                (+63) 9617-190-588
+                            </p>
+                             <p class="text-gray-600 text-sm">
+                                (+966) 508-624-264
                             </p>
 
                         </div>
@@ -177,7 +216,7 @@ hover:bg-emerald-700 transition shadow-sm">
                             </p>
 
                             <p class="text-gray-600 text-sm">
-                                customercare@workabroad.ph
+                                inquiry@jobabroad.ph
                             </p>
 
                         </div>

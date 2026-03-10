@@ -97,14 +97,19 @@
             ],
         ],
 
-       [
-    'label' => 'Reports',
-    'route' => 'admin.reports',
-    'icon' => 'bar-chart-3',
-    'active' => 'admin.reports*',
-],
-
-        
+        [
+            'label' => 'Reports',
+            'route' => 'admin.reports',
+            'icon' => 'bar-chart-3',
+            'active' => 'admin.reports*',
+        ],
+        [
+            'label' => 'Messages',
+            'route' => 'admin.messages.index',
+            'icon' => 'mail',
+            'active' => 'admin.messages.*',
+            'badge' => \App\Models\ContactMessage::where('is_read', false)->count(),
+        ],
     ];
 
     if ($adminUser && ($adminUser->role ?? null) === 'superadmin') {
@@ -255,9 +260,18 @@
                         <button type="button" @click="open = !open" title="{{ $it['label'] }}"
                             class="w-full flex min-w-0 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold
                 {{ $groupActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
-                            <span class="flex min-w-0 items-center gap-3 text-left">
+                            <span class="flex min-w-0 items-center gap-3 text-left w-full">
                                 <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
-                                <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
+
+                                <span class="flex-1 truncate">
+                                    {{ $it['label'] }}
+                                </span>
+
+                                @if (isset($it['badge']) && $it['badge'] > 0)
+                                    <span class="ml-auto text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+                                        {{ $it['badge'] }}
+                                    </span>
+                                @endif
                             </span>
 
                             <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
@@ -281,10 +295,22 @@
                     </div>
                 @else
                     <a wire:navigate href="{{ route($it['route']) }}" title="{{ $it['label'] }}"
-                        class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
-              {{ $active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
+                        class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
+{{ $active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
+
                         <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
-                        <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
+
+                        <span class="flex-1 truncate">
+                            {{ $it['label'] }}
+                        </span>
+
+                        {{-- BADGE --}}
+                        @if (isset($it['badge']) && $it['badge'] > 0)
+                            <span class="ml-auto text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+                                {{ $it['badge'] }}
+                            </span>
+                        @endif
+
                     </a>
                 @endif
             @endforeach

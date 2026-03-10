@@ -9,6 +9,8 @@ use App\Notifications\JobPostStatusUpdated;
 use App\Mail\JobPostHeldMail;
 use App\Mail\JobPostDisabledMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\JobPostLog;
+
 
 
 class JobPostAdminController extends Controller
@@ -81,6 +83,14 @@ class JobPostAdminController extends Controller
             )
         );
 
+
+        JobPostLog::create([
+            'job_post_id' => $jobPost->id,
+            'admin_id' => auth()->id(),
+            'action' => 'held',
+            'description' => request('hold_reason')
+        ]);
+
         return back()->with('success', 'Job post has been held.');
     }
 
@@ -96,6 +106,13 @@ class JobPostAdminController extends Controller
         $jobPost->employerProfile?->user?->notify(
             new JobPostStatusUpdated($jobPost, 'unhold')
         );
+
+        JobPostLog::create([
+            'job_post_id' => $jobPost->id,
+            'admin_id' => auth()->id(),
+            'action' => 'unheld',
+            'description' => request('hold_reason')
+        ]);
 
         return back()->with('success', 'Job post has been released (unheld).');
     }
@@ -132,6 +149,13 @@ class JobPostAdminController extends Controller
             )
         );
 
+        JobPostLog::create([
+            'job_post_id' => $jobPost->id,
+            'admin_id' => auth()->id(),
+            'action' => 'disabled',
+            'description' => request('disabled_reason')
+        ]);
+
         return back()->with('success', 'Job post has been disabled.');
     }
     public function enable(Request $request, JobPost $jobPost)
@@ -147,6 +171,13 @@ class JobPostAdminController extends Controller
             new JobPostStatusUpdated($jobPost, 'enable')
         );
 
+        JobPostLog::create([
+            'job_post_id' => $jobPost->id,
+            'admin_id' => auth()->id(),
+            'action' => 'enabled',
+            'description' => request('disabled_reason')
+        ]);
+
         return back()->with('success', 'Job post has been enabled.');
     }
 
@@ -159,6 +190,13 @@ class JobPostAdminController extends Controller
         $jobPost->update([
             'admin_notes' => $request->input('admin_notes'),
             'notes_updated_at' => now(),
+        ]);
+
+        JobPostLog::create([
+            'job_post_id' => $jobPost->id,
+            'admin_id' => auth()->id(),
+            'action' => 'updated_notes',
+            'description' => 'Admin notes updated'
         ]);
 
         return back()->with('success', 'Admin notes updated.');
