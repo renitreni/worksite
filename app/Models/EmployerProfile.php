@@ -12,6 +12,7 @@ class EmployerProfile extends Model
         'company_address',
         'company_contact',
         'company_website',
+        'dmw_license_number',
         'description',
         'logo_path',
         'cover_path',

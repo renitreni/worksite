@@ -18,10 +18,10 @@
         </div>
 
         {{-- Validation errors --}}
-        @if($errors->any())
+        @if ($errors->any())
             <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-800">
                 <ul class="list-disc list-inside text-sm">
-                    @foreach($errors->all() as $error)
+                    @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
@@ -89,28 +89,30 @@
                         // ✅ pivot selected IDs
                         $selectedIndustryIds = old(
                             'industries',
-                            $employerProfile->industries?->pluck('id')->toArray() ?? []
+                            $employerProfile->industries?->pluck('id')->toArray() ?? [],
                         );
 
-                        if (!is_array($selectedIndustryIds))
+                        if (!is_array($selectedIndustryIds)) {
                             $selectedIndustryIds = [];
-                      @endphp
+                        }
+                    @endphp
 
                     <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                        @if($industries->count() === 0)
+                        @if ($industries->count() === 0)
                             <div class="text-sm text-gray-600">
                                 No industries available. Ask admin to add industries first.
                             </div>
                         @else
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                @foreach($industries as $ind)
+                                @foreach ($industries as $ind)
                                     @php
                                         $checked = in_array($ind->id, $selectedIndustryIds, true);
-                                      @endphp
+                                    @endphp
 
                                     <label
                                         class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="industries[]" value="{{ $ind->id }}" @checked($checked)
+                                        <input type="checkbox" name="industries[]" value="{{ $ind->id }}"
+                                            @checked($checked)
                                             class="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-200">
                                         <span class="text-sm font-semibold text-gray-800">{{ $ind->name }}</span>
                                     </label>
@@ -141,6 +143,22 @@
                     <input name="position" value="{{ old('position', $employerProfile->position) }}"
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
                 </div>
+            </div>
+
+            <div class="sm:col-span-2 space-y-1">
+                <label class="text-xs font-semibold text-gray-700">
+                    DMW License Number
+                </label>
+
+                <input name="dmw_license_number"
+                    value="{{ old('dmw_license_number', $employerProfile->dmw_license_number) }}"
+                    placeholder="Example: DMW-123456"
+                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm
+        focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
+
+                <p class="text-xs text-gray-500">
+                    Optional. If your agency is registered with the Department of Migrant Workers (DMW).
+                </p>
             </div>
 
             {{-- Actions --}}

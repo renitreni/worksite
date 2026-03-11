@@ -81,18 +81,19 @@ class EmployerProfileController extends Controller
         $employerProfile = $this->ensureProfile($user);
 
         $validated = $request->validate([
-            'company_name'    => ['required', 'string', 'max:255'],
-            'email'           => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'company_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'company_contact' => ['nullable', 'string', 'max:50'],
             'company_address' => ['nullable', 'string', 'max:255'],
             'company_website' => ['nullable', 'string', 'max:255'],
-            'description'     => ['nullable', 'string', 'max:2000'],
+            'dmw_license_number' => ['nullable', 'string', 'max:100'], 
+            'description' => ['nullable', 'string', 'max:2000'],
 
-            'industries'      => ['nullable', 'array', 'max:20'],
-            'industries.*'    => ['integer', 'exists:industries,id'],
+            'industries' => ['nullable', 'array', 'max:20'],
+            'industries.*' => ['integer', 'exists:industries,id'],
 
-            'logo'            => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'cover'           => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
         DB::transaction(function () use ($user, $employerProfile, $validated, $request) {
@@ -101,23 +102,26 @@ class EmployerProfileController extends Controller
             $coverPath = $employerProfile->cover_path;
 
             if ($request->hasFile('logo')) {
-                if ($logoPath) Storage::disk('public')->delete($logoPath);
+                if ($logoPath)
+                    Storage::disk('public')->delete($logoPath);
                 $logoPath = $request->file('logo')->store('employers/logos', 'public');
             }
 
             if ($request->hasFile('cover')) {
-                if ($coverPath) Storage::disk('public')->delete($coverPath);
+                if ($coverPath)
+                    Storage::disk('public')->delete($coverPath);
                 $coverPath = $request->file('cover')->store('employers/covers', 'public');
             }
 
             $employerProfile->update([
-                'company_name'    => $validated['company_name'],
+                'company_name' => $validated['company_name'],
                 'company_contact' => $validated['company_contact'] ?? '',
+                'dmw_license_number' => $validated['dmw_license_number'] ?? null,
                 'company_address' => $validated['company_address'] ?? '',
                 'company_website' => $validated['company_website'] ?? '',
-                'description'     => $validated['description'] ?? '',
-                'logo_path'       => $logoPath,
-                'cover_path'      => $coverPath,
+                'description' => $validated['description'] ?? '',
+                'logo_path' => $logoPath,
+                'cover_path' => $coverPath,
             ]);
 
             $employerProfile->industries()->sync($validated['industries'] ?? []);
