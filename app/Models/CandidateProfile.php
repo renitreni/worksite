@@ -56,4 +56,13 @@ class CandidateProfile extends Model
     {
         return $this->hasOne(\App\Models\CandidateResume::class, 'user_id', 'user_id');
     }
+
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->photo_path && file_exists(public_path('storage/' . $this->photo_path))) {
+            return asset('storage/' . $this->photo_path);
+        }
+
+        return asset('images/default-avatar.png');
+    }
 }

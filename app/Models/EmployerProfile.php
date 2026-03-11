@@ -65,4 +65,13 @@ class EmployerProfile extends Model
         return $this->hasMany(AgencyFollow::class);
     }
 
+    public function getLogoUrlAttribute()
+    {
+        if ($this->logo_path && file_exists(public_path('storage/' . $this->logo_path))) {
+            return asset('storage/' . $this->logo_path);
+        }
+
+        return asset('images/default-company.png');
+    }
+
 }

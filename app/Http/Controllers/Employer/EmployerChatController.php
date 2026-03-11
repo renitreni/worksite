@@ -7,6 +7,7 @@ use App\Models\Chat;
 use App\Models\JobApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\ChatMessageSent;
 
 class EmployerChatController extends Controller
 {
@@ -29,8 +30,8 @@ class EmployerChatController extends Controller
             $application = $applications->first();
         }
 
-        $chats = $application 
-            ? $application->chats()->with('sender')->orderBy('created_at')->get() 
+        $chats = $application
+            ? $application->chats()->with('sender')->orderBy('created_at')->get()
             : collect();
 
         return view('employer.contents.chat-messenger', compact('applications', 'application', 'chats'));
@@ -52,11 +53,13 @@ class EmployerChatController extends Controller
             'message' => 'required|string',
         ]);
 
-        Chat::create([
+        $chat = Chat::create([
             'job_application_id' => $application->id,
             'sender_id' => $currentUser->id,
-            'message' => $request->message,
+            'message' => $request->message
         ]);
+
+        broadcast(new ChatMessageSent($chat))->toOthers();
 
         return redirect()->route('employer.chat.index', $application->id);
     }

@@ -74,6 +74,7 @@
     @include('employer.modals.job-posting-limit')
 
     @livewireScripts
+ 
 
     <script>
         function initLucide() {

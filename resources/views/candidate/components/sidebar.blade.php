@@ -43,8 +43,8 @@
         [
             'label' => 'Messages',
             'icon' => 'messages-square',
-            'href' => url('/candidate/messages'),
-            'active' => $is('candidate/messages'),
+            'href' => route('candidate.chat.index'),
+            'active' => $is('candidate/chat') || $is('candidate/chat/*'),
         ],
     ];
 @endphp

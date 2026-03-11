@@ -10,6 +10,7 @@ use App\Http\Controllers\Candidate\JobApplicationController;
 use App\Http\Controllers\Candidate\AppliedJobsController;
 use App\Http\Controllers\Candidate\FollowingEmployerController;
 use App\Http\Controllers\Candidate\DashboardController;
+use App\Http\Controllers\Candidate\CandidateChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -150,7 +151,13 @@ Route::prefix('candidate')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/messages', fn() => view('candidate.contents.messages'))->name('messages');
+        Route::get('/chat/{application?}', [CandidateChatController::class, 'index'])
+            ->name('chat.index');
+
+        Route::post('/chat/{application}', [CandidateChatController::class, 'store'])
+            ->name('chat.store');
+
+
         Route::get('/meetings', fn() => view('candidate.contents.meetings'))->name('meetings');
         Route::get('/delete-profile', fn() => view('candidate.contents.delete-profile'))->name('delete-profile');
 

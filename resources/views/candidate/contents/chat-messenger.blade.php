@@ -1,21 +1,21 @@
-@extends('employer.layout')
+@extends('candidate.layout')
 
 @section('content')
     <div class="space-y-6">
 
-        {{-- CHAT CARD --}}
+        {{-- CHAT CONTAINER --}}
         <div class="rounded-2xl bg-white border border-gray-200 overflow-hidden">
 
             <div class="flex h-[600px]" x-data="{ openChat: {{ $application ? 'true' : 'false' }} }">
 
-                {{-- LEFT : APPLICANTS LIST --}}
+                {{-- LEFT : CONVERSATIONS --}}
                 <div class="w-full md:w-[340px] border-r border-gray-200 overflow-y-auto"
                     :class="openChat ? 'hidden md:block' : 'block'">
 
                     <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
 
                         <p class="font-semibold text-gray-800">
-                            Applicants
+                            Conversations
                         </p>
 
                         @if ($applications->sum('unread_count') > 0)
@@ -35,26 +35,26 @@
                                 $lastChat = $app->chats->last();
                             @endphp
 
-                            <a href="{{ route('employer.chat.index', $app->id) }}"
+                            <a href="{{ route('candidate.chat.index', $app->id) }}"
                                 class="flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition
 {{ $application && $application->id == $app->id ? 'bg-gray-50' : '' }}">
 
-                                <img src="{{ optional($app->candidateProfile)->avatar_url }}"
-                                    class="w-10 h-10 rounded-full object-cover" />
+                                <img src="{{ optional($app->jobPost->employerProfile)->logo_url }}"
+                                    class="w-10 h-10 rounded-full object-cover border" />
 
                                 <div class="flex-1 min-w-0">
 
                                     <p class="text-sm font-semibold text-gray-900 truncate">
-                                        {{ optional($app->candidateProfile)->user?->name ?? 'Candidate' }}
+                                        {{ optional($app->jobPost)->title }}
                                     </p>
 
                                     <p class="text-xs text-gray-500 truncate">
-                                        {{ optional($app->jobPost)->title }}
+                                        {{ optional($app->jobPost->employerProfile)->company_name }}
                                     </p>
 
                                     @if ($lastChat)
                                         <p class="text-xs text-gray-400 truncate mt-1">
-                                            {{ \Illuminate\Support\Str::limit($lastChat->message, 40) }}
+                                            {{ Str::limit($lastChat->message, 40) }}
                                         </p>
                                     @endif
 
@@ -86,17 +86,17 @@
                                 ←
                             </button>
 
-                            <img src="{{ optional($application->candidateProfile)->avatar_url }}"
-                                class="w-9 h-9 rounded-full object-cover" />
+                            <img src="{{ optional($application->jobPost->employerProfile)->logo_url }}"
+                                class="w-9 h-9 rounded-full object-cover border" />
 
                             <div>
 
                                 <p class="text-sm font-semibold text-gray-900">
-                                    {{ optional($application->candidateProfile)->user?->name ?? 'Candidate' }}
+                                    {{ optional($application->jobPost)->title }}
                                 </p>
 
                                 <p class="text-xs text-gray-500">
-                                    {{ optional($application->jobPost)->title }}
+                                    {{ optional($application->jobPost->employerProfile)->company_name }}
                                 </p>
 
                             </div>
@@ -105,15 +105,15 @@
 
 
 
-                        {{-- LIVEWIRE CHAT --}}
+                        {{-- CHAT COMPONENT --}}
                         <div class="flex-1 overflow-hidden">
 
-                            <livewire:chat-messenger :application="$application" :canReply="true" />
+                            <livewire:chat-messenger :application="$application" :canReply="$canReply" />
 
                         </div>
                     @else
                         <div class="flex items-center justify-center h-full text-gray-500 text-sm">
-                            Select an applicant to start messaging
+                            Select a conversation
                         </div>
                     @endif
 
