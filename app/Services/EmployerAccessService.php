@@ -324,4 +324,17 @@ class EmployerAccessService
             ? $val
             : 'default';
     }
+
+    public function canUseDirectMessaging($profile): bool
+    {
+        $activeSub = $this->getActiveSubscriptionForProfile($profile);
+
+        if (!$activeSub || !$activeSub->plan) {
+            return false;
+        }
+
+        $val = $this->featureScalar($activeSub->plan, 'direct_messaging', 'false');
+
+        return in_array($val, ['1', 'true', 'yes'], true);
+    }
 }

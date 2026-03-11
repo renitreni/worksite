@@ -1,3 +1,11 @@
+@php
+    $profile = auth()->user()->employerProfile ?? null;
+
+    $accessService = app(\App\Services\EmployerAccessService::class);
+
+    $canUseMessaging = $profile ? $accessService->canUseDirectMessaging($profile) : false;
+@endphp
+
 <header wire:ignore.self class="sticky top-0 z-30 bg-white border-b border-gray-200">
     <div class="h-16 min-h-[64px] px-3 sm:px-6 lg:px-8 flex items-center">
         {{-- Mobile hamburger --}}
@@ -22,12 +30,30 @@
             </button>
 
             {{-- Messages --}}
-            <a href="{{ route('employer.chat.index') }}"
-                class="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition"
-                aria-label="Messages">
-                <i data-lucide="message-circle" class="h-5 w-5 text-gray-600"></i>
-                <span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white"></span>
-            </a>
+            @if ($canUseMessaging)
+                <a href="{{ route('employer.chat.index') }}"
+                    class="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition"
+                    aria-label="Messages">
+
+                    <i data-lucide="message-circle" class="h-5 w-5 text-gray-600"></i>
+
+                    <span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+
+                </a>
+            @else
+                <button @click="$dispatch('open-upgrade-modal')"
+                    class="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition"
+                    aria-label="Upgrade to use messaging">
+
+                    <i data-lucide="message-circle" class="h-5 w-5 text-gray-400"></i>
+
+                    <span
+                        class="absolute -top-1 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">
+                        PRO
+                    </span>
+
+                </button>
+            @endif
 
             {{-- Analytics --}}
             <button type="button"
@@ -78,3 +104,41 @@
         </div>
     </div>
 </header>
+<div 
+    x-data="{ open:false }"
+    x-on:open-upgrade-modal.window="open=true"
+    x-show="open"
+    x-transition
+    class="fixed inset-0 flex items-center justify-center bg-black/40 z-50"
+>
+
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+
+        <h2 class="text-lg font-semibold text-gray-900">
+            Upgrade Required
+        </h2>
+
+        <p class="mt-2 text-sm text-gray-600 leading-relaxed">
+            Direct messaging is available only for the 
+            <span class="font-semibold text-emerald-600">Platinum Plan</span>.
+            Upgrade your subscription to contact candidates directly.
+        </p>
+
+        <div class="mt-6 flex justify-end gap-3">
+
+            <button
+                @click="open=false"
+                class="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50">
+                Cancel
+            </button>
+
+            <a href="{{ route('employer.subscription.dashboard') }}"
+                class="px-4 py-2 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
+                Upgrade Plan
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

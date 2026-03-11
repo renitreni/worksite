@@ -33,33 +33,49 @@ class HomeController extends Controller
             ->take(9)
             ->get();
 
-
         /**
-         * ✅ Featured Agencies
+         * ✅ Featured Agencies with Priority System
          */
-        $featuredAgencies = EmployerProfile::query()
+
+        $agencies = EmployerProfile::query()
             ->with([
                 'industries:id,name',
-                'verification:employer_profile_id,status',
-                'user:id,email,account_status,archived_at',
+                'verification',
+                'user',
+                'activeSubscription.plan.featureValues.definition'
             ])
-            ->whereHas('verification', function ($q) {
-                $q->where('status', 'approved');
-            })
-            ->whereHas('user', function ($q) {
-                $q->where('account_status', 'active')
-                    ->whereNull('archived_at');
-            })
+            ->whereHas('verification', fn($q) => $q->where('status', 'approved'))
+            ->whereHas('user', fn($q) => $q->where('account_status', 'active')->whereNull('archived_at'))
             ->withCount([
-                'jobPosts as open_jobs_count' => function ($q) {
-                    $q->where('status', 'open');
-                }
+                'jobPosts as open_jobs_count' => fn($q) => $q->where('status', 'open')
             ])
-            ->orderByDesc('open_jobs_count')
-            ->orderByDesc('total_profile_views')
-            ->take(12)
             ->get();
 
+        $featuredAgencies = $agencies->map(function ($agency) {
+
+            $plan = optional($agency->activeSubscription?->plan);
+
+            $visibility = $plan?->feature('search_visibility', 'normal');
+
+            $planScore = match ($visibility) {
+                'priority' => 100,
+                'featured' => 70,
+                'normal' => 30,
+                default => 0,
+            };
+
+            $jobScore = $agency->open_jobs_count * 5;
+
+            $viewScore = ($agency->total_profile_views ?? 0) * 0.05;
+
+            $agency->ranking_score = $planScore + $jobScore + $viewScore;
+
+            return $agency;
+
+        })
+            ->sortByDesc('ranking_score')
+            ->take(20)
+            ->values();
 
         /**
          * ✅ DYNAMIC STATS

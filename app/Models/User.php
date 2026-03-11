@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\CandidateProfile;
 use Illuminate\Notifications\Notifiable;
+use App\Models\EmployerSubscription;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+;
 
 
 class User extends Authenticatable
@@ -70,5 +73,18 @@ class User extends Authenticatable
     public function followedAgencies()
     {
         return $this->hasMany(AgencyFollow::class);
+    }
+
+    public function currentPlan()
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->latest()
+            ->first()?->plan;
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(EmployerSubscription::class, 'user_id');
     }
 }

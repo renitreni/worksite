@@ -8,9 +8,16 @@ use App\Models\JobApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\ChatMessageSent;
+use App\Services\EmployerAccessService;
 
 class EmployerChatController extends Controller
 {
+    protected EmployerAccessService $access;
+
+    public function __construct(EmployerAccessService $access)
+    {
+        $this->access = $access;
+    }
     /**
      * Show the Messenger-style chat page
      * 
@@ -18,6 +25,15 @@ class EmployerChatController extends Controller
      */
     public function index(?JobApplication $application = null)
     {
+        $profile = $this->access->requireApprovedEmployerProfile();
+
+        // 🔒 Block if plan does not allow messaging
+        abort_unless(
+            $this->access->canUseDirectMessaging($profile),
+            403,
+            'Upgrade your plan to use Direct Messaging.'
+        );
+
         $currentUser = Auth::user();
 
         // Get all applications for jobs of this employer
@@ -42,6 +58,14 @@ class EmployerChatController extends Controller
      */
     public function store(Request $request, JobApplication $application)
     {
+        $profile = $this->access->requireApprovedEmployerProfile();
+
+        abort_unless(
+            $this->access->canUseDirectMessaging($profile),
+            403,
+            'Upgrade your plan to send messages.'
+        );
+
         $currentUser = Auth::user();
 
         // Authorization check

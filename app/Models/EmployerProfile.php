@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class EmployerProfile extends Model
 {
 
@@ -74,5 +76,6 @@ class EmployerProfile extends Model
 
         return asset('images/default-company.png');
     }
+
 
 }
