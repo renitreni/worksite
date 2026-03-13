@@ -219,7 +219,12 @@
                                     @php
                                         $name = $app->candidateProfile?->user?->name ?? 'No Name';
                                         $email = $app->candidateProfile?->user?->email ?? 'N/A';
-
+                                        $viewed = \App\Models\CandidateProfileView::where(
+                                            'job_application_id',
+                                            $app->id,
+                                        )
+                                            ->where('employer_profile_id', auth()->user()->employerProfile->id)
+                                            ->exists();
                                         $status = strtolower(trim($app->status ?? 'applied'));
 
                                         $nextMap = [
@@ -300,8 +305,11 @@
 
                                                 {{-- VIEW --}}
                                                 <a href="{{ route('employer.applicants.show', $app) }}"
-                                                    class="px-3 py-1.5 rounded-xl text-xs font-semibold border bg-white text-slate-700 border-slate-300 hover:bg-slate-50">
-                                                    View
+                                                    class="px-3 py-1.5 rounded-xl text-xs font-semibold border 
+    {{ $viewed ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50' }}">
+
+                                                    {{ $viewed ? 'Viewed' : 'View' }}
+
                                                 </a>
 
                                                 {{-- STATUS MODAL --}}
