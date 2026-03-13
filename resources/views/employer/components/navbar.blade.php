@@ -1,7 +1,7 @@
 @php
     $profile = auth()->user()->employerProfile ?? null;
 
-    $accessService = app(\App\Services\EmployerAccessService::class);
+    $accessService = app(\App\Services\Employer\EmployerAccessService::class);
 
     $canUseMessaging = $profile ? $accessService->canUseDirectMessaging($profile) : false;
 @endphp

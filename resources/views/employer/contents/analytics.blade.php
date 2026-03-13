@@ -89,7 +89,9 @@ bg-gray-100 text-gray-700 @endif
                 <h2 class="text-lg font-semibold mb-4">Applicants per Job</h2>
 
                 <div class="h-64">
-                    <canvas id="applicationsChart"></canvas>
+                    @if ($analyticsLevel !== 'default')
+                        <canvas id="applicationsChart"></canvas>
+                    @endif
                 </div>
 
                 @if ($analyticsLevel === 'default')
@@ -111,7 +113,9 @@ bg-gray-100 text-gray-700 @endif
                 <h2 class="text-lg font-semibold mb-4">Applicant Status Distribution</h2>
 
                 <div class="h-64">
-                    <canvas id="statusChart"></canvas>
+                    @if ($analyticsLevel !== 'default')
+                        <canvas id="statusChart"></canvas>
+                    @endif
                 </div>
 
                 @if ($analyticsLevel === 'default')
@@ -201,7 +205,9 @@ bg-gray-100 text-gray-700 @endif
             <h2 class="text-lg font-semibold mb-4">Monthly Applicant Trend</h2>
 
             <div class="h-64">
-                <canvas id="trendChart"></canvas>
+                @if (in_array($analyticsLevel, ['advanced', 'enterprise']))
+                    <canvas id="trendChart"></canvas>
+                @endif
             </div>
 
             @if (!in_array($analyticsLevel, ['advanced', 'enterprise']))
@@ -226,7 +232,9 @@ bg-gray-100 text-gray-700 @endif
                 <h2 class="text-lg font-semibold mb-4">Recruitment Funnel</h2>
 
                 <div class="h-64">
-                    <canvas id="funnelChart"></canvas>
+                    @if ($analyticsLevel === 'enterprise')
+                        <canvas id="funnelChart"></canvas>
+                    @endif
                 </div>
 
                 @if ($analyticsLevel !== 'enterprise')
@@ -248,7 +256,9 @@ bg-gray-100 text-gray-700 @endif
                 <h2 class="text-lg font-semibold mb-4">Candidate Experience Levels</h2>
 
                 <div class="h-64">
-                    <canvas id="experienceChart"></canvas>
+                    @if ($analyticsLevel === 'enterprise')
+                        <canvas id="experienceChart"></canvas>
+                    @endif
                 </div>
 
                 @if ($analyticsLevel !== 'enterprise')
@@ -329,122 +339,149 @@ bg-gray-100 text-gray-700 @endif
 
 
             // Applications per Job
-            new Chart(document.getElementById('applicationsChart'), {
+            const applicationsChart = document.getElementById('applicationsChart');
 
-                type: 'bar',
+            if (applicationsChart) {
 
-                data: {
-                    labels: @json(isset($applicationsPerJob) ? $applicationsPerJob->pluck('title') : []),
-                    datasets: [{
-                        label: "Applications",
-                        data: @json(isset($applicationsPerJob) ? $applicationsPerJob->pluck('applications_count') : []),
-                        backgroundColor: '#10B981'
-                    }]
-                },
+                new Chart(applicationsChart, {
 
-                options: commonOptions
+                    type: 'bar',
 
-            });
+                    data: {
+                        labels: @json(isset($applicationsPerJob) ? $applicationsPerJob->pluck('title') : []),
+                        datasets: [{
+                            label: "Applications",
+                            data: @json(isset($applicationsPerJob) ? $applicationsPerJob->pluck('applications_count') : []),
+                            backgroundColor: '#10B981'
+                        }]
+                    },
+
+                    options: commonOptions
+
+                });
+
+            }
 
 
             // Applicant Status
-            new Chart(document.getElementById('statusChart'), {
+            const statusChart = document.getElementById('statusChart');
 
-                type: 'pie',
+            if (statusChart) {
 
-                data: {
-                    labels: @json(isset($statusDistribution) ? array_keys($statusDistribution) : []),
-                    datasets: [{
-                        label: "Applicants",
-                        data: @json(isset($statusDistribution) ? array_values($statusDistribution) : []),
-                        backgroundColor: ['#3B82F6', '#10B981', '#FBBF24', '#EF4444']
-                    }]
-                },
+                new Chart(statusChart, {
+                    type: 'pie',
+                    data: {
+                        labels: @json(isset($statusDistribution) ? array_keys($statusDistribution) : []),
+                        datasets: [{
+                            data: @json(isset($statusDistribution) ? array_values($statusDistribution) : []),
+                            backgroundColor: ['#3B82F6', '#10B981', '#FBBF24', '#EF4444']
+                        }]
+                    },
+                    options: commonOptions
+                });
 
-                options: commonOptions
-
-            });
-
-
+            }
             // Monthly Trend
-            new Chart(document.getElementById('trendChart'), {
+            const trendChart = document.getElementById('trendChart');
 
-                type: 'line',
+            if (trendChart) {
 
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
-                        'Dec'
-                    ],
-                    datasets: [{
-                        label: "Hires",
-                        data: @json(isset($hiresPerMonthData) ? $hiresPerMonthData : []),
-                        borderColor: '#3B82F6',
-                        backgroundColor: 'rgba(59,130,246,0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
+                new Chart(trendChart, {
 
-                options: commonOptions
+                    type: 'line',
 
-            });
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
+                            'Nov', 'Dec'
+                        ],
+                        datasets: [{
+                            label: "Hires",
+                            data: @json(isset($hiresPerMonthData) ? $hiresPerMonthData : []),
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59,130,246,0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+
+                    options: commonOptions
+
+                });
+
+            }
 
 
             // Funnel
-            new Chart(document.getElementById('funnelChart'), {
+            const funnelChart = document.getElementById('funnelChart');
 
-                type: 'bar',
+            if (funnelChart) {
 
-                data: {
-                    labels: ['Applied', 'Shortlisted', 'Interview', 'Hired'],
-                    datasets: [{
-                        label: "Applicants",
-                        data: @json(isset($funnel) ? array_values($funnel) : []),
-                        backgroundColor: '#6366F1'
-                    }]
-                },
+                new Chart(funnelChart, {
 
-                options: commonOptions
+                    type: 'bar',
 
-            });
+                    data: {
+                        labels: ['Applied', 'Shortlisted', 'Interview', 'Hired'],
+                        datasets: [{
+                            label: "Applicants",
+                            data: @json(isset($funnel) ? array_values($funnel) : []),
+                            backgroundColor: '#6366F1'
+                        }]
+                    },
+
+                    options: commonOptions
+
+                });
+
+            }
 
 
             // Experience
-            new Chart(document.getElementById('experienceChart'), {
+            const experienceChart = document.getElementById('experienceChart');
 
-                type: 'pie',
+            if (experienceChart) {
 
-                data: {
-                    labels: @json(isset($experienceLevels) ? array_keys($experienceLevels) : []),
-                    datasets: [{
-                        label: "Candidates",
-                        data: @json(isset($experienceLevels) ? array_values($experienceLevels) : []),
-                        backgroundColor: ['#3B82F6', '#F59E0B', '#10B981']
-                    }]
-                },
+                new Chart(experienceChart, {
 
-                options: commonOptions
+                    type: 'pie',
 
-            });
+                    data: {
+                        labels: @json(isset($experienceLevels) ? array_keys($experienceLevels) : []),
+                        datasets: [{
+                            data: @json(isset($experienceLevels) ? array_values($experienceLevels) : []),
+                            backgroundColor: ['#3B82F6', '#F59E0B', '#10B981']
+                        }]
+                    },
 
+                    options: commonOptions
+
+                });
+
+            }
 
             // Industry
-            new Chart(document.getElementById('categoryChart'), {
+            const industryChart = document.getElementById('industryChart');
 
-                type: 'bar',
+            if (industryChart) {
 
-                data: {
-                    labels: @json(isset($applicantsByCategory) ? array_keys($applicantsByCategory) : []),
-                    datasets: [{
-                        label: "Applicants",
-                        data: @json(isset($applicantsByCategory) ? array_values($applicantsByCategory) : []),
-                        backgroundColor: '#8B5CF6'
-                    }]
-                },
+                new Chart(document.getElementById('categoryChart'), {
 
-                options: commonOptions
+                    type: 'bar',
 
-            });
+                    data: {
+                        labels: @json(isset($applicantsByCategory) ? array_keys($applicantsByCategory) : []),
+                        datasets: [{
+                            label: "Applicants",
+                            data: @json(isset($applicantsByCategory) ? array_values($applicantsByCategory) : []),
+                            backgroundColor: '#8B5CF6'
+                        }]
+                    },
+
+                    options: commonOptions
+
+                });
+
+            }
 
 
             if (window.lucide) window.lucide.createIcons();

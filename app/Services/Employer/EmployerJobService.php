@@ -1,0 +1,131 @@
+<?php
+
+namespace App\Services\Employer;
+
+use App\Models\JobPost;
+use App\Models\Industry;
+use App\Models\Skill;
+use Illuminate\Support\Facades\Auth;
+
+class EmployerJobService
+{
+    public function __construct(
+        private EmployerAccessService $accessService,
+        private EmployerJobLimitService $limitService,
+        private EmployerTaxonomyService $taxonomyService,
+        private EmployerLocationService $locationService
+    ) {
+    }
+
+    public function getActiveJobs()
+    {
+        $profile = $this->accessService->requireApprovedEmployerProfile();
+
+        return $profile->jobPosts()
+            ->where('status', 'open')
+            ->latest()
+            ->get();
+    }
+
+    public function getClosedJobs()
+    {
+        $profile = $this->accessService->requireApprovedEmployerProfile();
+
+        return $profile->jobPosts()
+            ->where('status', 'closed')
+            ->latest()
+            ->get();
+    }
+
+    public function getCreatePageData(): array
+    {
+        $profile = $this->accessService->requireApprovedEmployerProfile();
+
+        $limitState = $this->limitService->postingLimitState($profile);
+
+        if ($limitState['exceeded']) {
+            return [
+                'limitReached' => true,
+                'limitData' => $limitState
+            ];
+        }
+
+        return array_merge(
+            [
+                'limitReached' => false
+            ],
+            $this->taxonomyService->taxonomies()
+        );
+    }
+
+    public function storeJob($request)
+    {
+        $profile = $this->accessService->requireApprovedEmployerProfile();
+
+        $this->limitService->enforceLimitOrRedirect($profile);
+
+        $validated = $this->validateJob($request);
+
+        [$city, $area] = $this->locationService->normalizeCityArea($request);
+
+        $validated['city'] = $city;
+        $validated['area'] = $area;
+
+        $industry = Industry::findOrFail($validated['industry_id']);
+
+        $skills = Skill::where('industry_id', $industry->id)
+            ->whereIn('id', $validated['skills'])
+            ->pluck('name');
+
+        $validated['industry'] = $industry->name;
+        $validated['skills'] = $skills->implode(',');
+
+        $validated['posted_at'] = now();
+        $validated['status'] = 'open';
+
+        unset($validated['city_custom'], $validated['area_custom']);
+
+        $profile->jobPosts()->create($validated);
+    }
+
+    public function authorizeOwner(JobPost $job)
+    {
+        $job->loadMissing('employerProfile');
+
+        if ($job->employerProfile->user_id !== Auth::id()) {
+            abort(403);
+        }
+    }
+
+    public function closeJob(JobPost $job)
+    {
+        $this->authorizeOwner($job);
+
+        $job->update(['status' => 'closed']);
+    }
+
+    public function reopenJob(JobPost $job)
+    {
+        $this->authorizeOwner($job);
+
+        $profile = $this->accessService->requireApprovedEmployerProfile();
+
+        $this->limitService->enforceLimitOrRedirect($profile);
+
+        $job->update(['status' => 'open']);
+    }
+
+    private function validateJob($request)
+    {
+        return $request->validate([
+            'title' => 'required|string|max:255',
+            'industry_id' => 'required|exists:industries,id',
+            'skills' => 'required|array|min:1',
+            'skills.*' => 'integer|exists:skills,id',
+            'country' => 'required|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'area' => 'nullable|string|max:255',
+            'job_description' => 'required|string'
+        ]);
+    }
+}

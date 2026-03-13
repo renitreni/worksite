@@ -5,7 +5,7 @@ namespace App\Livewire\Employer\Applicants;
 use Livewire\Component;
 use App\Models\JobApplication;
 use App\Models\JobPost;
-use App\Services\EmployerAccessService;
+use App\Services\Employer\EmployerAccessService;
 use Carbon\Carbon;
 
 class ApplicantsTable extends Component
