@@ -11,13 +11,17 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    DB::statement("ALTER TABLE users MODIFY role ENUM('candidate','employer','admin','superadmin') NOT NULL DEFAULT 'candidate'");
-}
+    {
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE users MODIFY role ENUM('candidate','employer','admin','superadmin') NOT NULL DEFAULT 'candidate'");
+        }
+    }
 
-public function down(): void
-{
-    DB::statement("ALTER TABLE users MODIFY role ENUM('candidate','employer','admin') NOT NULL DEFAULT 'candidate'");
-}
+    public function down(): void
+    {
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE users MODIFY role ENUM('candidate','employer','admin') NOT NULL DEFAULT 'candidate'");
+        }
+    }
 
 };
