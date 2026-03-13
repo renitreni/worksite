@@ -3,25 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use App\Models\EmailTemplate;
-use App\Support\EmailTemplateRenderer;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use App\Mail\SystemTemplateMail;
-use App\Support\AdminActivity;
+use App\Services\Admin\AdminAdminUserService;
+use App\Models\User;
 
 class AdminUserController extends Controller
 {
-
-    public function __construct()
-    {
+    public function __construct(
+        private AdminAdminUserService $adminService
+    ) {
         $this->middleware(function ($request, $next) {
+
             if (auth('admin')->user()->role !== 'superadmin') {
                 abort(403);
             }
@@ -29,30 +21,15 @@ class AdminUserController extends Controller
             return $next($request);
         });
     }
+
     public function index(Request $request)
     {
-        $q = trim((string) $request->query('q', ''));
-        $archived = (string) $request->query('archived', '0'); // 0 active, 1 archived
+        $data = $this->adminService->getAdmins($request);
 
-        $admins = User::query()
-            ->whereIn('role', ['admin', 'superadmin'])
-            ->when($archived === '1', fn($qr) => $qr->whereNotNull('archived_at'))
-            ->when($archived !== '1', fn($qr) => $qr->whereNull('archived_at'))
-            ->when($q !== '', function ($qr) use ($q) {
-                $qr->where(function ($w) use ($q) {
-                    $w->where('name', 'like', "%{$q}%")
-                        ->orWhere('email', 'like', "%{$q}%")
-                        ->orWhere('first_name', 'like', "%{$q}%")
-                        ->orWhere('last_name', 'like', "%{$q}%")
-                        ->orWhereRaw("concat(first_name,' ',last_name) like ?", ["%{$q}%"]);
-                });
-            })
-            ->latest('id')
-            ->paginate(10)
-            ->withQueryString();
-
-        // ✅ IMPORTANT: return admins view, not users view
-        return view('adminpage.contents.admins.index', compact('admins', 'q', 'archived'));
+        return view(
+            'adminpage.contents.admins.index',
+            $data
+        );
     }
 
     public function create()
@@ -61,171 +38,58 @@ class AdminUserController extends Controller
     }
 
     public function store(Request $request)
-{
-    $data = $request->validate([
-        'first_name' => ['required', 'string', 'max:80'],
-        'last_name'  => ['required', 'string', 'max:80'],
-        'email'      => ['required', 'email', 'max:190', 'unique:users,email'],
-    ]);
+    {
+        $this->adminService->createAdmin($request);
 
-    $user = User::create([
-        'first_name'        => $data['first_name'],
-        'last_name'         => $data['last_name'],
-        'name'              => $data['first_name'] . ' ' . $data['last_name'],
-        'email'             => $data['email'],
-        'password'          => Hash::make(Str::random(32)),
-        'role'              => 'admin',
-        'account_status'    => 'pending_invitation',
-        'email_verified_at' => null,
-        'archived_at'       => null,
-    ]);
-
-    $token = Str::random(64);
-
-    DB::table('password_reset_tokens')->updateOrInsert(
-        ['email' => $user->email],
-        [
-            'email'      => $user->email,
-            'token'      => Hash::make($token),
-            'created_at' => now(),
-        ]
-    );
-
-    $inviteLink = route('admin.invite.accept', [
-        'email' => $user->email,
-        'token' => $token,
-    ]);
-
-    $template = EmailTemplate::query()
-        ->where('name', 'admin_invitation')
-        ->where('is_active', true)
-        ->first();
-
-    if ($template) {
-        $rendered = EmailTemplateRenderer::render(
-            $template->subject,
-            $template->body_text,
-            $template->body_html,
-            [
-                'FULL_NAME'        => $user->name,
-                'SITE_NAME'        => 'JobAbroad',
-                'INVITE_LINK'      => $inviteLink,
-                'EXPIRES_IN_HOURS' => 24,
-                'SUPERADMIN_NAME'  => auth('admin')->user()->name ?? 'System Super Admin',
-            ]
-        );
-
-        Mail::to($user->email)->queue(
-    new SystemTemplateMail(
-        $rendered['subject'],
-        $rendered['body_html'],
-        $rendered['body_text'] ?? null
-    )
-);
+        return redirect()
+            ->route('admin.admins.index')
+            ->with('success', 'Admin created and invitation email sent.');
     }
-
-    return redirect()
-        ->route('admin.admins.index')
-        ->with('success', 'Admin created and invitation email sent.');
-}
 
     public function edit(User $user)
     {
-        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
-        return view('adminpage.contents.admins.edit', compact('user'));
+        $this->adminService->authorizeAdmin($user);
+
+        return view(
+            'adminpage.contents.admins.edit',
+            compact('user')
+        );
     }
 
     public function update(Request $request, User $user)
     {
-        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
+        $this->adminService->updateAdmin($request, $user);
 
-        $data = $request->validate([
-            'first_name' => ['required', 'string', 'max:80'],
-            'last_name' => ['required', 'string', 'max:80'],
-            'email' => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $user->first_name = $data['first_name'];
-        $user->last_name = $data['last_name'];
-        $user->name = $data['first_name'] . ' ' . $data['last_name'];
-        $user->email = $data['email'];
-
-        if (!empty($data['password'])) {
-            $user->password = Hash::make($data['password']);
-        }
-
-        $user->save();
-
-        return redirect()->route('admin.admins.index')->with('success', 'Admin updated.');
+        return redirect()
+            ->route('admin.admins.index')
+            ->with('success', 'Admin updated.');
     }
 
     public function toggle(User $user)
     {
-        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
-
-        $currentAdminId = Auth::guard('admin')->id();
-        abort_if($currentAdminId && $user->id === $currentAdminId, 403);
-
-        abort_if(!is_null($user->archived_at), 403);
-
-        $current = $user->account_status ?? 'active';
-        $user->account_status = ($current === 'active') ? 'disabled' : 'active';
-        $user->save();
+        $this->adminService->toggleStatus($user);
 
         return back()->with('success', 'Admin status updated.');
     }
 
     public function archive(User $user)
     {
-        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
-
-        $currentAdminId = Auth::guard('admin')->id();
-        abort_if($currentAdminId && $user->id === $currentAdminId, 403);
-
-        abort_if(!is_null($user->archived_at), 403);
-
-        $user->archived_at = now();
-        $user->account_status = 'disabled';
-        $user->save();
+        $this->adminService->archiveAdmin($user);
 
         return back()->with('success', 'Admin archived.');
     }
 
     public function restore(User $user)
     {
-        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
-
-        abort_if(is_null($user->archived_at), 403);
-
-        $user->archived_at = null;
-
-        // safer: if empty, default to active
-        if (empty($user->account_status)) {
-            $user->account_status = 'active';
-        }
-
-        $user->save();
+        $this->adminService->restoreAdmin($user);
 
         return back()->with('success', 'Admin restored.');
     }
 
     public function resetPassword(Request $request, User $user)
     {
-        abort_if(!in_array($user->role, ['admin', 'superadmin'], true), 404);
-
-        $currentAdminId = Auth::guard('admin')->id();
-        abort_if($currentAdminId && $user->id === $currentAdminId, 403);
-
-        $data = $request->validate([
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $user->password = Hash::make($data['password']);
-        $user->save();
+        $this->adminService->resetPassword($request, $user);
 
         return back()->with('success', 'Password updated.');
     }
-
-
 }
