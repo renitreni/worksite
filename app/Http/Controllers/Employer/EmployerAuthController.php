@@ -3,93 +3,28 @@
 namespace App\Http\Controllers\Employer;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\EmployerProfile;
+use App\Http\Requests\Employer\RegisterEmployerRequest;
+use App\Http\Requests\Employer\LoginEmployerRequest;
+use App\Services\Employer\EmployerAuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rules\Password;
-use App\Notifications\AdminUserRegistered;
 
 class EmployerAuthController extends Controller
 {
+    protected $authService;
+
+    public function __construct(EmployerAuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     public function showRegister()
     {
         return view('auth.register-employer');
     }
 
-    public function register(Request $request)
+    public function register(RegisterEmployerRequest $request)
     {
-        $validated = $request->validate([
-            'company_name' => ['required', 'string', 'max:255'],
-
-            // email belongs to users table now
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-
-            'company_address' => ['required', 'string', 'max:255'],
-            'company_contact' => ['required', 'string', 'max:50'],
-            'company_contact_e164' => ['nullable', 'string', 'max:30'],
-
-            'representative_name' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'max:255'],
-
-            'password' => ['required', 'confirmed', Password::min(8)],
-        ]);
-
-        $repName = trim($validated['representative_name']);
-        $parts = preg_split('/\s+/', $repName);
-        $first = $parts[0] ?? $repName;
-        $last = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
-
-        $phoneToSave = $validated['company_contact_e164'] ?: $validated['company_contact'];
-
-        $user = User::create([
-            'first_name' => $first,
-            'last_name' => $last,
-            'name' => $repName,
-            'email' => $validated['email'],
-            'phone' => $phoneToSave,
-            'role' => 'employer',
-            'password' => bcrypt($validated['password']),
-            'account_status' => 'active', // or 'hold' if you want default hold
-        ]);
-
-
-
-
-        // ✅ Create employer profile (NO status here anymore)
-        $profile = EmployerProfile::create([
-            'user_id' => $user->id,
-            'company_name' => $validated['company_name'],
-            'company_address' => $validated['company_address'],
-            'company_contact' => $phoneToSave,
-            'company_website' => null,
-            'description' => null,
-            'logo_path' => null,
-            'cover_path' => null,
-            'representative_name' => $validated['representative_name'],
-            'position' => $validated['position'],
-        ]);
-
-        // ✅ Create verification row (status now lives here)
-        $profile->verification()->create([
-            'status' => 'pending',
-            'approved_at' => null,
-            'rejected_at' => null,
-            'rejection_reason' => null,
-            'suspended_reason' => null,
-        ]);
-
-
-        // Notify all admins
-        User::where('role', 'admin')->orWhere('role', 'superadmin')->get()->each(function ($admin) use ($user) {
-            $admin->notify(new AdminUserRegistered($user));
-        });
-
-
-
-        return redirect()
-            ->route('employer.register')
-            ->with('showApprovalModal', true);
+        return $this->authService->register($request);
     }
 
     public function showLogin()
@@ -97,70 +32,13 @@ class EmployerAuthController extends Controller
         return view('auth.login-employer');
     }
 
-    public function login(Request $request)
+    public function login(LoginEmployerRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
-
-        $user = User::where('email', $credentials['email'])
-            ->where('role', 'employer')
-            ->first();
-
-        if (!$user || !password_verify($credentials['password'], $user->password)) {
-            return back()
-                ->withErrors(['email' => 'Invalid employer email or password.'])
-                ->onlyInput('email');
-        }
-
-        $accStatus = $user->account_status ?? 'active';
-
-        if ($accStatus !== 'active') {
-            $msg = $accStatus === 'hold'
-                ? 'Your account is currently on hold. Please contact support.'
-                : 'Your account has been disabled by the administrator.';
-
-            return back()
-                ->withErrors(['email' => $msg])
-                ->onlyInput('email');
-        }
-
-        $profile = $user->employerProfile;
-
-        if (!$profile) {
-            return back()
-                ->withErrors(['email' => 'Employer profile not found. Please contact support.'])
-                ->onlyInput('email');
-        }
-
-        $status = $profile->verification?->status ?? 'pending';
-
-        if ($status !== 'approved') {
-            $msg = match ($status) {
-                'pending' => 'Your employer account is still pending admin approval. Please wait.',
-                'rejected' => 'Your employer registration was rejected. Please contact support.',
-                'suspended' => 'Your employer account is currently suspended. Please contact support.',
-                default => 'Your employer account is not approved yet.',
-            };
-
-            return back()
-                ->withErrors(['email' => $msg])
-                ->onlyInput('email');
-        }
-
-        Auth::login($user, $request->boolean('remember'));
-        $request->session()->regenerate();
-
-        return redirect()->route('employer.dashboard');
+        return $this->authService->login($request);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('home');
+        return $this->authService->logout($request);
     }
 }

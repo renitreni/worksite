@@ -3,31 +3,20 @@
 namespace App\Http\Controllers\Candidate;
 
 use App\Http\Controllers\Controller;
-use App\Models\AgencyFollow;
 use App\Models\EmployerProfile;
-use Illuminate\Support\Facades\Auth;
+use App\Services\Candidate\AgencyFollowService;
 
 class AgencyFollowController extends Controller
 {
+    protected $agencyFollowService;
+
+    public function __construct(AgencyFollowService $agencyFollowService)
+    {
+        $this->agencyFollowService = $agencyFollowService;
+    }
+
     public function toggle(EmployerProfile $employerProfile)
     {
-        $userId = Auth::id();
-
-        $follow = AgencyFollow::where('user_id', $userId)
-            ->where('employer_profile_id', $employerProfile->id)
-            ->first();
-
-        if ($follow) {
-            $follow->delete();
-
-            return back()->with('success', 'Unfollowed agency');
-        }
-
-        AgencyFollow::create([
-            'user_id' => $userId,
-            'employer_profile_id' => $employerProfile->id
-        ]);
-
-        return back()->with('success', 'Agency followed');
+        return $this->agencyFollowService->toggleFollow($employerProfile);
     }
 }
