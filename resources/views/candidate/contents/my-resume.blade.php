@@ -1,412 +1,450 @@
 @extends('candidate.layout')
 
 @section('content')
-    <div class="space-y-6">
 
-        {{-- Header --}}
-        <div class="flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row">
-            <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">My Resume</h1>
+    <div class="max-w-7xl mx-auto space-y-8">
+
+        {{-- PAGE HEADER --}}
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">My Resume</h1>
+            <p class="text-sm text-gray-500">
+                Upload your main resume and supporting documents to apply for jobs.
+            </p>
         </div>
 
-        {{-- Toast (floating) --}}
-<div
-    x-data="{
-        show: @js(session()->has('success') || session()->has('danger')),
-        type: @js(session('success') ? 'success' : (session('danger') ? 'danger' : '')),
-        message: @js(session('success') ?? session('danger') ?? ''),
-        init() {
-            if (this.show) setTimeout(() => this.show = false, 3500);
-            this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
-        }
-    }"
-    x-init="init()"
-    x-show="show"
-    x-transition.opacity.duration.200ms
-    x-cloak
-    class="fixed top-5 right-5 z-[9999] w-[92vw] max-w-sm"
->
-    <div
-        class="rounded-2xl border shadow-lg p-4 text-sm flex items-start gap-3"
-        :class="type === 'success'
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-            : 'bg-red-50 border-red-200 text-red-800'"
-    >
-        <div class="mt-0.5">
-            <i data-lucide="info" class="h-4 w-4"></i>
+        {{-- SUCCESS / ERROR TOAST --}}
+
+        <div x-data="{
+            show: @js(session()->has('success') || session()->has('danger')),
+            type: @js(session('success') ? 'success' : (session('danger') ? 'danger' : '')),
+            message: @js(session('success') ?? (session('danger') ?? '')),
+            init() {
+                if (this.show) setTimeout(() => this.show = false, 3500);
+            }
+        }" x-init="init()" x-show="show" x-transition.opacity x-cloak
+            class="fixed top-5 right-5 z-[9999] w-[92vw] max-w-sm">
+
+            <div class="rounded-2xl border shadow-lg p-4 text-sm flex items-start gap-3"
+                :class="type === 'success' ?
+                    'bg-emerald-50 border-emerald-200 text-emerald-800' :
+                    'bg-red-50 border-red-200 text-red-800'">
+
+                <div class="flex-1">
+                    <p class="font-semibold" x-text="type==='success' ? 'Success' : 'Error'"></p>
+                    <p class="text-sm" x-text="message"></p>
+                </div>
+
+                <button class="text-xs underline" @click="show=false">
+                    Close </button>
+
+            </div>
         </div>
 
-        <div class="flex-1">
-            <p class="font-semibold" x-text="type === 'success' ? 'Success' : 'Removed'"></p>
-            <p class="mt-0.5" x-text="message"></p>
-        </div>
+        {{-- MAIN RESUME SECTION --}}
 
-        <button
-            type="button"
-            class="text-xs underline opacity-80 hover:opacity-100"
-            @click="show=false"
-        >
-            Close
-        </button>
-    </div>
-</div>
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
 
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Primary Resume</h2>
+                    <p class="text-xs text-gray-500">
+                        This is the main document employers will view.
+                    </p>
+                </div>
+            </div>
 
-        
+            {{-- UPLOAD FORM --}}
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <form action="{{ route('candidate.resume.upload') }}" method="POST" enctype="multipart/form-data"
+                class="space-y-4" x-data="{ fileName: '' }">
 
-            {{-- Left column --}}
-            <div class="lg:col-span-5 space-y-6">
+                @csrf
 
-                {{-- CV Upload --}}
-                <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
-                    <h2 class="text-sm font-semibold text-gray-900">CV / Resume (PDF / Word)</h2>
+                <div class="space-y-2">
 
-                    <form class="mt-4 space-y-3" action="{{ route('candidate.resume.upload') }}" method="POST"
-                        enctype="multipart/form-data">
-                        @csrf
-                        <input type="file" name="resume" accept=".pdf,.doc,.docx"
-                            class="block w-full text-sm file:mr-4 file:rounded-xl file:border-0 file:bg-emerald-600 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-emerald-700"
-                            required>
-                        <button type="submit"
-                            class="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition">
-                            Upload Resume
-                        </button>
-                        <p class="text-xs text-gray-500">Max 5MB</p>
-                    </form>
+                    <label class="text-sm font-medium text-gray-700">
+                        Choose Resume File
+                    </label>
 
-                    <div class="mt-5">
-                        @if($resume->resume_path)
-                            <div
-                                class="rounded-2xl border border-gray-200 bg-white p-4 flex items-center justify-between gap-3">
-                                <div class="min-w-0">
-                                    <p class="text-sm font-semibold text-gray-900 truncate">{{ $resume->resume_original_name }}
-                                    </p>
-                                    <p class="text-xs text-gray-500">
-                                        {{ number_format(($resume->resume_size ?? 0) / 1024, 1) }} KB •
-                                        {{ $resume->resume_mime }}
-                                    </p>
-                                    <a class="text-xs font-semibold text-emerald-700 underline"
-                                        href="{{ asset('storage/' . $resume->resume_path) }}" target="_blank">
-                                        View
+                    <input type="file" name="resume" accept=".pdf,.doc,.docx" required
+                        @change="fileName = $event.target.files[0].name"
+                        class="w-full text-sm border border-gray-300 rounded-xl px-3 py-2 bg-white
+file:mr-4
+file:rounded-lg
+file:border
+file:border-gray-300
+file:bg-gray-100
+file:px-3
+file:py-1.5
+file:text-sm
+file:font-medium
+file:text-gray-700
+hover:file:bg-gray-200" />
+
+                    <p x-show="fileName" class="text-xs text-gray-500">
+                        Selected file: <span x-text="fileName"></span>
+                    </p>
+
+                </div>
+
+                <button type="submit"
+                    class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition">
+
+                    Upload Resume </button>
+
+                <p class="text-xs text-gray-500">
+                    PDF or Word • Max 5MB
+                </p>
+
+            </form>
+
+            {{-- RESUME PREVIEW --}}
+
+            <div class="mt-6">
+
+                @if ($resume->resume_path)
+                    @php
+                        $resumeUrl = asset('storage/' . $resume->resume_path);
+                        $resumeMime = strtolower($resume->resume_mime ?? '');
+                    @endphp
+
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+
+                        <div class="flex items-center justify-between p-4 bg-gray-50 border-b">
+
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ $resume->resume_original_name }}
+                                </p>
+
+                                <p class="text-xs text-gray-500">
+                                    {{ number_format(($resume->resume_size ?? 0) / 1024, 1) }} KB
+                                </p>
+                            </div>
+
+                            <form action="{{ route('candidate.resume.delete') }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+
+                                <button class="text-xs border border-gray-200 px-3 py-1 rounded-lg hover:bg-gray-100">
+                                    Remove
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        @if ($resumeMime === 'application/pdf')
+                            <iframe src="{{ $resumeUrl }}#toolbar=0" class="w-full h-[500px]"></iframe>
+                        @else
+                            <div class="p-10 text-center text-sm text-gray-500">
+
+                                Preview available only for PDF.
+
+                                <div class="mt-3">
+                                    <a href="{{ $resumeUrl }}" target="_blank"
+                                        class="text-blue-600 underline font-semibold">
+                                        Open Document
                                     </a>
-                                    @php
-    $resumeUrl = asset('storage/' . $resume->resume_path);
-    $resumeMime = strtolower($resume->resume_mime ?? '');
-@endphp
-
-@if($resumeMime === 'application/pdf')
-    <div class="mt-4 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
-        <iframe src="{{ $resumeUrl }}#toolbar=0"
-            class="w-full h-80"
-            title="Resume Preview"></iframe>
-    </div>
-@else
-    <div class="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-        Preview available only for PDF.
-    </div>
-@endif
-
                                 </div>
 
-                                <form action="{{ route('candidate.resume.delete') }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                        class="inline-flex h-10 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-semibold hover:bg-gray-50">
-                                        Remove
-                                    </button>
-                                </form>
-                            </div>
-                        @else
-                            <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                                No uploaded resume yet.
                             </div>
                         @endif
+
                     </div>
-                </div>
-
-                {{-- Attachments (replaces Skills) --}}
-                <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-semibold text-gray-900">Document Attachments</h2>
+                @else
+                    <div class="border border-dashed border-gray-300 rounded-xl p-8 text-center text-sm text-gray-500">
+                        No resume uploaded yet.
                     </div>
-
-                    <form class="mt-4 space-y-3" action="{{ route('candidate.resume.attachments.upload') }}" method="POST"
-                        enctype="multipart/form-data">
-                        @csrf
-
-                        <label class="text-sm font-semibold text-gray-900">Category</label>
-                        <select name="category" required
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            <option value="">Select category</option>
-                            <optgroup label="School Documents">
-                                <option>College diploma</option>
-                                <option>High school diploma</option>
-                                <option>Senior high diploma</option>
-                                <option>Transcript of Records (TOR)</option>
-                                <option>Vocational / TESDA certificate</option>
-                            </optgroup>
-                            <optgroup label="IDs">
-                                <option>Passport</option>
-                                <option>UMID</option>
-                                <option>Driver’s License</option>
-                                <option>National ID</option>
-                            </optgroup>
-                            <optgroup label="Employment & Qualification Proof">
-                                <option>Certificate of Employment (COE)</option>
-                                <option>PRC License</option>
-                                <option>TESDA NC II / III</option>
-                                <option>Other qualification certificates</option>
-                            </optgroup>
-                            <optgroup label="Medical & Legal">
-                                <option>Fit to Work / Medical Certificate</option>
-                                <option>NBI Clearance</option>
-                                <option>Police Clearance</option>
-                            </optgroup>
-                        </select>
-
-                        <label class="text-sm font-semibold text-gray-900">Upload file(s)</label>
-                        <input type="file" name="files[]" multiple required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                            class="block w-full text-sm file:mr-4 file:rounded-xl file:border-0 file:bg-gray-900 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-black">
-
-                        <button type="submit"
-                            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">
-                            Upload Attachment(s)
-                        </button>
-
-                        <p class="text-xs text-gray-500">Max 5MB each. Allowed: PDF/DOC/DOCX/JPG/PNG</p>
-                    </form>
-
-                    <div class="mt-5 space-y-3">
-                        @if($resume->attachments->count() === 0)
-                            <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                                No attachments uploaded yet.
-                            </div>
-                        @else
-                            @foreach($resume->attachments as $att)
-                                @php
-                                    $url = asset('storage/' . $att->file_path);
-                                    $mime = strtolower($att->mime ?? '');
-                                    $isImage = str_starts_with($mime, 'image/');
-                                    $isPdf = $mime === 'application/pdf';
-                                @endphp
-
-                                <div class="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div class="min-w-0">
-                                            <p class="text-xs font-semibold text-gray-500">{{ $att->category }}</p>
-                                            <p class="text-sm font-semibold text-gray-900 truncate">{{ $att->original_name }}</p>
-                                            <p class="text-xs text-gray-500">
-                                                {{ number_format(($att->size ?? 0) / 1024, 1) }} KB • {{ $att->mime }}
-                                            </p>
-
-                                            <div class="mt-2 flex items-center gap-3">
-                                                <a class="text-xs font-semibold text-blue-700 underline" href="{{ $url }}"
-                                                    target="_blank">
-                                                    Open
-                                                </a>
-                                                <a class="text-xs font-semibold text-gray-700 underline" href="{{ $url }}" download>
-                                                    Download
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        <form action="{{ route('candidate.resume.attachments.delete', $att->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="inline-flex h-10 items-center justify-center rounded-xl border border-gray-200 px-4 text-sm font-semibold hover:bg-gray-50">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    {{-- PREVIEW --}}
-                                    @if($isImage)
-                                        <div class="rounded-xl border border-gray-200 bg-gray-50 p-2">
-                                            <img src="{{ $url }}" class="w-full max-h-72 object-contain rounded-lg">
-                                        </div>
-                                    @elseif($isPdf)
-                                        <div class="rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
-                                            <iframe src="{{ $url }}#toolbar=0" class="w-full h-72" title="PDF Preview"></iframe>
-                                        </div>
-                                    @else
-                                        <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                                            Preview not available. Click Open.
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-
-                        @endif
-                    </div>
-                </div>
+                @endif
 
             </div>
 
-            {{-- Right column --}}
+        </div>
+
+        {{-- CONTENT GRID --}}
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            {{-- LEFT COLUMN --}}
+
             <div class="lg:col-span-7 space-y-6">
 
-                {{-- Work Experience --}}
-                <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-semibold text-gray-900">Work Experience</h2>
-                    </div>
+                {{-- WORK EXPERIENCE --}}
+
+                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Work Experience
+                    </h2>
 
                     <form class="mt-4 space-y-4" action="{{ route('candidate.resume.exp.store') }}" method="POST">
                         @csrf
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label for="exp_role" class="text-xs font-semibold text-gray-700">Position/Role</label>
-                                <input id="exp_role" name="role" required
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
 
-                            <div class="space-y-1">
-                                <label for="exp_company" class="text-xs font-semibold text-gray-700">Company</label>
-                                <input id="exp_company" name="company" required
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
+                            <input name="role" required placeholder="Position / Role"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
+
+                            <input name="company" required placeholder="Company"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
+
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label for="exp_start" class="text-xs font-semibold text-gray-700">Start</label>
-                                <input id="exp_start" name="start"
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
 
-                            <div class="space-y-1">
-                                <label for="exp_end" class="text-xs font-semibold text-gray-700">End</label>
-                                <input id="exp_end" name="end"
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
+                            <input name="start" placeholder="Start date"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
+
+                            <input name="end" placeholder="End date"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
+
                         </div>
 
-                        <div class="space-y-1">
-                            <label for="exp_description" class="text-xs font-semibold text-gray-700">Description</label>
-                            <textarea id="exp_description" name="description" rows="3"
-                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300"></textarea>
-                        </div>
+                        <textarea name="description" rows="3" placeholder="Describe your responsibilities..."
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm"></textarea>
 
                         <button
-                            class="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">
-                            Add Experience
-                        </button>
+                            class="bg-emerald-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-emerald-700">
+
+                            Add Experience </button>
+
                     </form>
 
-
                     <div class="mt-6 space-y-4">
-                        @if($resume->experiences->count() === 0)
-                            <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                                No experience yet.
-                            </div>
-                        @else
-                            @foreach($resume->experiences as $exp)
-                                <div class="rounded-2xl border border-gray-200 bg-white p-4">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div class="min-w-0">
-                                            <p class="text-sm font-semibold text-gray-900">{{ $exp->role }}</p>
-                                            <p class="text-sm font-semibold text-blue-600 mt-1">{{ $exp->company }}</p>
-                                            <p class="text-xs text-gray-500 mt-1">
-                                                {{ $exp->start ?? '—' }} - {{ $exp->end ?? '—' }}
-                                            </p>
-                                            <p class="text-sm text-gray-600 mt-3">{{ $exp->description ?? '—' }}</p>
-                                        </div>
 
-                                        <form action="{{ route('candidate.resume.exp.delete', $exp->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button
-                                                class="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold hover:bg-gray-50">
-                                                Delete
-                                            </button>
-                                        </form>
+                        @foreach ($resume->experiences as $exp)
+                            <div class="border border-gray-200 rounded-xl p-4">
+
+                                <div class="flex justify-between">
+
+                                    <div>
+
+                                        <p class="font-semibold text-gray-900">
+                                            {{ $exp->role }}
+                                        </p>
+
+                                        <p class="text-sm text-blue-600">
+                                            {{ $exp->company }}
+                                        </p>
+
+                                        <p class="text-xs text-gray-500">
+                                            {{ $exp->start }} - {{ $exp->end }}
+                                        </p>
+
+                                        <p class="text-sm text-gray-600 mt-2">
+                                            {{ $exp->description }}
+                                        </p>
+
                                     </div>
+
+                                    <form action="{{ route('candidate.resume.exp.delete', $exp->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button class="text-xs border px-3 py-1 rounded-lg hover:bg-gray-100">
+                                            Delete
+                                        </button>
+
+                                    </form>
+
                                 </div>
-                            @endforeach
-                        @endif
+
+                            </div>
+                        @endforeach
+
                     </div>
+
                 </div>
 
-                {{-- Education --}}
-                <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-semibold text-gray-900">Education</h2>
-                    </div>
+                {{-- EDUCATION --}}
+
+                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Education
+                    </h2>
 
                     <form class="mt-4 space-y-4" action="{{ route('candidate.resume.edu.store') }}" method="POST">
                         @csrf
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label for="edu_degree" class="text-xs font-semibold text-gray-700">Degree</label>
-                                <input id="edu_degree" name="degree" required
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
+                        <input name="degree" required placeholder="Degree"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
 
-                            <div class="space-y-1">
-                                <label for="edu_school" class="text-xs font-semibold text-gray-700">School</label>
-                                <input id="edu_school" name="school" required
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
-                        </div>
+                        <input name="school" required placeholder="School"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label for="edu_year" class="text-xs font-semibold text-gray-700">Year</label>
-                                <input id="edu_year" name="year"
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
+                        <input name="year" placeholder="Year"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
 
-                            <div class="space-y-1">
-                                <label for="edu_notes" class="text-xs font-semibold text-gray-700">Achievements</label>
-                                <input id="edu_notes" name="notes"
-                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300">
-                            </div>
-                        </div>
+                        <input name="notes" placeholder="Achievements"
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm">
 
                         <button
-                            class="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">
-                            Add Education
-                        </button>
+                            class="bg-emerald-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-emerald-700">
+
+                            Add Education </button>
+
                     </form>
 
-                    <div class="mt-6 space-y-4">
-                        @if($resume->educations->count() === 0)
-                            <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                                No education yet.
+                </div>
+
+            </div>
+
+            {{-- RIGHT COLUMN --}}
+
+            <div class="lg:col-span-5 space-y-6">
+
+                {{-- DOCUMENT ATTACHMENTS --}}
+                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Supporting Documents
+                    </h2>
+
+                    <p class="text-xs text-gray-500">
+                        Certificates, IDs, and other proof documents.
+                    </p>
+
+                    <form class="mt-4 space-y-3" action="{{ route('candidate.resume.attachments.upload') }}"
+                        method="POST" enctype="multipart/form-data" x-data="{ category: '' }">
+                        @csrf
+
+                        {{-- CATEGORY --}}
+                        <label class="text-sm font-semibold text-gray-900">
+                            Document Category
+                        </label>
+
+                        <select x-model="category" name="category" required
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
+                            <option value="">Select category</option>
+
+                            <option value="Diploma">Diploma</option>
+                            <option value="Transcript of Records">Transcript of Records</option>
+                            <option value="Passport">Passport</option>
+                            <option value="Driver License">Driver License</option>
+                            <option value="NBI Clearance">NBI Clearance</option>
+                            <option value="TESDA Certificate">TESDA Certificate</option>
+
+                            <option value="other">Other (Specify)</option>
+                        </select>
+
+                        {{-- CUSTOM CATEGORY --}}
+                        <div x-show="category === 'other'" x-transition>
+
+                            <input type="text" name="category_custom" placeholder="Enter document type"
+                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
+
+                        </div>
+
+
+                        {{-- FILE INPUT --}}
+                        <input type="file" name="files[]" multiple required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            class="block w-full text-sm border border-gray-300 rounded-xl px-3 py-2 bg-white
+                file:mr-4
+                file:rounded-lg
+                file:border
+                file:border-gray-300
+                file:bg-gray-100
+                file:px-3
+                file:py-1.5
+                file:text-sm
+                file:font-medium
+                file:text-gray-700
+                hover:file:bg-gray-200" />
+
+                        {{-- SUBMIT --}}
+                        <button type="submit"
+                            class="w-full text-white bg-gray-700 border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold hover:bg-gray-600">
+                            Upload Documents
+                        </button>
+
+                    </form>
+
+
+                    {{-- UPLOADED DOCUMENTS --}}
+                    <div class="mt-5 space-y-3">
+
+                        @if ($resume->attachments->count() === 0)
+                            <div class="text-sm text-gray-500 border border-gray-200 rounded-xl p-4">
+                                No attachments uploaded yet.
                             </div>
-                        @else
-                            @foreach($resume->educations as $edu)
-                                <div class="rounded-2xl border border-gray-200 bg-white p-4">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div class="min-w-0">
-                                            <p class="text-sm font-semibold text-gray-900">{{ $edu->degree }}</p>
-                                            <p class="text-sm font-semibold text-emerald-600 mt-1">{{ $edu->school }}</p>
-                                            <p class="text-xs text-gray-500 mt-1">{{ $edu->year ?? '—' }}</p>
-                                            <p class="text-sm text-gray-600 mt-3">{{ $edu->notes ?? '—' }}</p>
+                        @endif
+
+
+                        @foreach ($resume->attachments as $att)
+                            @php
+                                $url = asset('storage/' . $att->file_path);
+                                $mime = strtolower($att->mime ?? '');
+                                $isImage = str_starts_with($mime, 'image/');
+                                $isPdf = $mime === 'application/pdf';
+                            @endphp
+
+                            <div class="rounded-xl border border-gray-200 p-3 space-y-2">
+
+                                <div class="flex items-start justify-between">
+
+                                    <div>
+
+                                        <p class="text-xs text-gray-500">
+                                            {{ $att->category }}
+                                        </p>
+
+                                        <p class="text-sm font-semibold text-gray-900">
+                                            {{ $att->original_name }}
+                                        </p>
+
+                                        <div class="flex gap-3 mt-1">
+
+                                            <a href="{{ $url }}" target="_blank"
+                                                class="text-xs text-blue-600 underline">
+                                                Open
+                                            </a>
+
+                                            <a href="{{ $url }}" download
+                                                class="text-xs text-gray-700 underline">
+                                                Download
+                                            </a>
+
                                         </div>
 
-                                        <form action="{{ route('candidate.resume.edu.delete', $edu->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button
-                                                class="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold hover:bg-gray-50">
-                                                Delete
-                                            </button>
-                                        </form>
                                     </div>
+
+
+                                    {{-- DELETE BUTTON --}}
+                                    <form action="{{ route('candidate.resume.attachments.delete', $att->id) }}"
+                                        method="POST">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button
+                                            class="text-xs border border-red-200 text-red-600 px-3 py-1 rounded-lg hover:bg-red-50">
+                                            Remove
+                                        </button>
+
+                                    </form>
+
                                 </div>
-                            @endforeach
-                        @endif
+
+
+                                {{-- PREVIEW --}}
+                                @if ($isImage)
+                                    <img src="{{ $url }}" class="w-full mt-2 rounded-lg" />
+                                @elseif($isPdf)
+                                    <iframe src="{{ $url }}#toolbar=0" class="w-full h-64 mt-2"></iframe>
+                                @endif
+
+                            </div>
+                        @endforeach
+
                     </div>
 
                 </div>
 
             </div>
+
         </div>
+
     </div>
+
 @endsection
