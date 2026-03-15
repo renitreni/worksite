@@ -13,9 +13,15 @@ use App\Services\Employer\EmployerTaxonomyService;
 
 class JobController extends Controller
 {
+    private EmployerJobService $jobService;
+    private EmployerTaxonomyService $taxonomyService;
+
     public function __construct(
-        private EmployerJobService $jobService
+        EmployerJobService $jobService,
+        EmployerTaxonomyService $taxonomyService
     ) {
+        $this->jobService = $jobService;
+        $this->taxonomyService = $taxonomyService;
     }
 
     public function index()
@@ -99,8 +105,6 @@ class JobController extends Controller
 
     public function skillsByIndustry(Industry $industry)
     {
-        $skills = $this->jobService->skillsByIndustry($industry);
-
-        return response()->json($skills);
+        return $this->taxonomyService->skillsByIndustry($industry);
     }
 }

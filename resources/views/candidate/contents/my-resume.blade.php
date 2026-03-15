@@ -30,7 +30,7 @@
                     'bg-red-50 border-red-200 text-red-800'">
 
                 <div class="flex-1">
-                    <p class="font-semibold" x-text="type==='success' ? 'Success' : 'Error'"></p>
+                    <p class="font-semibold" x-text="type==='success' ? 'Success' : 'Deleted'"></p>
                     <p class="text-sm" x-text="message"></p>
                 </div>
 
@@ -298,72 +298,127 @@ hover:file:bg-gray-200" />
                 {{-- DOCUMENT ATTACHMENTS --}}
                 <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
 
-                    <h2 class="text-lg font-semibold text-gray-900">
-                        Supporting Documents
-                    </h2>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900">
+                                Supporting Documents
+                            </h2>
 
-                    <p class="text-xs text-gray-500">
-                        Certificates, IDs, and other proof documents.
-                    </p>
+                            <p class="text-xs text-gray-500">
+                                Certificates, IDs, and other proof documents.
+                            </p>
+                        </div>
+                    </div>
 
-                    <form class="mt-4 space-y-3" action="{{ route('candidate.resume.attachments.upload') }}"
-                        method="POST" enctype="multipart/form-data" x-data="{ category: '' }">
+
+                    {{-- UPLOAD FORM --}}
+                    <form action="{{ route('candidate.resume.attachments.upload') }}" method="POST"
+                        enctype="multipart/form-data" x-data="documentsUpload()" class="mt-5 space-y-4">
+
                         @csrf
 
-                        {{-- CATEGORY --}}
-                        <label class="text-sm font-semibold text-gray-900">
-                            Document Category
-                        </label>
 
-                        <select x-model="category" name="category" required
-                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
-                            <option value="">Select category</option>
+                        {{-- DOCUMENT ROWS --}}
+                        <template x-for="(doc,index) in documents" :key="index">
 
-                            <option value="Diploma">Diploma</option>
-                            <option value="Transcript of Records">Transcript of Records</option>
-                            <option value="Passport">Passport</option>
-                            <option value="Driver License">Driver License</option>
-                            <option value="NBI Clearance">NBI Clearance</option>
-                            <option value="TESDA Certificate">TESDA Certificate</option>
+                            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
 
-                            <option value="other">Other (Specify)</option>
-                        </select>
+                                {{-- FILE --}}
+                                <div>
 
-                        {{-- CUSTOM CATEGORY --}}
-                        <div x-show="category === 'other'" x-transition>
+                                    <label class="text-xs font-medium text-gray-600">
+                                        Document File
+                                    </label>
 
-                            <input type="text" name="category_custom" placeholder="Enter document type"
-                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm">
+                                    <input type="file" :name="'files[' + index + ']'" required
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                        class="mt-1 w-full text-sm border border-gray-300 rounded-xl px-3 py-2 bg-white
+            file:mr-4
+            file:rounded-lg
+            file:border
+            file:border-gray-300
+            file:bg-gray-100
+            file:px-3
+            file:py-1.5
+            file:text-sm
+            file:font-medium
+            file:text-gray-700
+            hover:file:bg-gray-200">
 
-                        </div>
+                                </div>
 
 
-                        {{-- FILE INPUT --}}
-                        <input type="file" name="files[]" multiple required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                            class="block w-full text-sm border border-gray-300 rounded-xl px-3 py-2 bg-white
-                file:mr-4
-                file:rounded-lg
-                file:border
-                file:border-gray-300
-                file:bg-gray-100
-                file:px-3
-                file:py-1.5
-                file:text-sm
-                file:font-medium
-                file:text-gray-700
-                hover:file:bg-gray-200" />
+                                {{-- CATEGORY --}}
+                                <div>
+
+                                    <label class="text-xs font-medium text-gray-600">
+                                        Category
+                                    </label>
+
+                                    <select :name="'categories[' + index + ']'" x-model="doc.category" required
+                                        class="mt-1 w-full border border-gray-300 rounded-xl px-3 py-2 text-sm bg-white">
+
+                                        <option value="">Select category</option>
+                                        <option value="Diploma">Diploma</option>
+                                        <option value="Transcript of Records">Transcript</option>
+                                        <option value="Passport">Passport</option>
+                                        <option value="Driver License">Driver License</option>
+                                        <option value="NBI Clearance">NBI Clearance</option>
+                                        <option value="TESDA Certificate">TESDA Certificate</option>
+                                        <option value="other">Other (Specify)</option>
+
+                                    </select>
+
+                                </div>
+
+
+                                {{-- OTHER FIELD --}}
+                                <div x-show="doc.category === 'other'">
+
+                                    <input :name="'categories_custom[' + index + ']'" placeholder="Specify document type"
+                                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm bg-white">
+
+                                </div>
+
+
+                                {{-- REMOVE BUTTON --}}
+                                <div class="flex justify-end">
+
+                                    <button type="button" @click="remove(index)"
+                                        class="text-xs border border-red-300 text-red-600 px-4 py-1.5 rounded-lg hover:bg-red-50">
+
+                                        Remove
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </template>
+
+                        {{-- ADD DOCUMENT --}}
+                        <button type="button" @click="add()" class="text-sm text-blue-600 hover:underline">
+
+                            + Add another document
+
+                        </button>
+
 
                         {{-- SUBMIT --}}
                         <button type="submit"
                             class="w-full text-white bg-gray-700 border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold hover:bg-gray-600">
+
                             Upload Documents
+
                         </button>
 
                     </form>
 
 
+
                     {{-- UPLOADED DOCUMENTS --}}
-                    <div class="mt-5 space-y-3">
+                    <div class="mt-6 space-y-3">
 
                         @if ($resume->attachments->count() === 0)
                             <div class="text-sm text-gray-500 border border-gray-200 rounded-xl p-4">
@@ -380,9 +435,10 @@ hover:file:bg-gray-200" />
                                 $isPdf = $mime === 'application/pdf';
                             @endphp
 
-                            <div class="rounded-xl border border-gray-200 p-3 space-y-2">
 
-                                <div class="flex items-start justify-between">
+                            <div class="border border-gray-200 rounded-xl p-3">
+
+                                <div class="flex items-center justify-between">
 
                                     <div>
 
@@ -411,7 +467,6 @@ hover:file:bg-gray-200" />
                                     </div>
 
 
-                                    {{-- DELETE BUTTON --}}
                                     <form action="{{ route('candidate.resume.attachments.delete', $att->id) }}"
                                         method="POST">
                                         @csrf
@@ -429,9 +484,10 @@ hover:file:bg-gray-200" />
 
                                 {{-- PREVIEW --}}
                                 @if ($isImage)
-                                    <img src="{{ $url }}" class="w-full mt-2 rounded-lg" />
+                                    <img src="{{ $url }}" class="h-24 mt-2 rounded border" />
                                 @elseif($isPdf)
-                                    <iframe src="{{ $url }}#toolbar=0" class="w-full h-64 mt-2"></iframe>
+                                    <iframe src="{{ $url }}#toolbar=0"
+                                        class="w-full h-32 mt-2 rounded"></iframe>
                                 @endif
 
                             </div>
@@ -446,5 +502,61 @@ hover:file:bg-gray-200" />
         </div>
 
     </div>
+
+    {{-- ALPINE JS SCRIPT --}}
+    <script>
+        function fileUpload() {
+            return {
+
+                files: [],
+
+                previewFiles(event) {
+
+                    this.files = []
+
+                    Array.from(event.target.files).forEach(file => {
+
+                        this.files.push({
+                            name: file.name,
+                            type: file.type,
+                            url: URL.createObjectURL(file)
+                        })
+
+                    })
+
+                },
+
+                removeFile(index) {
+
+                    this.files.splice(index, 1)
+
+                }
+
+            }
+        }
+    </script>
+    <script>
+        function documentsUpload() {
+
+            return {
+
+                documents: [{
+                    category: ''
+                }],
+
+                add() {
+                    this.documents.push({
+                        category: ''
+                    })
+                },
+
+                remove(index) {
+                    this.documents.splice(index, 1)
+                }
+
+            }
+
+        }
+    </script>
 
 @endsection

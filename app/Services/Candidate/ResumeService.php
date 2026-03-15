@@ -30,7 +30,7 @@ class ResumeService
     public function uploadResume(Request $request)
     {
         $request->validate([
-            'resume' => ['required','file','max:5120','mimes:pdf,doc,docx']
+            'resume' => ['required', 'file', 'max:5120', 'mimes:pdf,doc,docx']
         ]);
 
         $resume = $this->resume();
@@ -40,7 +40,7 @@ class ResumeService
         }
 
         $file = $request->file('resume');
-        $path = $file->store('candidate/resume-files','public');
+        $path = $file->store('candidate/resume-files', 'public');
 
         $resume->update([
             'resume_path' => $path,
@@ -49,7 +49,7 @@ class ResumeService
             'resume_size' => $file->getSize(),
         ]);
 
-        return back()->with('success','Resume/CV uploaded.');
+        return back()->with('success', 'Resume/CV uploaded.');
     }
 
     public function deleteResume()
@@ -67,25 +67,35 @@ class ResumeService
             'resume_size' => null,
         ]);
 
-        return back()->with('danger','Resume/CV removed.');
+        return back()->with('danger', 'Resume/CV removed.');
     }
 
     public function uploadAttachments(Request $request)
     {
         $request->validate([
-            'category' => ['required','string','max:120'],
-            'files' => ['required','array','min:1'],
-            'files.*' => ['file','max:5120','mimes:pdf,doc,docx,jpg,jpeg,png'],
+            'files' => ['required', 'array', 'min:1'],
+            'files.*' => ['file', 'max:5120', 'mimes:pdf,doc,docx,jpg,jpeg,png'],
+            'categories' => ['required', 'array'],
         ]);
 
         $resume = $this->resume();
 
-        foreach ($request->file('files') as $file) {
+        foreach ($request->file('files') as $index => $file) {
 
-            $path = $file->store('candidate/attachments','public');
+            if (!$file) {
+                continue;
+            }
+
+            $category = $request->categories[$index] ?? null;
+
+            if ($category === 'other') {
+                $category = $request->categories_custom[$index] ?? 'Other';
+            }
+
+            $path = $file->store('candidate/attachments', 'public');
 
             $resume->attachments()->create([
-                'category' => $request->category,
+                'category' => $category,
                 'file_path' => $path,
                 'original_name' => $file->getClientOriginalName(),
                 'mime' => $file->getMimeType(),
@@ -93,78 +103,78 @@ class ResumeService
             ]);
         }
 
-        return back()->with('success','Attachment(s) uploaded.');
+        return back()->with('success', 'Attachment(s) uploaded.');
     }
 
     public function deleteAttachment(ResumeAttachment $attachment)
     {
         $resume = $this->resume();
 
-        abort_unless($attachment->resume_id === $resume->id,403);
+        abort_unless($attachment->resume_id === $resume->id, 403);
 
         Storage::disk('public')->delete($attachment->file_path);
 
         $attachment->delete();
 
-        return back()->with('danger','Attachment removed.');
+        return back()->with('danger', 'Attachment removed.');
     }
 
     public function storeExperience(Request $request)
     {
         $request->validate([
-            'role' => ['required','string','max:120'],
-            'company' => ['required','string','max:120'],
-            'start' => ['nullable','string','max:50'],
-            'end' => ['nullable','string','max:50'],
-            'description' => ['nullable','string'],
+            'role' => ['required', 'string', 'max:120'],
+            'company' => ['required', 'string', 'max:120'],
+            'start' => ['nullable', 'string', 'max:50'],
+            'end' => ['nullable', 'string', 'max:50'],
+            'description' => ['nullable', 'string'],
         ]);
 
         $resume = $this->resume();
 
         $resume->experiences()->create(
-            $request->only('role','company','start','end','description')
+            $request->only('role', 'company', 'start', 'end', 'description')
         );
 
-        return back()->with('success','Experience added.');
+        return back()->with('success', 'Experience added.');
     }
 
     public function deleteExperience(ResumeExperience $experience)
     {
         $resume = $this->resume();
 
-        abort_unless($experience->resume_id === $resume->id,403);
+        abort_unless($experience->resume_id === $resume->id, 403);
 
         $experience->delete();
 
-        return back()->with('danger','Experience deleted.');
+        return back()->with('danger', 'Experience deleted.');
     }
 
     public function storeEducation(Request $request)
     {
         $request->validate([
-            'degree' => ['required','string','max:160'],
-            'school' => ['required','string','max:160'],
-            'year' => ['nullable','string','max:50'],
-            'notes' => ['nullable','string'],
+            'degree' => ['required', 'string', 'max:160'],
+            'school' => ['required', 'string', 'max:160'],
+            'year' => ['nullable', 'string', 'max:50'],
+            'notes' => ['nullable', 'string'],
         ]);
 
         $resume = $this->resume();
 
         $resume->educations()->create(
-            $request->only('degree','school','year','notes')
+            $request->only('degree', 'school', 'year', 'notes')
         );
 
-        return back()->with('success','Education added.');
+        return back()->with('success', 'Education added.');
     }
 
     public function deleteEducation(ResumeEducation $education)
     {
         $resume = $this->resume();
 
-        abort_unless($education->resume_id === $resume->id,403);
+        abort_unless($education->resume_id === $resume->id, 403);
 
         $education->delete();
 
-        return back()->with('danger','Education deleted.');
+        return back()->with('danger', 'Education deleted.');
     }
 }
