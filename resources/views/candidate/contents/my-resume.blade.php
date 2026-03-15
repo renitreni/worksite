@@ -407,7 +407,7 @@ hover:file:bg-gray-200" />
 
                         {{-- SUBMIT --}}
                         <button type="submit"
-                            class="w-full text-white bg-gray-700 border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold hover:bg-gray-600">
+                            class="w-full text-white bg-emerald-600 border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold hover:bg-emerald-700">
 
                             Upload Documents
 
