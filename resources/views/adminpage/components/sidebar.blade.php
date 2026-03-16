@@ -23,7 +23,7 @@
         [
             'label' => 'Users',
             'route' => 'admin.users.index',
-            'icon' => 'users',
+            'icon' => 'shield-check',
             'active' => 'admin.users.*',
         ],
         [
@@ -35,7 +35,7 @@
 
         [
             'label' => 'Manage Lists',
-            'icon' => 'list-tree',
+            'icon' => 'list',
             'active' => 'admin.industries.*|admin.skills.*|admin.locations.*|admin.location_suggestions.*',
             'children' => [
                 [
@@ -203,7 +203,7 @@
                                 </span>
 
                                 <x-lucide-icon name="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
-                                    :class="open ? 'rotate-180' : ''" />
+                                    x-bind:class="open ? 'rotate-180' : ''" />
                             </button>
 
                             <div x-show="open" x-collapse class="pl-4">
@@ -275,7 +275,7 @@
                             </span>
 
                             <x-lucide-icon name="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
-                                :class="open ? 'rotate-180' : ''" />
+                                x-bind:class="open ? 'rotate-180' : ''" />
                         </button>
 
                         <div x-show="open" x-collapse class="pl-4">
