@@ -1,16 +1,5 @@
-<section class="relative py-20 overflow-x-hidden">
-
-    <!-- Base Gradient -->
-    <div class="absolute inset-0 bg-gradient-to-br from-[#0a3f21] via-[#16A34A] to-[#22c55e]"></div>
-
-    <!-- Radial Light Effect -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.15),transparent_40%)]"></div>
-
-    <!-- Soft Glow -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,255,255,0.08),transparent_50%)]"></div>
-
-    <!-- Content -->
-    <div class="relative container max-w-7xl mx-auto px-6 lg:px-8">
+<section class="relative py-20 bg-gradient-to-br from-[#0f5f2f] via-[#16A34A] to-[#22c55e] overflow-x-hidden">
+    <div class="container max-w-7xl mx-auto px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
             <!-- LEFT CONTENT -->

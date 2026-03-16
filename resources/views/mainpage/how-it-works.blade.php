@@ -94,71 +94,73 @@
         </div>
 
 
-        <div class="mt-24">
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    </div>
 
-                {{-- FEATURE VIDEO (PLAYABLE WITH AUDIO) --}}
-                <div class="relative lg:col-span-2 group overflow-hidden rounded-3xl shadow-2xl">
+</section>
 
-                    <video controls controlsList="nodownload noplaybackrate" disablePictureInPicture
-                        oncontextmenu="return false"
-                        class="w-full h-full object-cover transition duration-700 rounded-3xl">
+<section class="py-10 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                        <source src="{{ asset('videos/ads/STORY.mp4') }}" type="video/mp4">
+            {{-- FEATURE VIDEO (PLAYABLE WITH AUDIO) --}}
+            <div class="relative lg:col-span-2 group overflow-hidden rounded-3xl shadow-2xl">
+
+                <video controls controlsList="nodownload noplaybackrate" disablePictureInPicture
+                    oncontextmenu="return false" class="w-full h-full object-cover transition duration-700 rounded-3xl">
+
+                    <source src="{{ asset('videos/ads/STORY.mp4') }}" type="video/mp4">
+
+                </video>
+
+                <div
+                    class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent">
+                </div>
+
+            </div>
+
+
+
+            {{-- SIDE ADS --}}
+            <div class="grid grid-rows-2 gap-8">
+
+                {{-- AD 1 --}}
+                <div class="relative group overflow-hidden rounded-3xl shadow-xl">
+
+                    <video autoplay muted loop playsinline preload="metadata" controlsList="nodownload"
+                        disablePictureInPicture oncontextmenu="return false"
+                        class="w-full h-full object-cover transition duration-700 group-hover:scale-105 rounded-3xl">
+
+                        <source src="{{ asset('videos/ads/ADS-1.mp4') }}" type="video/mp4">
 
                     </video>
 
-                    <div
-                        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent">
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
 
                 </div>
 
 
 
-                {{-- SIDE ADS --}}
-                <div class="grid grid-rows-2 gap-8">
+                {{-- AD 2 --}}
+                <div class="relative group overflow-hidden rounded-3xl shadow-xl">
 
-                    {{-- AD 1 --}}
-                    <div class="relative group overflow-hidden rounded-3xl shadow-xl">
+                    <video autoplay muted loop playsinline preload="metadata" controlsList="nodownload"
+                        disablePictureInPicture oncontextmenu="return false"
+                        class="w-full h-full object-cover transition duration-700 group-hover:scale-105 rounded-3xl">
 
-                        <video autoplay muted loop playsinline preload="metadata" controlsList="nodownload"
-                            disablePictureInPicture oncontextmenu="return false"
-                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105 rounded-3xl">
+                        <source src="{{ asset('videos/ads/ADS-2.mp4') }}" type="video/mp4">
 
-                            <source src="{{ asset('videos/ads/ADS-1.mp4') }}" type="video/mp4">
+                    </video>
 
-                        </video>
-
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-
-                    </div>
-
-
-
-                    {{-- AD 2 --}}
-                    <div class="relative group overflow-hidden rounded-3xl shadow-xl">
-
-                        <video autoplay muted loop playsinline preload="metadata" controlsList="nodownload"
-                            disablePictureInPicture oncontextmenu="return false"
-                            class="w-full h-full object-cover transition duration-700 group-hover:scale-105 rounded-3xl">
-
-                            <source src="{{ asset('videos/ads/ADS-2.mp4') }}" type="video/mp4">
-
-                        </video>
-
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-
-                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
 
                 </div>
 
             </div>
 
         </div>
-    </div>
 
+    </div>
 </section>
 
 <script>
