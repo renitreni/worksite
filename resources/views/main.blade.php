@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- Allow unload so Livewire/Vite/Pusher can use it without Permissions Policy violation --}}
+    <meta http-equiv="Permissions-Policy" content="unload=(self)">
 
     <title>@yield('title', config('app.name', 'Jobabroad'))</title>
 
