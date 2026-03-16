@@ -1,5 +1,16 @@
-<section class="relative py-20 bg-gradient-to-br from-[#0f5f2f] via-[#16A34A] to-[#22c55e] overflow-x-hidden">
-    <div class="container max-w-7xl mx-auto px-6 lg:px-8">
+<section class="relative py-20 overflow-x-hidden">
+
+    <!-- Base Gradient -->
+    <div class="absolute inset-0 bg-gradient-to-br from-[#0a3f21] via-[#16A34A] to-[#22c55e]"></div>
+
+    <!-- Radial Light Effect -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.15),transparent_40%)]"></div>
+
+    <!-- Soft Glow -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(255,255,255,0.08),transparent_50%)]"></div>
+
+    <!-- Content -->
+    <div class="relative container max-w-7xl mx-auto px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
             <!-- LEFT CONTENT -->
@@ -52,68 +63,87 @@
             <!-- RIGHT CONTENT -->
             <div class="relative min-w-0">
                 <!-- Image (fixed height on mobile so overlays have space) -->
-                <img src="{{ asset('images/back.jpg') }}" alt="Worksite Office"
-                    class="rounded-2xl shadow-2xl w-full h-[300px] sm:h-[380px] lg:h-auto object-cover">
+                <div
+                    class="relative rounded-2xl shadow-2xl overflow-hidden
+            w-full h-[300px] sm:h-[380px] lg:h-auto">
 
+                    <video autoplay muted loop playsinline preload="metadata"
+                        class="w-full h-full object-cover pointer-events-none">
+
+                        <source src="{{ asset('videos/ads/start-your-journey.mp4') }}" type="video/mp4">
+
+                    </video>
+                    <!-- Black Overlay -->
+                    <div class="absolute inset-0 bg-black/40"></div>
+                </div>
                 <!-- Floating Card: Success Rate -->
                 <div
-                    class="absolute z-10
-                 left-3 sm:left-4 lg:-left-6
-                 top-3 sm:top-6 lg:top-10
-                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
-                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
-                 flex items-center gap-2 sm:gap-3
-                 w-[165px] sm:w-[200px] lg:w-auto
-                 max-w-[calc(100%-1.5rem)]">
-                    <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <x-lucide-icon name="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]" />
+                    class="absolute z-20
+left-3 sm:left-4 lg:-left-6
+top-4 sm:top-6 lg:top-10
+bg-white/90 backdrop-blur-xl
+rounded-2xl shadow-xl border border-white/40
+px-4 py-3 sm:px-5 sm:py-4
+flex items-center gap-3
+transition duration-300 hover:-translate-y-1">
+
+                    <div class="bg-green-100/80 p-2 rounded-lg">
+                        <x-lucide-icon name="zap" class="w-5 h-5 text-[#16A34A]" />
                     </div>
-                    <div class="min-w-0 leading-tight">
-                        <p class="text-sm sm:text-base lg:text-lg font-bold text-[#16A34A]">95%</p>
-                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Success Rate</p>
+
+                    <div class="leading-tight">
+                        <p class="text-lg font-bold text-[#16A34A]">95%</p>
+                        <p class="text-xs text-gray-600">Success Rate</p>
                     </div>
+
                 </div>
 
                 <!-- Floating Card: Partner Agencies -->
                 <div
-                    class="absolute z-10
-                 right-3 sm:right-4 lg:-right-6
-                 top-14 sm:top-20 lg:top-20
-                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
-                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
-                 flex items-center gap-2 sm:gap-3
-                 w-[180px] sm:w-[210px] lg:w-auto
-                 max-w-[calc(100%-1.5rem)]">
-                    <div class="bg-yellow-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <x-lucide-icon name="shield-check" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
+                    class="absolute z-20
+right-3 sm:right-4 lg:-right-6
+top-16 sm:top-20 lg:top-24
+bg-white/90 backdrop-blur-xl
+rounded-2xl shadow-xl border border-white/40
+px-4 py-3 sm:px-5 sm:py-4
+flex items-center gap-3
+transition duration-300 hover:-translate-y-1">
+
+                    <div class="bg-yellow-100/80 p-2 rounded-lg">
+                        <x-lucide-icon name="shield-check" class="w-5 h-5 text-yellow-600" />
                     </div>
-                    <div class="min-w-0 leading-tight">
-                        <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+
+                    <div class="leading-tight">
+                        <p class="text-lg font-bold text-gray-900">
                             {{ number_format($agenciesCount) }}+
                         </p>
-                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Partner Agencies</p>
+                        <p class="text-xs text-gray-600">Partner Agencies</p>
                     </div>
+
                 </div>
 
                 <!-- Floating Card: Active Jobs -->
                 <div
-                    class="absolute z-10
-                 left-3 sm:left-4 lg:left-10
-                 bottom-3 sm:bottom-4 lg:-bottom-6
-                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
-                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
-                 flex items-center gap-2 sm:gap-3
-                 w-[190px] sm:w-[220px] lg:w-auto
-                 max-w-[calc(100%-1.5rem)]">
-                    <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <x-lucide-icon name="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]" />
+                    class="absolute z-20
+left-3 sm:left-4 lg:left-12
+bottom-4 sm:bottom-6 lg:-bottom-8
+bg-white/90 backdrop-blur-xl
+rounded-2xl shadow-xl border border-white/40
+px-4 py-3 sm:px-5 sm:py-4
+flex items-center gap-3
+transition duration-300 hover:-translate-y-1">
+
+                    <div class="bg-green-100/80 p-2 rounded-lg">
+                        <x-lucide-icon name="briefcase" class="w-5 h-5 text-[#16A34A]" />
                     </div>
-                    <div class="min-w-0 leading-tight">
-                        <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+
+                    <div class="leading-tight">
+                        <p class="text-lg font-bold text-gray-900">
                             {{ number_format($activeJobsCount) }}+
                         </p>
-                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Active Jobs</p>
+                        <p class="text-xs text-gray-600">Active Jobs</p>
                     </div>
+
                 </div>
 
             </div>

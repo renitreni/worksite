@@ -6,13 +6,13 @@
         <!-- Background Layer 1 -->
         <div id="hero-bg-1"
             class="hero-bg absolute inset-0 bg-cover bg-center opacity-100"
-            style="background-image:url('/images/background-2.webp');">
+            style="background-image:url('/images/background/Background-1.png');">
         </div>
 
         <!-- Background Layer 2 -->
         <div id="hero-bg-2"
             class="hero-bg absolute inset-0 bg-cover bg-center opacity-0"
-            style="background-image:url('/images/background-3.png');">
+            style="background-image:url('/images/background/Background-2.png');">
         </div>
 
         <!-- Dark Overlay -->
@@ -52,17 +52,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const bg2 = document.getElementById("hero-bg-2");
 
     const desktopImages = [
-        "/images/background-2.webp",
-        "/images/background-3.png",
-        "/images/background-4.jpg",
-        "/images/background-5.jpg"
+        "/images/background/Background-1.png",
+        "/images/background/Background-2.png",
+        "/images/background/Background-3.png",
+        "/images/background/Background-4.png"
     ];
 
     const mobileImages = [
-        "/images/background-2-mobile.jpg",
-        "/images/background-3-mobile.jpg",
-        "/images/background-4-mobile.jpg",
-        "/images/background-5-mobile.jpg"
+        "/images/background/mobile-background-1.png",
+        "/images/background/mobile-background-2.png",
+        "/images/background/mobile-background-3.png",
+        "/images/background/mobile-background-4.png"
     ];
 
     const isMobile = window.innerWidth <= 640;
