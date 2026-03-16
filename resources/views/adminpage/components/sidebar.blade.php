@@ -23,7 +23,7 @@
         [
             'label' => 'Users',
             'route' => 'admin.users.index',
-            'icon' => 'shield-check',
+            'icon' => 'users',
             'active' => 'admin.users.*',
         ],
         [
@@ -100,7 +100,7 @@
         [
             'label' => 'Reports',
             'route' => 'admin.reports',
-            'icon' => 'bar-chart-3',
+            'icon' => 'bar-chart',
             'active' => 'admin.reports*',
         ],
         [
@@ -118,7 +118,7 @@
             [
                 'label' => 'Admin Accounts',
                 'route' => 'admin.admins.index',
-                'icon' => 'shield',
+                'icon' => 'shield-check',
                 'active' => 'admin.admins.*',
             ],
         ]);
