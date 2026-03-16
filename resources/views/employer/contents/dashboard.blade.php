@@ -236,7 +236,7 @@
                                 <div class="h-10 w-10 rounded-xl border flex items-center justify-center"
                                     :class="n.iconWrap">
 
-                                    <x-lucide-icon :name="n.icon" class="h-4 w-4" :class="n.iconColor" />
+                                    <i :data-lucide="n.icon" class="h-4 w-4" :class="n.iconColor"></i>
 
                                 </div>
 

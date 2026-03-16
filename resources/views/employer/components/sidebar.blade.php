@@ -25,7 +25,7 @@
             'dropdown' => $jobLinks,
             'active' => collect($jobLinks)->contains(
                 fn($link) => request()->is(parse_url($link['href'], PHP_URL_PATH)),
-            ), 
+            ),
         ],
         [
             'label' => 'Applicants',
@@ -33,15 +33,17 @@
             'href' => route('employer.applicants.index'),
             'active' => request()->is('employer/applicants*'),
         ],
-        [   'label' => 'Analytics', 
-            'icon' => 'bar-chart-2', 
+        [
+            'label' => 'Analytics',
+            'icon' => 'bar-chart-2',
             'href' => url('/employer/analytics'),
-            'active' => request()->is('employer/analytics') || request()->is('employer/analytics/*')
-        ],   
-        [   'label' => 'Subscription / Plan', 
-            'icon' => 'credit-card', 
+            'active' => request()->is('employer/analytics') || request()->is('employer/analytics/*'),
+        ],
+        [
+            'label' => 'Subscription / Plan',
+            'icon' => 'credit-card',
             'href' => url('/employer/subscription'),
-            'active' => request()->is('employer/subscription') || request()->is('employer/subscription/*')
+            'active' => request()->is('employer/subscription') || request()->is('employer/subscription/*'),
         ],
     ];
 @endphp
@@ -62,8 +64,8 @@
                         <x-lucide-icon name="{{ $item['icon'] }}"
                             class="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
                         <span class="flex-1 text-left">{{ $item['label'] }}</span>
-                        <x-lucide-icon name="chevron-down" class="h-4 w-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" />
-                    </button>
+                        <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"
+                            :class="open ? 'rotate-180' : ''"></i> </button>
                     <div x-show="open" x-transition class="ml-7 mt-1 space-y-1">
                         @foreach ($item['dropdown'] as $sub)
                             <a href="{{ $sub['href'] }}"
