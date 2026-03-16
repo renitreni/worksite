@@ -34,7 +34,7 @@
                             </label>
                             <div class="flex items-center gap-2 rounded-2xl border border-white/25 bg-white/90
                                 px-4 py-3">
-                                <i data-lucide="search" class="w-5 h-5 text-gray-400"></i>
+                                <x-lucide-icon name="search" class="w-5 h-5 text-gray-400" />
                                 <input type="text"
                                        id="countryKeyword"
                                        placeholder="Example: Singapore"
@@ -49,7 +49,7 @@
                             </label>
                             <div class="flex items-center gap-2 rounded-2xl border border-white/25 bg-white/90
                                 px-4 py-3">
-                                <i data-lucide="globe" class="w-5 h-5 text-gray-400"></i>
+                                <x-lucide-icon name="globe" class="w-5 h-5 text-gray-400" />
                                 <select id="countryRegion"
                                     class="w-full outline-none bg-transparent text-gray-700">
                                     <option value="">All Regions</option>
@@ -70,7 +70,7 @@
                             class="w-full sm:w-auto inline-flex items-center justify-center gap-2
                                    bg-white text-[#0f5f2f] hover:bg-white/90 transition
                                    font-extrabold px-8 py-4 rounded-2xl shadow-md">
-                            <i data-lucide="search" class="w-5 h-5"></i>
+                            <x-lucide-icon name="search" class="w-5 h-5" />
                             Search Country
                         </button>
                     </div>

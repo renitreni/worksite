@@ -21,7 +21,7 @@
             <div class="relative w-full sm:max-w-md lg:w-96">
 
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <i data-lucide="search" class="h-4 w-4"></i>
+                    <x-lucide-icon name="search" class="h-4 w-4" />
                 </span>
 
                 <input type="text" placeholder="Search employers..."
@@ -40,7 +40,7 @@
 
                 <div
                     class="mx-auto h-12 w-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
-                    <i data-lucide="building-2" class="h-6 w-6 text-gray-400"></i>
+                    <x-lucide-icon name="building-2" class="h-6 w-6 text-gray-400" />
                 </div>
 
                 <p class="mt-3 text-sm font-semibold text-gray-900">
@@ -98,7 +98,7 @@
 
                             <span class="inline-flex items-center gap-1">
 
-                                <i data-lucide="briefcase" class="h-4 w-4"></i>
+                                <x-lucide-icon name="briefcase" class="h-4 w-4" />
 
                                 <span x-text="emp.open_jobs + ' Open Jobs'"></span>
 

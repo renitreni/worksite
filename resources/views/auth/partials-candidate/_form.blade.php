@@ -15,7 +15,7 @@
     <!-- Header -->
     <div class="px-6 pt-7 pb-5 text-center">
         <div class="inline-flex items-center gap-2 rounded-full border border-green-100 bg-green-50 px-3 py-1">
-            <i data-lucide="user" class="w-4 h-4 text-[#16A34A]"></i>
+            <x-lucide-icon name="user" class="w-4 h-4 text-[#16A34A]" />
             <span class="text-xs font-semibold text-green-900">Candidate Registration</span>
         </div>
 
@@ -60,7 +60,7 @@
                         <label class="text-xs font-semibold text-gray-700">First name</label>
                         <div class="mt-2 relative">
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                                <i data-lucide="user" class="w-5 h-5"></i>
+                                <x-lucide-icon name="user" class="w-5 h-5" />
                             </span>
                             <input type="text" name="first_name" placeholder="Juan" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
@@ -71,7 +71,7 @@
                         <label class="text-xs font-semibold text-gray-700">Last name</label>
                         <div class="mt-2 relative">
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                                <i data-lucide="user" class="w-5 h-5"></i>
+                                <x-lucide-icon name="user" class="w-5 h-5" />
                             </span>
                             <input type="text" name="last_name" placeholder="Dela Cruz" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
@@ -98,7 +98,7 @@
                         <label class="text-xs font-semibold text-gray-700">Email</label>
                         <div class="mt-2 relative">
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                                <i data-lucide="mail" class="w-5 h-5"></i>
+                                <x-lucide-icon name="mail" class="w-5 h-5" />
                             </span>
                             <input type="email" name="email" placeholder="you@example.com" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
@@ -138,7 +138,7 @@
                         <label class="text-xs font-semibold text-gray-700">Password</label>
                         <div class="mt-2 relative">
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                                <i data-lucide="lock" class="w-5 h-5"></i>
+                                <x-lucide-icon name="lock" class="w-5 h-5" />
                             </span>
 
                             <input x-model="password" :type="showPass ? 'text' : 'password'" name="password"
@@ -148,8 +148,8 @@
                             <button type="button" @click="showPass=!showPass; refreshIcons()"
                                 class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition"
                                 aria-label="Toggle password visibility">
-                                <i data-lucide="eye" class="w-5 h-5" x-show="!showPass"></i>
-                                <i data-lucide="eye-off" class="w-5 h-5" x-show="showPass"></i>
+                                <x-lucide-icon name="eye" class="w-5 h-5" x-show="!showPass" />
+                                <x-lucide-icon name="eye-off" class="w-5 h-5" x-show="showPass" />
                             </button>
                         </div>
 
@@ -159,29 +159,29 @@
                             <div class="space-y-1 text-[11px]">
                                 <div class="flex items-center gap-2"
                                     :class="ruleLen ? 'text-green-700' : 'text-red-600'">
-                                    <i data-lucide="check-circle" class="w-4 h-4" x-show="ruleLen"></i>
-                                    <i data-lucide="x-circle" class="w-4 h-4" x-show="!ruleLen"></i>
+                                    <x-lucide-icon name="check-circle" class="w-4 h-4" x-show="ruleLen" />
+                                    <x-lucide-icon name="x-circle" class="w-4 h-4" x-show="!ruleLen" />
                                     <span>At least 8 characters</span>
                                 </div>
 
                                 <div class="flex items-center gap-2"
                                     :class="ruleUpper ? 'text-green-700' : 'text-red-600'">
-                                    <i data-lucide="check-circle" class="w-4 h-4" x-show="ruleUpper"></i>
-                                    <i data-lucide="x-circle" class="w-4 h-4" x-show="!ruleUpper"></i>
+                                    <x-lucide-icon name="check-circle" class="w-4 h-4" x-show="ruleUpper" />
+                                    <x-lucide-icon name="x-circle" class="w-4 h-4" x-show="!ruleUpper" />
                                     <span>1 uppercase letter (A–Z)</span>
                                 </div>
 
                                 <div class="flex items-center gap-2"
                                     :class="ruleLower ? 'text-green-700' : 'text-red-600'">
-                                    <i data-lucide="check-circle" class="w-4 h-4" x-show="ruleLower"></i>
-                                    <i data-lucide="x-circle" class="w-4 h-4" x-show="!ruleLower"></i>
+                                    <x-lucide-icon name="check-circle" class="w-4 h-4" x-show="ruleLower" />
+                                    <x-lucide-icon name="x-circle" class="w-4 h-4" x-show="!ruleLower" />
                                     <span>1 lowercase letter (a–z)</span>
                                 </div>
 
                                 <div class="flex items-center gap-2"
                                     :class="ruleSymbol ? 'text-green-700' : 'text-red-600'">
-                                    <i data-lucide="check-circle" class="w-4 h-4" x-show="ruleSymbol"></i>
-                                    <i data-lucide="x-circle" class="w-4 h-4" x-show="!ruleSymbol"></i>
+                                    <x-lucide-icon name="check-circle" class="w-4 h-4" x-show="ruleSymbol" />
+                                    <x-lucide-icon name="x-circle" class="w-4 h-4" x-show="!ruleSymbol" />
                                     <span>1 symbol (e.g. ! @ # $ %)</span>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@
                         <label class="text-xs font-semibold text-gray-700">Confirm password</label>
                         <div class="mt-2 relative">
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                                <i data-lucide="check" class="w-5 h-5"></i>
+                                <x-lucide-icon name="check" class="w-5 h-5" />
                             </span>
 
                             <input x-model="confirmPassword" :type="showPass ? 'text' : 'password'"

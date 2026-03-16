@@ -17,7 +17,7 @@
         {{-- Warning Header --}}
         <div class="flex items-start gap-4">
             <div class="flex h-11 w-11 items-center justify-center rounded-full bg-red-100">
-                <i data-lucide="alert-triangle" class="h-5 w-5 text-red-600"></i>
+                <x-lucide-icon name="alert-triangle" class="h-5 w-5 text-red-600" />
             </div>
             <div>
                 <p class="text-base font-semibold text-gray-900">
@@ -64,7 +64,7 @@
                 @click="successOpen = true"
                 class="inline-flex items-center gap-2 rounded-xl bg-red-500 px-5 py-3 text-sm font-semibold text-white hover:bg-red-600 transition"
             >
-                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                <x-lucide-icon name="trash-2" class="h-4 w-4" />
                 Delete Account
             </button>
         </div>
@@ -91,7 +91,7 @@
         >
             <div class="flex items-start gap-4">
                 <div class="flex h-11 w-11 items-center justify-center rounded-full bg-green-100">
-                    <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                    <x-lucide-icon name="check-circle" class="h-6 w-6 text-green-600" />
                 </div>
 
                 <div class="flex-1">

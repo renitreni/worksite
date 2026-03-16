@@ -2,7 +2,7 @@
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     <div class="flex items-center gap-2 text-sm text-gray-600">
-        <i data-lucide="info" class="w-4 h-4"></i>
+        <x-lucide-icon name="info" class="w-4 h-4" />
         <span id="showingCountryText">
             Loading countries...
         </span>
@@ -19,7 +19,7 @@
         <button id="countryPrevBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl
                border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700
                hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
-            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            <x-lucide-icon name="chevron-left" class="w-4 h-4" />
             Prev
         </button>
 
@@ -32,7 +32,7 @@
                border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700
                hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
             Next
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <x-lucide-icon name="chevron-right" class="w-4 h-4" />
         </button>
 
     </div>
@@ -122,7 +122,7 @@
                         <a href="#"
                            class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#16A34A] hover:underline">
                             View Jobs
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            <x-lucide-icon name="arrow-right" class="w-4 h-4" />
                         </a>
                     </div>
                 </div>

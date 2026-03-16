@@ -12,7 +12,7 @@
        href="{{ route('admin.messages.index') }}"
        class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700">
 
-        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <x-lucide-icon name="arrow-left" class="w-4 h-4" />
         Back to Inbox
 
     </a>
@@ -123,7 +123,7 @@
                     bg-emerald-600 px-4 py-2 text-sm font-semibold
                     text-white hover:bg-emerald-700">
 
-                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <x-lucide-icon name="send" class="w-4 h-4" />
                     Send Email
 
                 </button>

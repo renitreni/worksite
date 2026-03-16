@@ -198,12 +198,12 @@
                                 class="w-full flex min-w-0 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold
                   {{ $groupActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
                                 <span class="flex min-w-0 items-center gap-3 text-left">
-                                    <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
+                                    <x-lucide-icon name="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0" />
                                     <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
                                 </span>
 
-                                <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
-                                    :class="open ? 'rotate-180' : ''"></i>
+                                <x-lucide-icon name="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
+                                    :class="open ? 'rotate-180' : ''" />
                             </button>
 
                             <div x-show="open" x-collapse class="pl-4">
@@ -214,8 +214,8 @@
                                             title="{{ $ch['label'] }}"
                                             class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold
                         {{ $chActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
-                                            <i data-lucide="{{ $ch['icon'] ?? 'dot' }}"
-                                                class="h-4 w-4 shrink-0 opacity-80"></i>
+                                            <x-lucide-icon name="{{ $ch['icon'] ?? 'dot' }}"
+                                                class="h-4 w-4 shrink-0 opacity-80" />
                                             <span class="min-w-0 flex-1 truncate">{{ $ch['label'] }}</span>
                                         </a>
                                     @endforeach
@@ -227,7 +227,7 @@
                             title="{{ $it['label'] }}"
                             class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
                 {{ $active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
-                            <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
+                            <x-lucide-icon name="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0" />
                             <span class="min-w-0 flex-1 truncate">{{ $it['label'] }}</span>
                         </a>
                     @endif
@@ -261,7 +261,7 @@
                             class="w-full flex min-w-0 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold
                 {{ $groupActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
                             <span class="flex min-w-0 items-center gap-3 text-left w-full">
-                                <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
+                                <x-lucide-icon name="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0" />
 
                                 <span class="flex-1 truncate">
                                     {{ $it['label'] }}
@@ -274,8 +274,8 @@
                                 @endif
                             </span>
 
-                            <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
-                                :class="open ? 'rotate-180' : ''"></i>
+                            <x-lucide-icon name="chevron-down" class="h-4 w-4 shrink-0 transition-transform"
+                                :class="open ? 'rotate-180' : ''" />
                         </button>
 
                         <div x-show="open" x-collapse class="pl-4">
@@ -285,8 +285,8 @@
                                     <a wire:navigate href="{{ route($ch['route']) }}" title="{{ $ch['label'] }}"
                                         class="flex min-w-0 items-center gap-3 rounded-xl px-4 py-2 text-sm font-semibold
                       {{ $chActive ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
-                                        <i data-lucide="{{ $ch['icon'] ?? 'dot' }}"
-                                            class="h-4 w-4 shrink-0 opacity-80"></i>
+                                        <x-lucide-icon name="{{ $ch['icon'] ?? 'dot' }}"
+                                            class="h-4 w-4 shrink-0 opacity-80" />
                                         <span class="min-w-0 flex-1 truncate">{{ $ch['label'] }}</span>
                                     </a>
                                 @endforeach
@@ -298,7 +298,7 @@
                         class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold
 {{ $active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100' : 'text-slate-700 hover:bg-slate-50' }}">
 
-                        <i data-lucide="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0"></i>
+                        <x-lucide-icon name="{{ $it['icon'] ?? 'circle' }}" class="h-4 w-4 shrink-0" />
 
                         <span class="flex-1 truncate">
                             {{ $it['label'] }}

@@ -351,7 +351,7 @@
                                                                 <button @click="open=false"
                                                                     class="p-2 rounded-lg hover:bg-slate-100">
 
-                                                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                                                    <x-lucide-icon name="x" class="w-4 h-4" />
 
                                                                 </button>
 
@@ -367,8 +367,8 @@
 
                                                                         <div class="flex items-start gap-3">
 
-                                                                            <i data-lucide="check-circle"
-                                                                                class="w-5 h-5 text-emerald-600"></i>
+                                                                            <x-lucide-icon name="check-circle"
+                                                                                class="w-5 h-5 text-emerald-600" />
 
                                                                             <div>
 
@@ -398,8 +398,8 @@
 
                                                                         <div class="flex items-start gap-3">
 
-                                                                            <i data-lucide="x-circle"
-                                                                                class="w-5 h-5 text-rose-600"></i>
+                                                                            <x-lucide-icon name="x-circle"
+                                                                                class="w-5 h-5 text-rose-600" />
 
                                                                             <div>
 

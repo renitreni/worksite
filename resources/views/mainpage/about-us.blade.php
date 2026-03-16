@@ -122,25 +122,25 @@
                         <div class="flex gap-6">
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
-                                <i data-lucide="users" class="text-green-600 w-8 h-8"></i>
+                                <x-lucide-icon name="users" class="text-green-600 w-8 h-8" />
                                 <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">10K+</h3>
                                 <p class="section-title text-gray-600 text-sm">Job Seekers</p>
                             </div>
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
-                                <i data-lucide="building-2" class="text-green-600 w-8 h-8"></i>
+                                <x-lucide-icon name="building-2" class="text-green-600 w-8 h-8" />
                                 <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">500+</h3>
                                 <p class="section-title text-gray-600 text-sm">Partner Agencies</p>
                             </div>
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
-                                <i data-lucide="globe" class="text-green-600 w-8 h-8"></i>
+                                <x-lucide-icon name="globe" class="text-green-600 w-8 h-8" />
                                 <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">40+</h3>
                                 <p class="section-title text-gray-600 text-sm">Countries Hiring</p>
                             </div>
 
                             <div class="bg-white px-8 py-6 rounded-xl shadow min-w-[200px]">
-                                <i data-lucide="briefcase" class="text-green-600 w-8 h-8"></i>
+                                <x-lucide-icon name="briefcase" class="text-green-600 w-8 h-8" />
                                 <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">5K+</h3>
                                 <p class="section-title text-gray-600 text-sm">Jobs Posted</p>
                             </div>
@@ -157,25 +157,25 @@
             <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8">
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
-                    <i data-lucide="users" class="text-green-600 w-8 h-8"></i>
+                    <x-lucide-icon name="users" class="text-green-600 w-8 h-8" />
                     <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">10K+</h3>
                     <p class="section-title text-gray-600 text-sm">Job Seekers</p>
                 </div>
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
-                    <i data-lucide="building-2" class="text-green-600 w-8 h-8"></i>
+                    <x-lucide-icon name="building-2" class="text-green-600 w-8 h-8" />
                     <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">500+</h3>
                     <p class="section-title text-gray-600 text-sm">Partner Agencies</p>
                 </div>
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
-                    <i data-lucide="globe" class="text-green-600 w-8 h-8"></i>
+                    <x-lucide-icon name="globe" class="text-green-600 w-8 h-8" />
                     <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">40+</h3>
                     <p class="section-title text-gray-600 text-sm">Countries Hiring</p>
                 </div>
 
                 <div class="bg-white px-8 py-6 rounded-xl shadow">
-                    <i data-lucide="briefcase" class="text-green-600 w-8 h-8"></i>
+                    <x-lucide-icon name="briefcase" class="text-green-600 w-8 h-8" />
                     <h3 class="hero-title text-3xl font-bold text-green-600 mt-2">5K+</h3>
                     <p class="section-title text-gray-600 text-sm">Jobs Posted</p>
                 </div>
@@ -221,7 +221,7 @@
                     <a href="candidate/register"
                         class="inline-flex items-center gap-2 mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow">
 
-                        <i data-lucide="user-plus"></i>
+                        <x-lucide-icon name="user-plus" />
                         Create Your Profile
 
                     </a>
@@ -262,7 +262,7 @@
                     <a href="/contact"
                         class="inline-flex items-center gap-2 mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow">
 
-                        <i data-lucide="handshake"></i>
+                        <x-lucide-icon name="handshake" />
                         Partner With Us
 
                     </a>
@@ -303,7 +303,7 @@
                     <a href="/jobs"
                         class="bg-white text-green-600 px-7 py-3 rounded-lg font-semibold shadow hover:bg-gray-100 inline-flex items-center gap-2">
 
-                        <i data-lucide="search"></i>
+                        <x-lucide-icon name="search" />
                         Explore Jobs
 
                     </a>
@@ -327,7 +327,7 @@
     <button id="scrollButton" onclick="document.getElementById('about-section').scrollIntoView({behavior:'smooth'})"
         class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:bg-green-700 transition-opacity duration-300">
 
-        <i data-lucide="chevron-down" class="animate-bounce"></i>
+        <x-lucide-icon name="chevron-down" class="animate-bounce" />
 
     </button>
 

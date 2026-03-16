@@ -19,7 +19,7 @@
 
             View Articles
 
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            <x-lucide-icon name="arrow-right" class="w-4 h-4" />
 
         </a>
 

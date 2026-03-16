@@ -58,7 +58,7 @@
                 <div class="flex-shrink-0">
                     <span
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 border border-amber-200">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i>
+                        <x-lucide-icon name="alert-triangle" class="w-5 h-5 text-amber-600" />
                     </span>
                 </div>
 
@@ -87,7 +87,7 @@
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                    <i data-lucide="wallet" class="w-4 h-4 text-slate-600"></i>
+                    <x-lucide-icon name="wallet" class="w-4 h-4 text-slate-600" />
                 </span>
                 <div>
                     <div class="font-semibold text-emerald-700">{{ $salaryText }}</div>
@@ -98,7 +98,7 @@
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                    <i data-lucide="user" class="w-4 h-4 text-slate-600"></i>
+                    <x-lucide-icon name="user" class="w-4 h-4 text-slate-600" />
                 </span>
                 <div class="font-semibold text-slate-700">
                     @if ($job->gender === 'both')
@@ -116,7 +116,7 @@
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                    <i data-lucide="calendar" class="w-4 h-4 text-slate-600"></i>
+                    <x-lucide-icon name="calendar" class="w-4 h-4 text-slate-600" />
                 </span>
                 <div class="font-semibold text-slate-700">
                     Date Posted: {{ $postedDate->format('M d, Y') }}
@@ -128,7 +128,7 @@
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-slate-600"></i>
+                    <x-lucide-icon name="map-pin" class="w-4 h-4 text-slate-600" />
                 </span>
                 <div class="font-semibold text-slate-700">
                     {{ $locationText ?: 'Not specified' }}
@@ -138,7 +138,7 @@
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                    <i data-lucide="badge-check" class="w-4 h-4 text-slate-600"></i>
+                    <x-lucide-icon name="badge-check" class="w-4 h-4 text-slate-600" />
                 </span>
                 <div class="font-semibold text-slate-700">
                     {{ $ageText }} yrs old
@@ -148,7 +148,7 @@
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                    <i data-lucide="clock" class="w-4 h-4 text-slate-600"></i>
+                    <x-lucide-icon name="clock" class="w-4 h-4 text-slate-600" />
                 </span>
                 <div class="text-slate-700">
 
@@ -196,7 +196,7 @@
             <button type="button"
                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-3 text-sm font-semibold text-emerald-700">
 
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <x-lucide-icon name="check-circle" class="w-4 h-4" />
                 Applied
 
             </button>
@@ -205,7 +205,7 @@
                 <button type="button" @click="openModal('apply')"
                     class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm">
 
-                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <x-lucide-icon name="send" class="w-4 h-4" />
                     Apply Now
 
                 </button>
@@ -213,7 +213,7 @@
                 <button type="button" @click="openModal('login')"
                     class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition shadow-sm">
 
-                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <x-lucide-icon name="send" class="w-4 h-4" />
                     Apply Now
 
                 </button>
@@ -249,7 +249,7 @@
                         'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'">
 
                     {{-- ICON --}}
-                    <i data-lucide="bookmark" class="w-4 h-4" :class="saved ? 'fill-emerald-600 text-emerald-600' : ''"></i>
+                    <x-lucide-icon name="bookmark" class="w-4 h-4" :class="saved ? 'fill-emerald-600 text-emerald-600' : ''" />
 
                     <span x-text="saved ? 'Saved' : 'Save Job'"></span>
 
@@ -362,7 +362,7 @@
                 class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700">
 
                 View Agency
-                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <x-lucide-icon name="arrow-right" class="w-4 h-4" />
 
             </a>
         </div>
@@ -371,7 +371,7 @@
 
             {{-- Address --}}
             <div class="flex items-start gap-3">
-                <i data-lucide="map-pin" class="w-5 h-5 text-slate-500 mt-0.5"></i>
+                <x-lucide-icon name="map-pin" class="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
                     <p class="font-semibold">Address</p>
                     <p class="text-slate-600">
@@ -382,7 +382,7 @@
 
             {{-- Website --}}
             <div class="flex items-start gap-3">
-                <i data-lucide="globe" class="w-5 h-5 text-slate-500 mt-0.5"></i>
+                <x-lucide-icon name="globe" class="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
                     <p class="font-semibold">Website</p>
 
@@ -400,7 +400,7 @@
 
             {{-- Contact --}}
             <div class="flex items-start gap-3">
-                <i data-lucide="phone" class="w-5 h-5 text-slate-500 mt-0.5"></i>
+                <x-lucide-icon name="phone" class="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
                     <p class="font-semibold">Contact</p>
                     <p class="text-slate-600">
@@ -411,7 +411,7 @@
 
             {{-- Description --}}
             <div class="flex items-start gap-3">
-                <i data-lucide="file-text" class="w-5 h-5 text-slate-500 mt-0.5"></i>
+                <x-lucide-icon name="file-text" class="w-5 h-5 text-slate-500 mt-0.5" />
                 <div>
                     <p class="font-semibold">About Agency</p>
                     <p class="text-slate-600 whitespace-pre-line">

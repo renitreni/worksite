@@ -60,7 +60,7 @@
 
             <a href="{{ route('employer.applicants.export', ['status' => $status]) }}"
                 class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-200 transition">
-                <i data-lucide="download" class="h-4 w-4"></i>
+                <x-lucide-icon name="download" class="h-4 w-4" />
                 Export List
             </a>
         </div>

@@ -13,7 +13,7 @@
                 <div class="space-y-1">
                     <button type="button" @click="editOpen=false"
                         class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900">
-                        <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                        <x-lucide-icon name="arrow-left" class="h-4 w-4" />
                         Back to Profile
                     </button>
 
@@ -26,7 +26,7 @@
                 <button type="button" @click="editOpen=false"
                     class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50"
                     title="Close">
-                    <i data-lucide="x" class="h-5 w-5 text-gray-700"></i>
+                    <x-lucide-icon name="x" class="h-5 w-5 text-gray-700" />
                 </button>
             </div>
         </div>
@@ -65,7 +65,7 @@
                                             reader.onload = (e) => photoPreview = e.target.result;
                                             reader.readAsDataURL(file);
                                         " />
-                                    <i data-lucide="camera" class="h-5 w-5"></i>
+                                    <x-lucide-icon name="camera" class="h-5 w-5" />
                                 </label>
                             </div>
 

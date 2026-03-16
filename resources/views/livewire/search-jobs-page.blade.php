@@ -32,7 +32,7 @@
 
                             <div
                                 class="flex items-center gap-2 rounded-2xl border border-white/25 bg-white/90 backdrop-blur-md px-4 py-3">
-                                <i data-lucide="search" class="w-5 h-5 text-gray-400"></i>
+                                <x-lucide-icon name="search" class="w-5 h-5 text-gray-400" />
                                 <input wire:model.live="keyword" type="text" placeholder="Search Jobs by Keywords"
                                     class="w-full outline-none bg-transparent text-gray-800 placeholder:text-gray-400" />
                             </div>
@@ -46,7 +46,7 @@
 
                             <div
                                 class="flex items-center gap-2 rounded-2xl border border-white/25 bg-white/90 backdrop-blur-md px-4 py-3">
-                                <i data-lucide="globe" class="w-5 h-5 text-gray-400"></i>
+                                <x-lucide-icon name="globe" class="w-5 h-5 text-gray-400" />
                                 <select wire:model.live="country"
                                     class="w-full outline-none bg-transparent text-gray-700">
                                     <option value="">All Countries</option>
@@ -86,15 +86,15 @@
                                            : 'bg-white/90 border-white/30 text-gray-800 hover:bg-white' }}
                                        hover:-translate-y-0.5 hover:shadow-lg duration-200">
 
-                                <i data-lucide="{{ $f['icon'] }}"
-                                    class="w-4 h-4 {{ $active ? 'text-white' : 'text-green-700' }}"></i>
+                                <x-lucide-icon name="{{ $f['icon'] }}"
+                                    class="w-4 h-4 {{ $active ? 'text-white' : 'text-green-700' }}" />
 
                                 <span class="text-xs sm:text-sm font-semibold">
                                     {{ $f['label'] }}
                                 </span>
 
                                 @if ($active)
-                                    <i data-lucide="x" class="w-4 h-4 text-white/90"></i>
+                                    <x-lucide-icon name="x" class="w-4 h-4 text-white/90" />
                                 @endif
                             </button>
                         @endforeach
@@ -105,7 +105,7 @@
                         <button type="button" wire:click="clearFilters"
                             class="inline-flex items-center gap-2 rounded-2xl bg-white/90 px-4 py-2 text-sm font-bold text-[#0f5f2f]
            hover:bg-white transition">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            <x-lucide-icon name="rotate-ccw" class="w-4 h-4" />
                             Clear filters
                         </button>
                     </div>
@@ -119,7 +119,7 @@
     {{-- RESULTS --}}
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div class="flex items-center gap-2 text-sm text-gray-600">
-            <i data-lucide="info" class="w-4 h-4"></i>
+            <x-lucide-icon name="info" class="w-4 h-4" />
             <span>
                 Showing <strong>{{ $jobs->firstItem() ?? 0 }}</strong> to <strong>{{ $jobs->lastItem() ?? 0 }}</strong>
                 out of <strong>{{ $jobs->total() }}</strong> jobs

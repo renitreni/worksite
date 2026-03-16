@@ -55,7 +55,7 @@
                 </div>
 
                 <button @click="closeModal()" class="rounded-xl p-2 hover:bg-slate-100">
-                    <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+                    <x-lucide-icon name="x" class="w-5 h-5 text-slate-500" />
                 </button>
 
             </div>
@@ -91,12 +91,12 @@
             <div class="mt-4 flex flex-wrap gap-2 text-xs">
 
                 <span class="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 border border-slate-200">
-                    <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                    <x-lucide-icon name="briefcase" class="w-3.5 h-3.5" />
                     {{ $job->title }}
                 </span>
 
                 <span class="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 border border-slate-200">
-                    <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                    <x-lucide-icon name="building-2" class="w-3.5 h-3.5" />
                     {{ $company ?? 'Agency' }}
                 </span>
 

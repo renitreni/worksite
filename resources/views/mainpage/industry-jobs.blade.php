@@ -71,12 +71,12 @@
 
                             <button onclick="slideIndustries(-1)"
                                 class="p-2 rounded-lg border bg-white hover:bg-gray-100 transition">
-                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                                <x-lucide-icon name="chevron-left" class="w-5 h-5" />
                             </button>
 
                             <button onclick="slideIndustries(1)"
                                 class="p-2 rounded-lg border bg-white hover:bg-gray-100 transition">
-                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                <x-lucide-icon name="chevron-right" class="w-5 h-5" />
                             </button>
 
                         </div>

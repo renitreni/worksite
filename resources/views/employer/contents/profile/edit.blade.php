@@ -12,7 +12,7 @@
 
             <a href="{{ route('employer.company-profile') }}"
                 class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">
-                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                <x-lucide-icon name="arrow-left" class="h-4 w-4" />
                 Back
             </a>
         </div>

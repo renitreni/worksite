@@ -17,19 +17,19 @@
                 <!-- Benefits -->
                 <ul class="mt-8 space-y-4">
                     <li class="flex items-start gap-3">
-                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
+                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
                         <span class="text-white/90">Access to thousands of verified job listings</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
+                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
                         <span class="text-white/90">Direct connection with top recruitment agencies</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
+                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
                         <span class="text-white/90">Personalized job recommendations</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
+                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
                         <span class="text-white/90">Free career guidance and support</span>
                     </li>
                 </ul>
@@ -39,7 +39,7 @@
                     <a href="{{ auth()->check() ? route('candidate.dashboard') : route('candidate.register') }}"
                         class="inline-flex items-center gap-2 rounded-xl bg-yellow-400 px-6 py-3 text-sm font-semibold text-black hover:bg-yellow-300 transition">
                         Get Started
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        <x-lucide-icon name="arrow-right" class="w-4 h-4" />
                     </a>
 
                     <a href="{{ route('search-jobs') }}"
@@ -66,7 +66,7 @@
                  w-[165px] sm:w-[200px] lg:w-auto
                  max-w-[calc(100%-1.5rem)]">
                     <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]"></i>
+                        <x-lucide-icon name="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]" />
                     </div>
                     <div class="min-w-0 leading-tight">
                         <p class="text-sm sm:text-base lg:text-lg font-bold text-[#16A34A]">95%</p>
@@ -85,7 +85,7 @@
                  w-[180px] sm:w-[210px] lg:w-auto
                  max-w-[calc(100%-1.5rem)]">
                     <div class="bg-yellow-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <i data-lucide="shield-check" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600"></i>
+                        <x-lucide-icon name="shield-check" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
                     </div>
                     <div class="min-w-0 leading-tight">
                         <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
@@ -106,7 +106,7 @@
                  w-[190px] sm:w-[220px] lg:w-auto
                  max-w-[calc(100%-1.5rem)]">
                     <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <i data-lucide="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]"></i>
+                        <x-lucide-icon name="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]" />
                     </div>
                     <div class="min-w-0 leading-tight">
                         <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">

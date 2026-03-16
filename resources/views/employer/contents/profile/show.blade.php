@@ -18,7 +18,7 @@
             <div class="flex gap-2">
                 <a href="{{ route('employer.company-profile.edit') }}"
                     class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-200 transition">
-                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                    <x-lucide-icon name="pencil" class="h-4 w-4" />
                     Edit Profile
                 </a>
 
@@ -28,7 +28,7 @@
                     @method('DELETE')
                     <button type="submit"
                         class="inline-flex items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-3 text-sm font-semibold text-rose-700 shadow-sm hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-200 transition">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        <x-lucide-icon name="trash-2" class="h-4 w-4" />
                         Delete
                     </button>
                 </form>
@@ -89,7 +89,7 @@
     rounded-full bg-emerald-50 border border-emerald-200
     px-3 py-1 text-xs font-semibold text-emerald-700">
 
-                                <i data-lucide="badge-check" class="w-3.5 h-3.5"></i>
+                                <x-lucide-icon name="badge-check" class="w-3.5 h-3.5" />
 
                                 DMW Licensed Agency
                             </div>
@@ -97,12 +97,12 @@
 
                         <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-slate-600">
                             <span class="inline-flex items-center gap-2">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i>
+                                <x-lucide-icon name="map-pin" class="w-4 h-4 text-slate-400" />
                                 {{ $employerProfile->company_address ?: '—' }}
                             </span>
 
                             <span class="inline-flex items-center gap-2">
-                                <i data-lucide="mail" class="w-4 h-4 text-slate-400"></i>
+                                <x-lucide-icon name="mail" class="w-4 h-4 text-slate-400" />
                                 {{ $email }}
                             </span>
                         </div>
@@ -130,7 +130,7 @@
                                             class="inline-flex items-center gap-1.5 rounded-full
                                         border border-emerald-200 bg-emerald-50
                                         px-3 py-1 text-xs font-semibold text-emerald-700">
-                                            <i data-lucide="tag" class="h-3.5 w-3.5"></i>
+                                            <x-lucide-icon name="tag" class="h-3.5 w-3.5" />
                                             {{ $chip }}
                                         </span>
                                     @endforeach

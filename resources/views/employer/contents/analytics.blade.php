@@ -48,7 +48,7 @@ bg-gray-100 text-gray-700 @endif
                     <p class="text-2xl font-bold">{{ $activeJobs }}</p>
                     <p class="text-sm text-gray-500">Active Jobs</p>
                 </div>
-                <i data-lucide="briefcase" class="h-8 w-8 text-emerald-500"></i>
+                <x-lucide-icon name="briefcase" class="h-8 w-8 text-emerald-500" />
             </div>
 
             <div class="bg-white rounded-xl p-6 shadow flex items-center justify-between">
@@ -56,7 +56,7 @@ bg-gray-100 text-gray-700 @endif
                     <p class="text-2xl font-bold">{{ $totalApplications }}</p>
                     <p class="text-sm text-gray-500">Total Applicants</p>
                 </div>
-                <i data-lucide="users" class="h-8 w-8 text-blue-500"></i>
+                <x-lucide-icon name="users" class="h-8 w-8 text-blue-500" />
             </div>
 
             <div class="bg-white rounded-xl p-6 shadow flex items-center justify-between">
@@ -64,7 +64,7 @@ bg-gray-100 text-gray-700 @endif
                     <p class="text-2xl font-bold">{{ $hiresThisMonth }}</p>
                     <p class="text-sm text-gray-500">Hires This Month</p>
                 </div>
-                <i data-lucide="check-circle" class="h-8 w-8 text-yellow-500"></i>
+                <x-lucide-icon name="check-circle" class="h-8 w-8 text-yellow-500" />
             </div>
 
             <div class="bg-white rounded-xl p-6 shadow flex items-center justify-between">
@@ -74,7 +74,7 @@ bg-gray-100 text-gray-700 @endif
                     </p>
                     <p class="text-sm text-gray-500">Applicants per Job</p>
                 </div>
-                <i data-lucide="bar-chart" class="h-8 w-8 text-purple-500"></i>
+                <x-lucide-icon name="bar-chart" class="h-8 w-8 text-purple-500" />
             </div>
 
         </div>

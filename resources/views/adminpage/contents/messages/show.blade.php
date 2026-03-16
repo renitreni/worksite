@@ -12,7 +12,7 @@
        href="{{ route('admin.messages.index') }}"
        class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700">
 
-        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <x-lucide-icon name="arrow-left" class="w-4 h-4" />
         Back to Inbox
 
     </a>
@@ -82,7 +82,7 @@
                     @click="replyOpen = !replyOpen"
                     class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
 
-                    <i data-lucide="reply" class="w-4 h-4"></i>
+                    <x-lucide-icon name="reply" class="w-4 h-4" />
                     Reply
 
                 </button>
@@ -99,7 +99,7 @@
                 <button
                     class="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100">
 
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    <x-lucide-icon name="trash-2" class="w-4 h-4" />
                     Delete
 
                 </button>
@@ -132,7 +132,7 @@
                         type="submit"
                         class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
 
-                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <x-lucide-icon name="send" class="w-4 h-4" />
                         Send Reply
 
                     </button>

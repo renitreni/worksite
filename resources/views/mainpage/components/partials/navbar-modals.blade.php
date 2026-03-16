@@ -13,7 +13,7 @@
                 <button type="button" id="loginCloseBtn"
                     class="h-9 w-9 inline-flex items-center justify-center rounded-lg hover:bg-gray-100 transition"
                     aria-label="Close modal">
-                    <i data-lucide="x" class="w-5 h-5 text-gray-700"></i>
+                    <x-lucide-icon name="x" class="w-5 h-5 text-gray-700" />
                 </button>
             </div>
 
@@ -23,13 +23,13 @@
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
                     <div
                         class="mt-0.5 h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center border border-green-200">
-                        <i data-lucide="user" class="w-5 h-5 text-green-700"></i>
+                        <x-lucide-icon name="user" class="w-5 h-5 text-green-700" />
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center justify-between gap-2">
                             <p class="font-semibold text-gray-900">Candidate</p>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition"></i>
+                            <x-lucide-icon name="arrow-right"
+                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition" />
                         </div>
                         <p class="text-sm text-gray-600 mt-1">I’m applying for jobs.</p>
                     </div>
@@ -39,13 +39,13 @@
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
                     <div
                         class="mt-0.5 h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
-                        <i data-lucide="briefcase" class="w-5 h-5 text-emerald-700"></i>
+                        <x-lucide-icon name="briefcase" class="w-5 h-5 text-emerald-700" />
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center justify-between gap-2">
                             <p class="font-semibold text-gray-900">Employer</p>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition"></i>
+                            <x-lucide-icon name="arrow-right"
+                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition" />
                         </div>
                         <p class="text-sm text-gray-600 mt-1">I’m posting jobs and hiring.</p>
                     </div>
@@ -77,7 +77,7 @@
                 <button type="button" id="registerCloseBtn"
                     class="h-9 w-9 inline-flex items-center justify-center rounded-lg hover:bg-gray-100 transition"
                     aria-label="Close modal">
-                    <i data-lucide="x" class="w-5 h-5 text-gray-700"></i>
+                    <x-lucide-icon name="x" class="w-5 h-5 text-gray-700" />
                 </button>
             </div>
 
@@ -86,13 +86,13 @@
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
                     <div
                         class="mt-0.5 h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center border border-green-200">
-                        <i data-lucide="user" class="w-5 h-5 text-green-700"></i>
+                        <x-lucide-icon name="user" class="w-5 h-5 text-green-700" />
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center justify-between gap-2">
                             <p class="font-semibold text-gray-900">Candidate</p>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition"></i>
+                            <x-lucide-icon name="arrow-right"
+                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition" />
                         </div>
                         <p class="text-sm text-gray-600 mt-1">I’m finding jobs and applying.</p>
                     </div>
@@ -102,13 +102,13 @@
                     class="group flex items-start gap-3 p-4 rounded-xl border border-gray-200 hover:border-green-200 hover:bg-green-50/60 transition">
                     <div
                         class="mt-0.5 h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center border border-emerald-200">
-                        <i data-lucide="briefcase" class="w-5 h-5 text-emerald-700"></i>
+                        <x-lucide-icon name="briefcase" class="w-5 h-5 text-emerald-700" />
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center justify-between gap-2">
                             <p class="font-semibold text-gray-900">Employer</p>
-                            <i data-lucide="arrow-right"
-                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition"></i>
+                            <x-lucide-icon name="arrow-right"
+                                class="w-4 h-4 text-gray-500 group-hover:translate-x-0.5 transition" />
                         </div>
                         <p class="text-sm text-gray-600 mt-1">I’m posting jobs and hiring.</p>
                     </div>

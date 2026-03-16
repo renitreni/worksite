@@ -180,7 +180,7 @@ hover:bg-emerald-700 transition shadow-sm">
                     <div class="bg-gray-50 border border-gray-100 rounded-xl p-6 flex gap-4 items-start">
 
                         <div class="bg-emerald-100 p-3 rounded-lg">
-                            <i data-lucide="phone" class="w-5 h-5 text-emerald-600"></i>
+                            <x-lucide-icon name="phone" class="w-5 h-5 text-emerald-600" />
                         </div>
 
                         <div>
@@ -206,7 +206,7 @@ hover:bg-emerald-700 transition shadow-sm">
                     <div class="bg-gray-50 border border-gray-100 rounded-xl p-6 flex gap-4 items-start">
 
                         <div class="bg-emerald-100 p-3 rounded-lg">
-                            <i data-lucide="mail" class="w-5 h-5 text-emerald-600"></i>
+                            <x-lucide-icon name="mail" class="w-5 h-5 text-emerald-600" />
                         </div>
 
                         <div>
@@ -229,7 +229,7 @@ hover:bg-emerald-700 transition shadow-sm">
                     <div class="bg-gray-50 border border-gray-100 rounded-xl p-6 flex gap-4 items-start">
 
                         <div class="bg-emerald-100 p-3 rounded-lg">
-                            <i data-lucide="clock" class="w-5 h-5 text-emerald-600"></i>
+                            <x-lucide-icon name="clock" class="w-5 h-5 text-emerald-600" />
                         </div>
 
                         <div>

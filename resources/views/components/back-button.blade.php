@@ -11,7 +11,7 @@
 >
     <span class="flex items-center justify-center w-9 h-9 rounded-xl
                  bg-gray-100 group-hover:bg-[#16A34A]/10 transition">
-        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        <x-lucide-icon name="arrow-left" class="w-5 h-5" />
     </span>
 
     @if ($label)

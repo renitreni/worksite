@@ -3,7 +3,7 @@
     <button @click="open = !open" :class="animate ? 'animate-bounce' : ''"
         class="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition">
 
-        <i data-lucide="bell" class="h-5 w-5 text-gray-600"></i>
+        <x-lucide-icon name="bell" class="h-5 w-5 text-gray-600" />
 
         <!-- Unread Count -->
         <span x-show="unread > 0" x-transition

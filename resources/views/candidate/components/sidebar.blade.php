@@ -64,8 +64,8 @@
                        {{ $item['active']
                            ? 'bg-blue-50 text-blue-700 border border-blue-100'
                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
-                <i data-lucide="{{ $item['icon'] }}"
-                    class="h-5 w-5 {{ $item['active'] ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-600' }}"></i>
+                <x-lucide-icon name="{{ $item['icon'] }}"
+                    class="h-5 w-5 {{ $item['active'] ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-600' }}" />
                 <span class="truncate">{{ $item['label'] }}</span>
             </a>
         @endforeach
@@ -79,7 +79,7 @@
             @csrf
             <button type="submit"
                 class="w-full group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition">
-                <i data-lucide="log-out" class="h-5 w-5 text-red-500"></i>
+                <x-lucide-icon name="log-out" class="h-5 w-5 text-red-500" />
                 <span>Log Out</span>
             </button>
         </form>
@@ -95,7 +95,7 @@
         <img src="{{ asset('images/logo.png') }}" alt="WorkSITE" class="h-20 object-contain" />
         <button @click="mobileSidebarOpen = false"
             class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200">
-            <i data-lucide="x" class="h-5 w-5"></i>
+            <x-lucide-icon name="x" class="h-5 w-5" />
         </button>
     </div>
 
@@ -106,8 +106,8 @@
                        {{ $item['active']
                            ? 'bg-blue-50 text-blue-700 border border-blue-100'
                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
-                <i data-lucide="{{ $item['icon'] }}"
-                    class="h-5 w-5 {{ $item['active'] ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-600' }}"></i>
+                <x-lucide-icon name="{{ $item['icon'] }}"
+                    class="h-5 w-5 {{ $item['active'] ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-600' }}" />
                 <span>{{ $item['label'] }}</span>
             </a>
         @endforeach
@@ -121,7 +121,7 @@
             @csrf
             <button type="submit"
                 class="w-full group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition">
-                <i data-lucide="log-out" class="h-5 w-5 text-red-500"></i>
+                <x-lucide-icon name="log-out" class="h-5 w-5 text-red-500" />
                 <span>Log Out</span>
             </button>
         </form>

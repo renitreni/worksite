@@ -9,7 +9,7 @@
                 <div class="flex items-center gap-3 justify-center md:justify-start">
                     <div
                         class="w-10 h-10 rounded-xl bg-[#16A34A]/30 flex items-center justify-center border border-white/10">
-                        <i data-lucide="briefcase" class="w-5 h-5 text-white"></i>
+                        <x-lucide-icon name="briefcase" class="w-5 h-5 text-white" />
                     </div>
                     <span class="section-title text-2xl font-bold tracking-tight">Jobabroad</span>
                 </div>
@@ -26,25 +26,25 @@
                         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/15 transition
                     flex items-center justify-center border border-white/10
                     hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
-                        <i data-lucide="facebook" class="w-5 h-5 text-white/90"></i>
+                        <x-lucide-icon name="facebook" class="w-5 h-5 text-white/90" />
                     </a>
                     <a href="#"
                         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/15 transition
                     flex items-center justify-center border border-white/10
                     hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
-                        <i data-lucide="twitter" class="w-5 h-5 text-white/90"></i>
+                        <x-lucide-icon name="twitter" class="w-5 h-5 text-white/90" />
                     </a>
                     <a href="#"
                         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/15 transition
                     flex items-center justify-center border border-white/10
                     hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
-                        <i data-lucide="linkedin" class="w-5 h-5 text-white/90"></i>
+                        <x-lucide-icon name="linkedin" class="w-5 h-5 text-white/90" />
                     </a>
                     <a href="#"
                         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/15 transition
                     flex items-center justify-center border border-white/10
                     hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
-                        <i data-lucide="instagram" class="w-5 h-5 text-white/90"></i>
+                        <x-lucide-icon name="instagram" class="w-5 h-5 text-white/90" />
                     </a>
                 </div>
 
@@ -129,7 +129,7 @@
       <form class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-end">
         <div class="relative w-full sm:max-w-md">
           <span class="absolute inset-y-0 left-3 flex items-center text-white/70">
-            <i data-lucide="mail" class="w-5 h-5"></i>
+            <x-lucide-icon name="mail" class="w-5 h-5" />
           </span>
           <input type="email" placeholder="Enter your email"
                  class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/10 border border-white/10
@@ -157,7 +157,7 @@
                 class="inline-flex items-center gap-2 rounded-xl bg-white/10 border border-white/10 px-4 py-2
           text-sm text-white/90 hover:bg-white/15 transition
           hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">
-                <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                <x-lucide-icon name="arrow-up" class="w-4 h-4" />
                 Back to top
             </a>
         </div>

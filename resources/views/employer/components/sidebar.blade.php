@@ -59,11 +59,10 @@
                 <div x-data="{ open: {{ $item['active'] ?? false ? 'true' : 'false' }} }">
                     <button @click="open = !open"
                         class="group flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer">
-                        <i data-lucide="{{ $item['icon'] }}"
-                            class="h-5 w-5 text-gray-400 group-hover:text-gray-600"></i>
+                        <x-lucide-icon name="{{ $item['icon'] }}"
+                            class="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
                         <span class="flex-1 text-left">{{ $item['label'] }}</span>
-                        <i data-lucide="chevron-down" :class="open ? 'rotate-180' : ''"
-                            class="h-4 w-4 text-gray-400 transition-transform"></i>
+                        <x-lucide-icon name="chevron-down" class="h-4 w-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" />
                     </button>
                     <div x-show="open" x-transition class="ml-7 mt-1 space-y-1">
                         @foreach ($item['dropdown'] as $sub)
@@ -80,7 +79,7 @@
                 <a href="{{ $item['href'] }}"
                     class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
                           {{ $item['active'] ?? false ? 'bg-gray-100 text-gray-900' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}">
-                    <i data-lucide="{{ $item['icon'] }}" class="h-5 w-5 text-gray-400 group-hover:text-gray-600"></i>
+                    <x-lucide-icon name="{{ $item['icon'] }}" class="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
                     <span>{{ $item['label'] }}</span>
                 </a>
             @endif
@@ -94,7 +93,7 @@
             @csrf
             <button type="submit"
                 class="w-full group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition cursor-pointer">
-                <i data-lucide="log-out" class="h-5 w-5 text-red-500"></i>
+                <x-lucide-icon name="log-out" class="h-5 w-5 text-red-500" />
                 <span>Log Out</span>
             </button>
         </form>

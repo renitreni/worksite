@@ -9,7 +9,7 @@
             <div
                 class="flex items-center gap-2 sm:gap-3 flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition focus-within:bg-gray-50">
 
-                <i data-lucide="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
+                <x-lucide-icon name="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
 
                 <input wire:model.live="keyword" type="text" placeholder="Job title or keyword"
                     class="w-full outline-none bg-transparent text-gray-800 placeholder-gray-400 text-xs sm:text-sm md:text-base" />
@@ -23,7 +23,7 @@
             <div
                 class="flex items-center gap-2 sm:gap-3 flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition focus-within:bg-gray-50">
 
-                <i data-lucide="globe" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400"></i>
+                <x-lucide-icon name="globe" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
 
                 <select wire:model.live="country"
                     class="w-full outline-none bg-transparent text-gray-700 text-xs sm:text-sm md:text-base">
@@ -44,7 +44,7 @@
                        text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl transition
                        shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base">
 
-                <i data-lucide="search" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                <x-lucide-icon name="search" class="w-4 h-4 sm:w-5 sm:h-5" />
 
                 <span>Search</span>
 
@@ -74,7 +74,7 @@
                        border transition
                        {{ $quick[$chip['key']] ? 'bg-green-600 text-white border-green-600' : 'bg-white/90 text-gray-700 border-gray-200 hover:border-green-500 hover:text-green-600' }}">
 
-                <i data-lucide="{{ $chip['icon'] }}" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                <x-lucide-icon :name="$chip['icon']" class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
 
                 {{ $chip['label'] }}
 

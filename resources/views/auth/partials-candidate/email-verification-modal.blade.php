@@ -38,14 +38,14 @@
                         ? 'bg-green-100 border-green-200'
                         : 'bg-green-50 border-green-100'
                     ">
-                    <i data-lucide="mail-check" class="w-5 h-5 text-[#16A34A]"></i>
+                    <x-lucide-icon name="mail-check" class="w-5 h-5 text-[#16A34A]" />
                 </div>
 
                 <!-- ✅ CLOSE (X) -->
                 <button type="button" @click="close()"
                     class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition"
                     aria-label="Close verification modal">
-                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    <x-lucide-icon name="x" class="w-5 h-5 text-gray-500" />
                 </button>
             </div>
         </div>
@@ -99,7 +99,7 @@
             <div class="relative w-full rounded-2xl bg-white border border-green-200 shadow-lg p-5 text-center">
                 <div
                     class="mx-auto w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center border border-green-200">
-                    <i data-lucide="badge-check" class="w-6 h-6 text-green-700"></i>
+                    <x-lucide-icon name="badge-check" class="w-6 h-6 text-green-700" />
                 </div>
 
                 <h4 class="mt-3 text-lg font-bold text-green-900">You’re verified!</h4>

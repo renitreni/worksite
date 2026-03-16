@@ -53,21 +53,21 @@
         <!-- Contact info (each 1 line, truncates with ...) -->
         <div class="mt-4 space-y-2 text-sm text-gray-600">
             <p class="flex items-center gap-2">
-                <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 shrink-0"></i>
+                <x-lucide-icon name="map-pin" class="w-4 h-4 text-gray-400 shrink-0" />
                 <span class="truncate">
                     {{ $agency->company_address ?? 'Address not provided' }}
                 </span>
             </p>
 
             <p class="flex items-center gap-2">
-                <i data-lucide="mail" class="w-4 h-4 text-gray-400 shrink-0"></i>
+                <x-lucide-icon name="mail" class="w-4 h-4 text-gray-400 shrink-0" />
                 <span class="truncate">
                     {{ optional($agency->user)->email ?? 'Email not available' }}
                 </span>
             </p>
 
             <p class="flex items-center gap-2">
-                <i data-lucide="phone" class="w-4 h-4 text-gray-400 shrink-0"></i>
+                <x-lucide-icon name="phone" class="w-4 h-4 text-gray-400 shrink-0" />
                 <span class="truncate">
                     {{ $agency->company_contact ?? 'Contact not available' }}
                 </span>

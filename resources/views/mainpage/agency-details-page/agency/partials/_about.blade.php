@@ -13,7 +13,7 @@
 
         {{-- Location --}}
         <div class="flex items-start gap-3">
-            <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 mt-0.5"></i>
+            <x-lucide-icon name="map-pin" class="w-4 h-4 text-gray-400 mt-0.5" />
             <div class="min-w-0">
                 <p class="font-semibold text-gray-800">Location</p>
                 <p class="text-gray-600">
@@ -24,7 +24,7 @@
 
         {{-- Email --}}
         <div class="flex items-start gap-3">
-            <i data-lucide="mail" class="w-4 h-4 text-gray-400 mt-0.5"></i>
+            <x-lucide-icon name="mail" class="w-4 h-4 text-gray-400 mt-0.5" />
             <div class="min-w-0">
                 <p class="font-semibold text-gray-800">Email</p>
                 <p class="text-gray-600 break-all">
@@ -35,7 +35,7 @@
 
         {{-- Phone --}}
         <div class="flex items-start gap-3">
-            <i data-lucide="phone" class="w-4 h-4 text-gray-400 mt-0.5"></i>
+            <x-lucide-icon name="phone" class="w-4 h-4 text-gray-400 mt-0.5" />
             <div class="min-w-0">
                 <p class="font-semibold text-gray-800">Phone</p>
                 <p class="text-gray-600">
@@ -46,7 +46,7 @@
 
         {{-- Website --}}
         <div class="flex items-start gap-3">
-            <i data-lucide="globe" class="w-4 h-4 text-gray-400 mt-0.5"></i>
+            <x-lucide-icon name="globe" class="w-4 h-4 text-gray-400 mt-0.5" />
 
             <div class="min-w-0">
                 <p class="font-semibold text-gray-800">Website</p>
@@ -65,7 +65,7 @@
 
                         {{ $website }}
 
-                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        <x-lucide-icon name="external-link" class="w-3.5 h-3.5" />
                     </a>
                 @else
                     <p class="text-gray-500">
@@ -77,7 +77,7 @@
 
         {{-- DMW License --}}
         <div class="flex items-start gap-3">
-            <i data-lucide="badge-check" class="w-4 h-4 text-gray-400 mt-0.5"></i>
+            <x-lucide-icon name="badge-check" class="w-4 h-4 text-gray-400 mt-0.5" />
             <div class="min-w-0">
                 <p class="font-semibold text-gray-800">DMW Registration No</p>
 

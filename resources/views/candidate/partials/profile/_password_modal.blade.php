@@ -13,7 +13,7 @@
             <h3 class="text-base font-bold text-gray-900">Change Password</h3>
             <button type="button" @click="passOpen=false"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50">
-                <i data-lucide="x" class="h-5 w-5 text-gray-700"></i>
+                <x-lucide-icon name="x" class="h-5 w-5 text-gray-700" />
             </button>
         </div>
 
@@ -28,8 +28,8 @@
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 pl-4 pr-12 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300" />
                     <button type="button" @click="showCurrent = !showCurrent"
                         class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-gray-100">
-                        <i data-lucide="eye" x-show="!showCurrent" class="h-5 w-5 text-gray-600"></i>
-                        <i data-lucide="eye-off" x-show="showCurrent" class="h-5 w-5 text-gray-600"></i>
+                        <x-lucide-icon name="eye" x-show="!showCurrent" class="h-5 w-5 text-gray-600" />
+                        <x-lucide-icon name="eye-off" x-show="showCurrent" class="h-5 w-5 text-gray-600" />
                     </button>
                 </div>
                 @error('current_password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
@@ -42,8 +42,8 @@
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 pl-4 pr-12 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300" />
                     <button type="button" @click="showNew = !showNew"
                         class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-gray-100">
-                        <i data-lucide="eye" x-show="!showNew" class="h-5 w-5 text-gray-600"></i>
-                        <i data-lucide="eye-off" x-show="showNew" class="h-5 w-5 text-gray-600"></i>
+                        <x-lucide-icon name="eye" x-show="!showNew" class="h-5 w-5 text-gray-600" />
+                        <x-lucide-icon name="eye-off" x-show="showNew" class="h-5 w-5 text-gray-600" />
                     </button>
                 </div>
                 @error('password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
@@ -56,8 +56,8 @@
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 pl-4 pr-12 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300" />
                     <button type="button" @click="showConfirm = !showConfirm"
                         class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-gray-100">
-                        <i data-lucide="eye" x-show="!showConfirm" class="h-5 w-5 text-gray-600"></i>
-                        <i data-lucide="eye-off" x-show="showConfirm" class="h-5 w-5 text-gray-600"></i>
+                        <x-lucide-icon name="eye" x-show="!showConfirm" class="h-5 w-5 text-gray-600" />
+                        <x-lucide-icon name="eye-off" x-show="showConfirm" class="h-5 w-5 text-gray-600" />
                     </button>
                 </div>
             </div>

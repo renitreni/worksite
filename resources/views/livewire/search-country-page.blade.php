@@ -34,7 +34,7 @@
                             </label>
                             <div
                                 class="flex items-center gap-2 rounded-2xl border border-white/25 bg-white/90 px-4 py-3">
-                                <i data-lucide="search" class="w-5 h-5 text-gray-400"></i>
+                                <x-lucide-icon name="search" class="w-5 h-5 text-gray-400" />
                                 <input type="text" wire:model.live="keyword" placeholder="Example: Singapore"
                                     class="w-full outline-none bg-transparent text-gray-800">
                             </div>
@@ -47,7 +47,7 @@
                     <div class="pt-2">
                         <button type="button" wire:click="clearFilters"
                             class="inline-flex items-center gap-2 rounded-2xl bg-white/90 px-4 py-2 text-sm font-bold text-[#0f5f2f] hover:bg-white transition">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            <x-lucide-icon name="rotate-ccw" class="w-4 h-4" />
                             Clear filters
                         </button>
                     </div>
@@ -63,7 +63,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <div class="flex items-center gap-2 text-sm text-gray-600">
-            <i data-lucide="info" class="w-4 h-4"></i>
+            <x-lucide-icon name="info" class="w-4 h-4" />
             <span>
                 Showing <strong>{{ $countries->firstItem() ?? 0 }}</strong>
                 to <strong>{{ $countries->lastItem() ?? 0 }}</strong>
@@ -104,7 +104,7 @@
                         <a href="{{ route('search-jobs', ['country' => $country->name]) }}"
                             class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#16A34A] hover:underline">
                             View Jobs
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            <x-lucide-icon name="arrow-right" class="w-4 h-4" />
                         </a>
                     </div>
 

@@ -29,7 +29,7 @@
 
                     <button class="nav-link text-white font-medium transition flex items-center gap-1">
                         Search
-                        <i data-lucide="chevron-down" class="w-4 h-4 transition group-hover:rotate-180"></i>
+                        <x-lucide-icon name="chevron-down" class="w-4 h-4 transition group-hover:rotate-180" />
                     </button>
 
                     <div
@@ -98,7 +98,7 @@
                                     @if ($photo)
                                         <img src="{{ $photo }}" class="w-full h-full object-cover">
                                     @else
-                                        <i data-lucide="user" class="h-4 w-4 text-green-700"></i>
+                                        <x-lucide-icon name="user" class="h-4 w-4 text-green-700" />
                                     @endif
 
                                 </div>
@@ -108,7 +108,7 @@
                                     {{ $firstName }}
                                 </span>
 
-                                <i data-lucide="chevron-down" class="nav-link h-4 w-4 text-white"></i>
+                                <x-lucide-icon name="chevron-down" class="nav-link h-4 w-4 text-white" />
 
                             </button>
 
@@ -120,7 +120,7 @@
                                 <a href="{{ route('candidate.dashboard') }}"
                                     class="flex items-center gap-2 text-gray-700 px-4 py-3 hover:bg-gray-50 rounded-lg transition">
 
-                                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                                    <x-lucide-icon name="layout-dashboard" class="w-4 h-4" />
                                     Dashboard
 
                                 </a>
@@ -132,7 +132,7 @@
                                     <button type="submit"
                                         class="w-full flex items-center gap-2 px-4 py-3 text-red-600 hover:bg-gray-50 rounded-lg transition">
 
-                                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                                        <x-lucide-icon name="log-out" class="w-4 h-4" />
                                         Log Out
 
                                     </button>
@@ -149,10 +149,10 @@
             <button id="mobile-menu-button"
                 class="md:hidden flex items-center justify-center relative z-[1000] w-10 h-10">
 
-                <i data-lucide="menu" id="icon-menu" class="w-6 h-6 absolute transition-all duration-300"></i>
+                <x-lucide-icon name="menu" id="icon-menu" class="w-6 h-6 absolute transition-all duration-300" />
 
-                <i data-lucide="x" id="icon-close"
-                    class="w-6 h-6 absolute text-gray-600 opacity-0 scale-75 transition-all duration-300"></i>
+                <x-lucide-icon name="x" id="icon-close"
+                    class="w-6 h-6 absolute text-gray-600 opacity-0 scale-75 transition-all duration-300" />
 
             </button>
 
@@ -174,7 +174,7 @@
 
                 Search
 
-                <i data-lucide="chevron-down" class="mobile-search-icon w-4 h-4 transition-transform"></i>
+                <x-lucide-icon name="chevron-down" class="mobile-search-icon w-4 h-4 transition-transform" />
             </button>
 
             <div id="mobile-search-dropdown" class="hidden flex flex-col">

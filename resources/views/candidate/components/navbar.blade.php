@@ -11,14 +11,14 @@
         <button type="button"
             class="lg:hidden inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 transition"
             @click="mobileSidebarOpen = true" aria-label="Open sidebar">
-            <i data-lucide="menu" class="h-5 w-5 text-gray-700"></i>
+            <x-lucide-icon name="menu" class="h-5 w-5 text-gray-700" />
         </button>
 
         {{-- Search (STATIC – no Alpine logic) --}}
         <div class="flex-1 min-w-0">
             <div class="relative w-full max-w-none lg:max-w-3xl">
                 <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <i data-lucide="search" class="h-5 w-5"></i>
+                    <x-lucide-icon name="search" class="h-5 w-5" />
                 </span>
 
                 <input type="text" placeholder="Search jobs, companies, or keywords…"
@@ -55,7 +55,7 @@
                         </p>
                     </div>
 
-                    <i data-lucide="chevron-down" class="hidden md:block h-4 w-4 text-gray-500"></i>
+                    <x-lucide-icon name="chevron-down" class="hidden md:block h-4 w-4 text-gray-500" />
                 </button>
 
                 {{-- Dropdown --}}
@@ -63,12 +63,12 @@
                     class="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg z-50">
 
                     <a href="#" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-                        <i data-lucide="user" class="h-4 w-4 text-gray-500"></i>
+                        <x-lucide-icon name="user" class="h-4 w-4 text-gray-500" />
                         <span>My Profile</span>
                     </a>
 
                     <a href="#" class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-                        <i data-lucide="settings" class="h-4 w-4 text-gray-500"></i>
+                        <x-lucide-icon name="settings" class="h-4 w-4 text-gray-500" />
                         <span>Settings</span>
                     </a>
 
@@ -78,7 +78,7 @@
                         @csrf
                         <button type="submit"
                             class="w-full text-left flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50">
-                            <i data-lucide="log-out" class="h-4 w-4 text-red-500"></i>
+                            <x-lucide-icon name="log-out" class="h-4 w-4 text-red-500" />
                             <span>Log Out</span>
                         </button>
                     </form>

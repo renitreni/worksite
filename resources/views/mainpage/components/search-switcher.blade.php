@@ -27,7 +27,7 @@
          {{ $active
              ? 'bg-[#16A34A] text-white shadow-md font-extrabold hover:bg-green-700'
              : 'bg-white border border-gray-200 text-gray-700 font-bold hover:bg-gray-50' }}">
-                <i data-lucide="{{ $tab['icon'] }}" class="w-4 h-4"></i>
+                <x-lucide-icon :name="$tab['icon']" class="w-4 h-4" />
                 <span class="whitespace-nowrap">{{ $tab['label'] }}</span>
             </a>
         @endforeach

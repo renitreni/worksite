@@ -36,7 +36,7 @@
                            hover:shadow-xl transition
                            text-[#16A34A]"
                     aria-label="Previous">
-                    <i data-lucide="chevron-left" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+                    <x-lucide-icon name="chevron-left" class="w-6 h-6 sm:w-7 sm:h-7" />
                 </button>
 
                 <!-- RIGHT ARROW -->
@@ -49,7 +49,7 @@
                            hover:shadow-xl transition
                            text-[#16A34A]"
                     aria-label="Next">
-                    <i data-lucide="chevron-right" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+                    <x-lucide-icon name="chevron-right" class="w-6 h-6 sm:w-7 sm:h-7" />
                 </button>
 
                 <!-- TRACK -->

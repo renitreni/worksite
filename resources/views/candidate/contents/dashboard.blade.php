@@ -41,7 +41,7 @@
                     </div>
 
                     <div class="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                        <i data-lucide="briefcase" class="w-4 h-4 text-blue-600"></i>
+                        <x-lucide-icon name="briefcase" class="w-4 h-4 text-blue-600" />
                     </div>
 
                 </div>
@@ -59,7 +59,7 @@
                     </div>
 
                     <div class="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center">
-                        <i data-lucide="bookmark" class="w-4 h-4 text-amber-600"></i>
+                        <x-lucide-icon name="bookmark" class="w-4 h-4 text-amber-600" />
                     </div>
 
                 </div>
@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center">
-                        <i data-lucide="users" class="w-4 h-4 text-purple-600"></i>
+                        <x-lucide-icon name="users" class="w-4 h-4 text-purple-600" />
                     </div>
 
                 </div>
@@ -95,7 +95,7 @@
                     </div>
 
                     <div class="h-10 w-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                        <x-lucide-icon name="check-circle" class="w-4 h-4 text-emerald-600" />
                     </div>
 
                 </div>
@@ -198,7 +198,7 @@
                             <div class="p-4 flex items-start gap-3">
 
                                 <div class="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center">
-                                    <i data-lucide="clock" class="w-4 h-4 text-emerald-600"></i>
+                                    <x-lucide-icon name="clock" class="w-4 h-4 text-emerald-600" />
                                 </div>
 
                                 <div>

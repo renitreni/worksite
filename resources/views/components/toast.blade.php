@@ -50,14 +50,14 @@
     >
         <div class="flex items-start justify-between gap-4">
             <div class="flex items-start gap-2">
-                <i data-lucide="{{ $t['icon'] }}" class="h-5 w-5 {{ $t['iconColor'] }}"></i>
+                <x-lucide-icon name="{{ $t['icon'] }}" class="h-5 w-5 {{ $t['iconColor'] }}" />
                 <p class="text-sm font-semibold">
                     {{ $message }}
                 </p>
             </div>
 
             <button type="button" class="{{ $t['close'] }}" @click="show=false">
-                <i data-lucide="x" class="h-4 w-4"></i>
+                <x-lucide-icon name="x" class="h-4 w-4" />
             </button>
         </div>
     </div>

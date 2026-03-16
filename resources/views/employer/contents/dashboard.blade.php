@@ -25,7 +25,7 @@
 
             <a href="{{ route('employer.job-postings.create') }}"
                 class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                <i data-lucide="plus" class="h-4 w-4"></i>
+                <x-lucide-icon name="plus" class="h-4 w-4" />
                 Post Job
             </a>
         </div>
@@ -40,7 +40,7 @@
                     <p class="text-sm text-gray-500 mt-1">Posted Jobs</p>
                 </div>
                 <div class="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <i data-lucide="briefcase" class="h-6 w-6 text-blue-600"></i>
+                    <x-lucide-icon name="briefcase" class="h-6 w-6 text-blue-600" />
                 </div>
             </div>
 
@@ -50,7 +50,7 @@
                     <p class="text-sm text-gray-500 mt-1">Applicants</p>
                 </div>
                 <div class="h-12 w-12 rounded-xl bg-amber-50 flex items-center justify-center">
-                    <i data-lucide="users" class="h-6 w-6 text-amber-600"></i>
+                    <x-lucide-icon name="users" class="h-6 w-6 text-amber-600" />
                 </div>
             </div>
 
@@ -60,7 +60,7 @@
                     <p class="text-sm text-gray-500 mt-1">Interviews</p>
                 </div>
                 <div class="h-12 w-12 rounded-xl bg-purple-50 flex items-center justify-center">
-                    <i data-lucide="calendar" class="h-6 w-6 text-purple-600"></i>
+                    <x-lucide-icon name="calendar" class="h-6 w-6 text-purple-600" />
                 </div>
             </div>
 
@@ -70,7 +70,7 @@
                     <p class="text-sm text-gray-500 mt-1">Shortlisted</p>
                 </div>
                 <div class="h-12 w-12 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <i data-lucide="star" class="h-6 w-6 text-emerald-600"></i>
+                    <x-lucide-icon name="star" class="h-6 w-6 text-emerald-600" />
                 </div>
             </div>
 
@@ -109,7 +109,7 @@
                         class="inline-flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-gray-900">
 
                         View All
-                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                        <x-lucide-icon name="arrow-right" class="h-4 w-4" />
 
                     </a>
 
@@ -128,7 +128,7 @@
                                 <div class="flex items-start gap-4">
 
                                     <div class="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                                        <i data-lucide="briefcase" class="h-5 w-5 text-blue-600"></i>
+                                        <x-lucide-icon name="briefcase" class="h-5 w-5 text-blue-600" />
                                     </div>
 
                                     <div class="min-w-0">
@@ -140,7 +140,7 @@
 
                                             <span class="flex items-center gap-1">
 
-                                                <i data-lucide="users" class="h-4 w-4"></i>
+                                                <x-lucide-icon name="users" class="h-4 w-4" />
 
                                                 <span x-text="job.applicants"></span>
 
@@ -165,7 +165,7 @@
                                     <button @click="openJob(job)"
                                         class="inline-flex items-center gap-1 rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
 
-                                        <i data-lucide="users" class="h-4 w-4"></i>
+                                        <x-lucide-icon name="users" class="h-4 w-4" />
 
                                         Applicants
 
@@ -197,7 +197,7 @@
                         class="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700">
 
                         View All
-                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                        <x-lucide-icon name="arrow-right" class="h-4 w-4" />
 
                     </a>
 
@@ -211,7 +211,7 @@
                         <div class="p-8 text-center">
 
                             <div class="mx-auto h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                                <i data-lucide="bell-off" class="h-6 w-6 text-gray-500"></i>
+                                <x-lucide-icon name="bell-off" class="h-6 w-6 text-gray-500" />
                             </div>
 
                             <p class="mt-3 text-sm font-semibold text-gray-900">
@@ -236,7 +236,7 @@
                                 <div class="h-10 w-10 rounded-xl border flex items-center justify-center"
                                     :class="n.iconWrap">
 
-                                    <i :data-lucide="n.icon" class="h-4 w-4" :class="n.iconColor"></i>
+                                    <x-lucide-icon :name="n.icon" class="h-4 w-4" :class="n.iconColor" />
 
                                 </div>
 
@@ -287,7 +287,7 @@
 
                     <button @click="closeApplicants()" class="rounded-lg p-1 hover:bg-gray-100">
 
-                        <i data-lucide="x" class="h-5 w-5 text-gray-600"></i>
+                        <x-lucide-icon name="x" class="h-5 w-5 text-gray-600" />
 
                     </button>
 
@@ -302,7 +302,7 @@
                         <div class="text-center py-10">
 
                             <div class="mx-auto h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                                <i data-lucide="users" class="h-6 w-6 text-gray-500"></i>
+                                <x-lucide-icon name="users" class="h-6 w-6 text-gray-500" />
                             </div>
 
                             <p class="mt-3 text-sm font-semibold text-gray-900">
@@ -327,7 +327,7 @@
 
                                 <div class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
 
-                                    <i data-lucide="user" class="h-4 w-4 text-gray-600"></i>
+                                    <x-lucide-icon name="user" class="h-4 w-4 text-gray-600" />
 
                                 </div>
 

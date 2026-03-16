@@ -19,7 +19,7 @@
                     <a href="{{ route('admin.messages.compose') }}"
                         class="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
 
-                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        <x-lucide-icon name="edit-3" class="w-4 h-4" />
                         Compose
 
                     </a>
@@ -31,7 +31,7 @@
                             class="flex items-center gap-3 px-3 py-2 rounded-xl
                     {{ request('filter') == null ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
 
-                            <i data-lucide="inbox" class="w-4 h-4"></i>
+                            <x-lucide-icon name="inbox" class="w-4 h-4" />
                             Inbox
 
                         </a>
@@ -40,7 +40,7 @@
                             class="flex items-center gap-3 px-3 py-2 rounded-xl
                     {{ request('filter') == 'starred' ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
 
-                            <i data-lucide="star" class="w-4 h-4"></i>
+                            <x-lucide-icon name="star" class="w-4 h-4" />
                             Starred
 
                         </a>
@@ -49,7 +49,7 @@
                             class="flex items-center gap-3 px-3 py-2 rounded-xl
                     {{ request('filter') == 'unread' ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
 
-                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            <x-lucide-icon name="mail" class="w-4 h-4" />
                             Unread
 
                         </a>
@@ -117,8 +117,7 @@
                                     }).then(()=>location.reload())"
                                                 class="text-slate-400 hover:text-amber-400">
 
-                                                <i data-lucide="{{ $msg->is_starred ? 'star' : 'star' }}"
-                                                    class="w-4 h-4 {{ $msg->is_starred ? 'fill-amber-400 text-amber-400' : '' }}"></i>
+                                                <x-lucide-icon :name="$msg->is_starred ? 'star' : 'star'" class="w-4 h-4 {{ $msg->is_starred ? 'fill-amber-400 text-amber-400' : '' }}" />
 
                                             </button>
 

@@ -45,7 +45,7 @@
 
             <div class="px-6 pt-6 pb-4 text-center">
                 <div class="inline-flex items-center gap-2 rounded-full border border-green-100 bg-green-50 px-3 py-1">
-                    <i data-lucide="user" class="w-4 h-4 text-[#16A34A]"></i>
+                    <x-lucide-icon name="user" class="w-4 h-4 text-[#16A34A]" />
                     <span class="text-xs font-semibold text-green-900">Candidate Login</span>
                 </div>
 
@@ -69,7 +69,7 @@
                         <label class="text-sm font-semibold text-gray-700">Email Address</label>
                         <div class="mt-2 relative">
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                                <i data-lucide="mail" class="w-5 h-5"></i>
+                                <x-lucide-icon name="mail" class="w-5 h-5" />
                             </span>
                             <input type="email" name="email" value="{{ old('email') }}" required autofocus
                                 placeholder="you@example.com"
@@ -87,7 +87,7 @@
 
                         <div class="mt-2 relative">
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
-                                <i data-lucide="lock" class="w-5 h-5"></i>
+                                <x-lucide-icon name="lock" class="w-5 h-5" />
                             </span>
 
                             <input :type="showPass ? 'text' : 'password'" name="password" required
@@ -97,8 +97,8 @@
 
                             <button type="button" @click="showPass=!showPass"
                                 class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition">
-                                <i data-lucide="eye" class="w-5 h-5" x-show="!showPass"></i>
-                                <i data-lucide="eye-off" class="w-5 h-5" x-show="showPass"></i>
+                                <x-lucide-icon name="eye" class="w-5 h-5" x-show="!showPass" />
+                                <x-lucide-icon name="eye-off" class="w-5 h-5" x-show="showPass" />
                             </button>
 
 
@@ -174,7 +174,7 @@
 
                 <button type="button" @click="closeInfo()"
                     class="w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition">
-                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                    <x-lucide-icon name="x" class="w-5 h-5 text-gray-500" />
                 </button>
             </div>
 

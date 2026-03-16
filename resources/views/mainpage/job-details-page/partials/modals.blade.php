@@ -23,7 +23,7 @@
                 @click="closeModal()"
                 class="rounded-lg p-2 hover:bg-slate-100">
 
-                <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+                <x-lucide-icon name="x" class="w-4 h-4 text-slate-500" />
 
             </button>
         </div>
@@ -120,7 +120,7 @@
         {{-- Icon --}}
         <div class="mx-auto w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mb-4">
 
-            <i data-lucide="lock" class="w-7 h-7 text-green-600"></i>
+            <x-lucide-icon name="lock" class="w-7 h-7 text-green-600" />
 
         </div>
 

@@ -36,7 +36,7 @@
             <div class="bg-white border border-gray-200 rounded-xl p-10 text-center">
 
                 <div class="mx-auto size-12 rounded-md bg-gray-100 flex items-center justify-center">
-                    <i data-lucide="briefcase" class="size-6 text-gray-500"></i>
+                    <x-lucide-icon name="briefcase" class="size-6 text-gray-500" />
                 </div>
 
                 <p class="mt-4 font-semibold text-gray-900">
@@ -83,17 +83,17 @@
                                 <div class="flex flex-wrap gap-4 text-sm text-gray-500 mt-2">
 
                                     <span class="flex items-center gap-1">
-                                        <i data-lucide="map-pin" class="size-4"></i>
+                                        <x-lucide-icon name="map-pin" class="size-4" />
                                         <span x-text="job.location"></span>
                                     </span>
 
                                     <span class="flex items-center gap-1">
-                                        <i data-lucide="building-2" class="size-4"></i>
+                                        <x-lucide-icon name="building-2" class="size-4" />
                                         <span x-text="job.industry"></span>
                                     </span>
 
                                     <span class="flex items-center gap-1">
-                                        <i data-lucide="dollar-sign" class="size-4"></i>
+                                        <x-lucide-icon name="dollar-sign" class="size-4" />
                                         <span x-text="job.salaryText"></span>
                                     </span>
 
@@ -122,7 +122,7 @@
                         <a :href="'{{ route('jobs.show', ':id') }}'.replace(':id', job.job_post_id)"
                             class="flex items-center gap-2 border border-gray-200 rounded-md px-3 py-2 text-sm hover:bg-gray-50">
 
-                            <i data-lucide="eye" class="size-4"></i>
+                            <x-lucide-icon name="eye" class="size-4" />
                             View
 
                         </a>

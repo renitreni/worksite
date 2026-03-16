@@ -73,11 +73,11 @@
 
                             <div class="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-500">
                                 <div class="inline-flex items-center gap-2">
-                                    <i data-lucide="clock" class="h-4 w-4"></i>
+                                    <x-lucide-icon name="clock" class="h-4 w-4" />
                                     <span x-text="m.time"></span>
                                 </div>
                                 <div class="inline-flex items-center gap-2">
-                                    <i data-lucide="video" class="h-4 w-4"></i>
+                                    <x-lucide-icon name="video" class="h-4 w-4" />
                                     <span x-text="m.type"></span>
                                 </div>
                             </div>
@@ -96,7 +96,7 @@
                             @click="joinMeeting(m.id)"
                             class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition">
                             <span>Join Meeting</span>
-                            <i data-lucide="external-link" class="h-4 w-4"></i>
+                            <x-lucide-icon name="external-link" class="h-4 w-4" />
                         </button>
                     </div>
                 </div>
@@ -139,11 +139,11 @@
 
                             <div class="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-500">
                                 <div class="inline-flex items-center gap-2">
-                                    <i data-lucide="clock" class="h-4 w-4"></i>
+                                    <x-lucide-icon name="clock" class="h-4 w-4" />
                                     <span x-text="m.time"></span>
                                 </div>
                                 <div class="inline-flex items-center gap-2">
-                                    <i data-lucide="video" class="h-4 w-4"></i>
+                                    <x-lucide-icon name="video" class="h-4 w-4" />
                                     <span x-text="m.type"></span>
                                 </div>
                             </div>
@@ -173,7 +173,7 @@
 
         <div class="relative w-full max-w-md rounded-2xl bg-white shadow-xl border border-gray-200 p-6 text-center">
             <div class="mx-auto mb-4 h-14 w-14 rounded-full bg-emerald-50 flex items-center justify-center">
-                <i data-lucide="phone-call" class="h-6 w-6 text-emerald-600"></i>
+                <x-lucide-icon name="phone-call" class="h-6 w-6 text-emerald-600" />
             </div>
 
             <h2 class="text-lg font-semibold text-gray-900" x-text="callStatus"></h2>
@@ -187,15 +187,15 @@
                 <button type="button"
                     @click="toggleMuteCall()"
                     class="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold hover:bg-gray-50 transition">
-                    <i data-lucide="mic-off" class="h-4 w-4" x-show="callMuted"></i>
-                    <i data-lucide="mic" class="h-4 w-4" x-show="!callMuted"></i>
+                    <x-lucide-icon name="mic-off" class="h-4 w-4" x-show="callMuted" />
+                    <x-lucide-icon name="mic" class="h-4 w-4" x-show="!callMuted" />
                     <span x-text="callMuted ? 'Unmute' : 'Mute'"></span>
                 </button>
 
                 <button type="button"
                     @click="leaveCall()"
                     class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition">
-                    <i data-lucide="phone-off" class="h-4 w-4"></i>
+                    <x-lucide-icon name="phone-off" class="h-4 w-4" />
                     Leave Call
                 </button>
             </div>

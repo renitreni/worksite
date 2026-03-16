@@ -73,7 +73,7 @@ fetch('{{ route('candidate.jobs.save', $job->id) }}',{
 "
                     class="transition" :class="saved ? 'text-[#16A34A]' : 'text-gray-400 hover:text-[#16A34A]'">
 
-                    <i data-lucide="bookmark" class="w-5 h-5 transition" :class="saved ? 'fill-[#16A34A]' : ''"></i>
+                    <x-lucide-icon name="bookmark" class="w-5 h-5 transition" :class="saved ? 'fill-[#16A34A]' : ''" />
 
                 </button>
 
@@ -98,22 +98,22 @@ fetch('{{ route('candidate.jobs.save', $job->id) }}',{
     <div class="mt-4 space-y-2 text-sm text-gray-600 flex-grow">
 
         <div class="flex items-center gap-2">
-            <i data-lucide="wallet" class="w-4 h-4 text-gray-400"></i>
+            <x-lucide-icon name="wallet" class="w-4 h-4 text-gray-400" />
             <span class="font-semibold text-gray-900">{{ $salaryText }}</span>
         </div>
 
         <div class="flex items-center gap-2">
-            <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
+            <x-lucide-icon name="map-pin" class="w-4 h-4 text-gray-400" />
             <span>{{ $locationText }}</span>
         </div>
 
         <div class="flex items-center gap-2">
-            <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+            <x-lucide-icon name="users" class="w-4 h-4 text-gray-400" />
             <span>{{ $job->applications()->count() }} applicants</span>
         </div>
 
         <div class="flex items-center gap-2">
-            <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+            <x-lucide-icon name="calendar" class="w-4 h-4 text-gray-400" />
             <span>Posted {{ $postedText }}</span>
         </div>
 

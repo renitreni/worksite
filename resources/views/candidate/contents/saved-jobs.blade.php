@@ -21,7 +21,7 @@
             <div class="rounded-2xl bg-white border border-gray-200 p-10 text-center">
 
                 <div class="mx-auto h-12 w-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center">
-                    <i data-lucide="bookmark" class="h-6 w-6 text-gray-400"></i>
+                    <x-lucide-icon name="bookmark" class="h-6 w-6 text-gray-400" />
                 </div>
 
                 <p class="mt-3 text-sm font-semibold text-gray-900">

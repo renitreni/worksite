@@ -20,7 +20,7 @@
                     <div class="w-full sm:w-96">
                         <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
 
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                            <x-lucide-icon name="search" class="w-4 h-4 text-slate-400" />
 
                             <input name="q" value="{{ $q ?? '' }}"
                                 class="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
