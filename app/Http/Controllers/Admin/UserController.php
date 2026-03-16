@@ -11,7 +11,8 @@ class UserController extends Controller
 {
     public function __construct(
         private AdminPlatformUserService $userService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request)
     {
@@ -108,5 +109,14 @@ class UserController extends Controller
         $this->userService->updateSubscription($request, $user);
 
         return back()->with('success', 'Subscription updated.');
+    }
+
+    public function destroy(User $user)
+    {
+        $this->userService->deleteUser($user);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User deleted successfully.');
     }
 }

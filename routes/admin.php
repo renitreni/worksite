@@ -67,7 +67,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::patch('/users/{user}/subscription', [UserController::class, 'updateSubscription'])->name('users.subscription');
-
+Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         // Job posts moderation
         Route::prefix('job-posts')->name('job-posts.')->group(function () {
             Route::get('/', [JobPostAdminController::class, 'index'])->name('index');

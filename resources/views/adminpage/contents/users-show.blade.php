@@ -184,12 +184,90 @@
             @endif
 
             {{-- Actions --}}
-            <div class="mt-6 ">
+            <div class="mt-6 flex gap-3">
+
+                {{-- Delete Button --}}
+                <button onclick="openDeleteModal()"
+                    class="rounded-xl border border-red-300 bg-white px-6 py-3 text-sm font-semibold text-red-600 hover:bg-red-50">
+                    Delete
+                </button>
+
                 <a href="javascript:history.back()"
-                    class="rounded-xl border border-slate-200 bg-white px-8 py-3 text-sm font-semibold hover:bg-slate-50">
+                    class="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold hover:bg-slate-50">
                     Back
                 </a>
+
+            </div>
+
+
+            {{-- DELETE MODAL --}}
+            <div id="deleteModal"
+                class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+                <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+
+                    <h3 class="text-lg font-semibold text-slate-900">
+                        Delete User
+                    </h3>
+
+                    <p class="mt-2 text-sm text-slate-600">
+                        This action cannot be undone.
+                        To confirm deletion, type <span class="font-semibold text-red-600">DELETE</span> below.
+                    </p>
+
+                    <input id="deleteConfirmInput" type="text" placeholder="Type DELETE to confirm"
+                        class="mt-4 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+                        oninput="checkDeleteInput()">
+
+                    <div class="mt-6 flex justify-end gap-3">
+
+                        <button onclick="closeDeleteModal()"
+                            class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50">
+                            Cancel
+                        </button>
+
+                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+
+                            <button id="confirmDeleteBtn" disabled
+                                class="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white opacity-50 cursor-not-allowed">
+                                Delete User
+                            </button>
+                        </form>
+
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </div>
+
+    <script>
+        function openDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteModal').classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.getElementById('deleteModal').classList.remove('flex');
+        }
+
+        function checkDeleteInput() {
+
+            const input = document.getElementById('deleteConfirmInput').value;
+            const button = document.getElementById('confirmDeleteBtn');
+
+            if (input === "DELETE") {
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+        }
+    </script>
 @endsection
