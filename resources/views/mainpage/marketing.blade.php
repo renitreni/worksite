@@ -50,93 +50,102 @@
             </div>
 
             <!-- RIGHT CONTENT -->
-            <div class="relative min-w-0">
-                <!-- Image (fixed height on mobile so overlays have space) -->
-                <div
-                    class="relative rounded-2xl shadow-2xl overflow-hidden
-            w-full h-[300px] sm:h-[380px] lg:h-auto">
+            <!-- RIGHT CONTENT -->
+            <div class="relative min-w-0 flex justify-center lg:block">
 
-                    <video autoplay muted loop playsinline preload="metadata"
-                        class="w-full h-full object-cover pointer-events-none">
+                <!-- MEDIA WRAPPER -->
+                <div class="relative w-full max-w-lg lg:max-w-none">
 
-                        <source src="{{ asset('videos/ads/start-your-journey.mp4') }}" type="video/mp4">
+                    <!-- Video Container -->
+                    <div
+                        class="relative rounded-2xl shadow-2xl overflow-hidden
+    w-full aspect-[16/10] lg:aspect-[4/3]">
 
-                    </video>
-                    <!-- Black Overlay -->
-                    <div class="absolute inset-0 bg-black/40"></div>
-                </div>
-                <!-- Floating Card: Success Rate -->
-                <div
-                    class="absolute z-20
-left-3 sm:left-4 lg:-left-6
-top-4 sm:top-6 lg:top-10
-bg-white/90 backdrop-blur-xl
-rounded-2xl shadow-xl border border-white/40
-px-4 py-3 sm:px-5 sm:py-4
-flex items-center gap-3
-transition duration-300 hover:-translate-y-1">
+                        <video autoplay muted loop playsinline preload="metadata"
+                            class="absolute inset-0 w-full h-full object-cover pointer-events-none">
 
-                    <div class="bg-green-100/80 p-2 rounded-lg">
-                        <x-lucide-icon name="zap" class="w-5 h-5 text-[#16A34A]" />
+                            <source src="{{ asset('videos/ads/start-your-journey.mp4') }}" type="video/mp4">
+
+                        </video>
+
+                        <!-- Black Overlay -->
+                        <div class="absolute inset-0 bg-black/40"></div>
+
                     </div>
 
-                    <div class="leading-tight">
-                        <p class="text-lg font-bold text-[#16A34A]">95%</p>
-                        <p class="text-xs text-gray-600">Success Rate</p>
+                    <!-- Success Rate -->
+                    <div
+                        class="absolute z-20
+            left-2 sm:left-4 lg:-left-6
+            top-3 sm:top-6 lg:top-10
+            bg-white/90 backdrop-blur-xl
+            rounded-2xl shadow-xl border border-white/40
+            px-4 py-3 sm:px-5 sm:py-4
+            flex items-center gap-3
+            transition duration-300 hover:-translate-y-1">
+
+                        <div class="bg-green-100/80 p-2 rounded-lg">
+                            <x-lucide-icon name="zap" class="w-5 h-5 text-[#16A34A]" />
+                        </div>
+
+                        <div class="leading-tight">
+                            <p class="text-lg font-bold text-[#16A34A]">95%</p>
+                            <p class="text-xs text-gray-600">Success Rate</p>
+                        </div>
+
                     </div>
 
-                </div>
+                    <!-- Partner Agencies -->
+                    <div
+                        class="absolute z-20
+            right-2 sm:right-4 lg:-right-6
+            top-16 sm:top-20 lg:top-24
+            bg-white/90 backdrop-blur-xl
+            rounded-2xl shadow-xl border border-white/40
+            px-4 py-3 sm:px-5 sm:py-4
+            flex items-center gap-3
+            transition duration-300 hover:-translate-y-1">
 
-                <!-- Floating Card: Partner Agencies -->
-                <div
-                    class="absolute z-20
-right-3 sm:right-4 lg:-right-6
-top-16 sm:top-20 lg:top-24
-bg-white/90 backdrop-blur-xl
-rounded-2xl shadow-xl border border-white/40
-px-4 py-3 sm:px-5 sm:py-4
-flex items-center gap-3
-transition duration-300 hover:-translate-y-1">
+                        <div class="bg-yellow-100/80 p-2 rounded-lg">
+                            <x-lucide-icon name="shield-check" class="w-5 h-5 text-yellow-600" />
+                        </div>
 
-                    <div class="bg-yellow-100/80 p-2 rounded-lg">
-                        <x-lucide-icon name="shield-check" class="w-5 h-5 text-yellow-600" />
+                        <div class="leading-tight">
+                            <p class="text-lg font-bold text-gray-900">
+                                {{ number_format($agenciesCount) }}+
+                            </p>
+                            <p class="text-xs text-gray-600">Partner Agencies</p>
+                        </div>
+
                     </div>
 
-                    <div class="leading-tight">
-                        <p class="text-lg font-bold text-gray-900">
-                            {{ number_format($agenciesCount) }}+
-                        </p>
-                        <p class="text-xs text-gray-600">Partner Agencies</p>
-                    </div>
+                    <!-- Active Jobs -->
+                    <div
+                        class="absolute z-20
+            left-2 sm:left-4 lg:left-12
+            bottom-3 sm:bottom-6 lg:-bottom-8
+            bg-white/90 backdrop-blur-xl
+            rounded-2xl shadow-xl border border-white/40
+            px-4 py-3 sm:px-5 sm:py-4
+            flex items-center gap-3
+            transition duration-300 hover:-translate-y-1">
 
-                </div>
+                        <div class="bg-green-100/80 p-2 rounded-lg">
+                            <x-lucide-icon name="briefcase" class="w-5 h-5 text-[#16A34A]" />
+                        </div>
 
-                <!-- Floating Card: Active Jobs -->
-                <div
-                    class="absolute z-20
-left-3 sm:left-4 lg:left-12
-bottom-4 sm:bottom-6 lg:-bottom-8
-bg-white/90 backdrop-blur-xl
-rounded-2xl shadow-xl border border-white/40
-px-4 py-3 sm:px-5 sm:py-4
-flex items-center gap-3
-transition duration-300 hover:-translate-y-1">
+                        <div class="leading-tight">
+                            <p class="text-lg font-bold text-gray-900">
+                                {{ number_format($activeJobsCount) }}+
+                            </p>
+                            <p class="text-xs text-gray-600">Active Jobs</p>
+                        </div>
 
-                    <div class="bg-green-100/80 p-2 rounded-lg">
-                        <x-lucide-icon name="briefcase" class="w-5 h-5 text-[#16A34A]" />
-                    </div>
-
-                    <div class="leading-tight">
-                        <p class="text-lg font-bold text-gray-900">
-                            {{ number_format($activeJobsCount) }}+
-                        </p>
-                        <p class="text-xs text-gray-600">Active Jobs</p>
                     </div>
 
                 </div>
 
             </div>
-
         </div>
     </div>
 </section>
