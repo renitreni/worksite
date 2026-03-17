@@ -14,7 +14,10 @@
 
             <!-- LOGO -->
             <div class="flex items-center">
-                <img src="{{ asset('images/logo.png') }}" alt="JobAbroad" class="h-14 w-auto">
+                <a href="{{ route('home') }}">
+                    <img src="{{ asset('images/logo.png') }}" alt="JobAbroad"
+                        class="h-14 w-auto cursor-pointer hover:opacity-80 transition duration-200">
+                </a>
             </div>
 
             <!-- DESKTOP NAV -->

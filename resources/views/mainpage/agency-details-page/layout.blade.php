@@ -46,6 +46,8 @@
 
     @include('mainpage.components.footer')
 
+    
+
     <script>
         window.addEventListener('DOMContentLoaded', () => lucide.createIcons());
     </script>
