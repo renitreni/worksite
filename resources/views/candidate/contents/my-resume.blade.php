@@ -286,6 +286,49 @@ hover:file:bg-gray-200" />
                             Add Education </button>
 
                     </form>
+                    <div class="mt-6 space-y-4">
+
+                        @foreach ($resume->educations as $edu)
+                            <div class="border border-gray-200 rounded-xl p-4">
+
+                                <div class="flex justify-between">
+
+                                    <div>
+
+                                        <p class="font-semibold text-gray-900">
+                                            {{ $edu->degree }}
+                                        </p>
+
+                                        <p class="text-sm text-blue-600">
+                                            {{ $edu->school }}
+                                        </p>
+
+                                        <p class="text-xs text-gray-500">
+                                            {{ $edu->year }}
+                                        </p>
+
+                                        <p class="text-sm text-gray-600 mt-2">
+                                            {{ $edu->notes }}
+                                        </p>
+
+                                    </div>
+
+                                    <form action="{{ route('candidate.resume.edu.delete', $edu->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button class="text-xs border px-3 py-1 rounded-lg hover:bg-gray-100">
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        @endforeach
+
+                    </div>
 
                 </div>
 
