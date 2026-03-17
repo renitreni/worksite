@@ -58,6 +58,43 @@ class EmployerJobService
         );
     }
 
+    public function getEditPageData(JobPost $job): array
+    {
+        $this->authorizeOwner($job);
+
+        return array_merge(
+            [
+                'job' => $job
+            ],
+            $this->taxonomyService->taxonomies()
+        );
+    }
+
+    public function updateJob($request, JobPost $job)
+    {
+        $this->authorizeOwner($job);
+
+        $validated = $this->validateJob($request);
+
+        [$city, $area] = $this->locationService->normalizeCityArea($request);
+
+        $validated['city'] = $city;
+        $validated['area'] = $area;
+
+        $industry = Industry::findOrFail($validated['industry_id']);
+
+        $skills = Skill::where('industry_id', $industry->id)
+            ->whereIn('id', $validated['skills'])
+            ->pluck('name');
+
+        $validated['industry'] = $industry->name;
+        $validated['skills'] = $skills->implode(',');
+
+        unset($validated['city_custom'], $validated['area_custom']);
+
+        $job->update($validated);
+    }
+
     public function storeJob($request)
     {
         $profile = $this->accessService->requireApprovedEmployerProfile();
@@ -122,10 +159,27 @@ class EmployerJobService
             'industry_id' => 'required|exists:industries,id',
             'skills' => 'required|array|min:1',
             'skills.*' => 'integer|exists:skills,id',
+
             'country' => 'required|string|max:255',
             'city' => 'nullable|string|max:255',
             'area' => 'nullable|string|max:255',
-            'job_description' => 'required|string'
+
+            'job_description' => 'required|string',
+
+            // ✅ MATCH DATABASE
+            'job_qualifications' => 'nullable|string',
+            'additional_information' => 'nullable|string',
+
+            'principal_employer' => 'nullable|string|max:255',
+            'dmw_registration_no' => 'nullable|string|max:255',
+            'principal_employer_address' => 'nullable|string|max:255',
+
+            'placement_fee' => 'nullable|string|max:255',
+            'placement_fee_currency' => 'nullable|string|max:10',
+
+            'salary_min' => 'nullable|numeric',
+            'salary_max' => 'nullable|numeric',
+            'salary_currency' => 'nullable|string|max:10',
         ]);
     }
 }
