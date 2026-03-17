@@ -17,19 +17,19 @@
                 <!-- Benefits -->
                 <ul class="mt-8 space-y-4">
                     <li class="flex items-start gap-3">
-                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
+                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
                         <span class="text-white/90">Access to thousands of verified job listings</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
+                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
                         <span class="text-white/90">Direct connection with top recruitment agencies</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
+                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
                         <span class="text-white/90">Personalized job recommendations</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <x-lucide-icon name="check-circle" class="w-6 h-6 text-white" />
+                        <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
                         <span class="text-white/90">Free career guidance and support</span>
                     </li>
                 </ul>
@@ -39,7 +39,7 @@
                     <a href="{{ auth()->check() ? route('candidate.dashboard') : route('candidate.register') }}"
                         class="inline-flex items-center gap-2 rounded-xl bg-yellow-400 px-6 py-3 text-sm font-semibold text-black hover:bg-yellow-300 transition">
                         Get Started
-                        <x-lucide-icon name="arrow-right" class="w-4 h-4" />
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
 
                     <a href="{{ route('search-jobs') }}"
@@ -50,102 +50,120 @@
             </div>
 
             <!-- RIGHT CONTENT -->
-            <!-- RIGHT CONTENT -->
-            <div class="relative min-w-0 flex justify-center lg:block">
+            <div class="relative min-w-0">
+                <!-- Image (fixed height on mobile so overlays have space) -->
+                <div class="relative overflow-hidden rounded-2xl shadow-2xl w-full h-[320px] sm:h-[380px] lg:h-[420px]">
 
-                <!-- MEDIA WRAPPER -->
-                <div class="relative w-full max-w-lg lg:max-w-none">
+                    <div id="heroSlider" class="flex h-full transition-transform duration-700 ease-in-out">
 
-                    <!-- Video Container -->
-                    <div
-                        class="relative rounded-2xl shadow-2xl overflow-hidden
-    w-full aspect-[16/10] lg:aspect-[4/3]">
-
-                        <video autoplay muted loop playsinline preload="metadata"
-                            class="absolute inset-0 w-full h-full object-cover pointer-events-none">
-
-                            <source src="{{ asset('videos/ads/start-your-journey.mp4') }}" type="video/mp4">
-
-                        </video>
-
-                        <!-- Black Overlay -->
-                        <div class="absolute inset-0 bg-black/40"></div>
-
-                    </div>
-
-                    <!-- Success Rate -->
-                    <div
-                        class="absolute z-20
-            left-2 sm:left-4 lg:-left-6
-            top-3 sm:top-6 lg:top-10
-            bg-white/90 backdrop-blur-xl
-            rounded-2xl shadow-xl border border-white/40
-            px-4 py-3 sm:px-5 sm:py-4
-            flex items-center gap-3
-            transition duration-300 hover:-translate-y-1">
-
-                        <div class="bg-green-100/80 p-2 rounded-lg">
-                            <x-lucide-icon name="zap" class="w-5 h-5 text-[#16A34A]" />
+                        <div class="w-full flex-shrink-0 h-full">
+                            <img src="{{ asset('images/journey-1.png') }}" class="w-full h-full object-cover">
                         </div>
 
-                        <div class="leading-tight">
-                            <p class="text-lg font-bold text-[#16A34A]">95%</p>
-                            <p class="text-xs text-gray-600">Success Rate</p>
+                        <div class="w-full flex-shrink-0 h-full">
+                            <img src="{{ asset('images/journey-2.png') }}" class="w-full h-full object-cover">
                         </div>
 
-                    </div>
-
-                    <!-- Partner Agencies -->
-                    <div
-                        class="absolute z-20
-            right-2 sm:right-4 lg:-right-6
-            top-16 sm:top-20 lg:top-24
-            bg-white/90 backdrop-blur-xl
-            rounded-2xl shadow-xl border border-white/40
-            px-4 py-3 sm:px-5 sm:py-4
-            flex items-center gap-3
-            transition duration-300 hover:-translate-y-1">
-
-                        <div class="bg-yellow-100/80 p-2 rounded-lg">
-                            <x-lucide-icon name="shield-check" class="w-5 h-5 text-yellow-600" />
+                        <div class="w-full flex-shrink-0 h-full">
+                            <img src="{{ asset('images/journey-3.png') }}" class="w-full h-full object-cover">
                         </div>
 
-                        <div class="leading-tight">
-                            <p class="text-lg font-bold text-gray-900">
-                                {{ number_format($agenciesCount) }}+
-                            </p>
-                            <p class="text-xs text-gray-600">Partner Agencies</p>
-                        </div>
-
-                    </div>
-
-                    <!-- Active Jobs -->
-                    <div
-                        class="absolute z-20
-            left-2 sm:left-4 lg:left-12
-            bottom-3 sm:bottom-6 lg:-bottom-8
-            bg-white/90 backdrop-blur-xl
-            rounded-2xl shadow-xl border border-white/40
-            px-4 py-3 sm:px-5 sm:py-4
-            flex items-center gap-3
-            transition duration-300 hover:-translate-y-1">
-
-                        <div class="bg-green-100/80 p-2 rounded-lg">
-                            <x-lucide-icon name="briefcase" class="w-5 h-5 text-[#16A34A]" />
-                        </div>
-
-                        <div class="leading-tight">
-                            <p class="text-lg font-bold text-gray-900">
-                                {{ number_format($activeJobsCount) }}+
-                            </p>
-                            <p class="text-xs text-gray-600">Active Jobs</p>
+                        <div class="w-full flex-shrink-0 h-full">
+                            <img src="{{ asset('images/journey-4.png') }}" class="w-full h-full object-cover">
                         </div>
 
                     </div>
 
                 </div>
+                <!-- Floating Card: Success Rate -->
+                <div
+                    class="absolute z-10
+                 left-3 sm:left-4 lg:-left-6
+                 top-3 sm:top-6 lg:top-10
+                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
+                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
+                 flex items-center gap-2 sm:gap-3
+                 w-[165px] sm:w-[200px] lg:w-auto
+                 max-w-[calc(100%-1.5rem)]">
+                    <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
+                        <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]"></i>
+                    </div>
+                    <div class="min-w-0 leading-tight">
+                        <p class="text-sm sm:text-base lg:text-lg font-bold text-[#16A34A]">95%</p>
+                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Success Rate</p>
+                    </div>
+                </div>
+
+                <!-- Floating Card: Partner Agencies -->
+                <div
+                    class="absolute z-10
+                 right-3 sm:right-4 lg:-right-6
+                 top-14 sm:top-20 lg:top-20
+                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
+                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
+                 flex items-center gap-2 sm:gap-3
+                 w-[180px] sm:w-[210px] lg:w-auto
+                 max-w-[calc(100%-1.5rem)]">
+                    <div class="bg-yellow-100 p-1.5 sm:p-2 rounded-lg shrink-0">
+                        <i data-lucide="shield-check" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600"></i>
+                    </div>
+                    <div class="min-w-0 leading-tight">
+                        <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+                            {{ number_format($agenciesCount) }}+
+                        </p>
+                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Partner Agencies</p>
+                    </div>
+                </div>
+
+                <!-- Floating Card: Active Jobs -->
+                <div
+                    class="absolute z-10
+                 left-3 sm:left-4 lg:left-10
+                 bottom-3 sm:bottom-4 lg:-bottom-6
+                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
+                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
+                 flex items-center gap-2 sm:gap-3
+                 w-[190px] sm:w-[220px] lg:w-auto
+                 max-w-[calc(100%-1.5rem)]">
+                    <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
+                        <i data-lucide="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]"></i>
+                    </div>
+                    <div class="min-w-0 leading-tight">
+                        <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+                            {{ number_format($activeJobsCount) }}+
+                        </p>
+                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Active Jobs</p>
+                    </div>
+                </div>
 
             </div>
+
         </div>
     </div>
+
 </section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const slider = document.getElementById("heroSlider");
+        const slides = slider.children;
+        const totalSlides = slides.length;
+
+        let index = 0;
+
+        function slideImages() {
+
+            index++;
+
+            if (index >= totalSlides) {
+                index = 0;
+            }
+
+            slider.style.transform = `translateX(-${index * 100}%)`;
+        }
+
+        setInterval(slideImages, 3500);
+
+    });
+</script>
