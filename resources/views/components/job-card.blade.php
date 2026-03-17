@@ -51,29 +51,29 @@ transition-all duration-300">
         </div>
 
         @auth
-            <div x-data="{ saved: {{ $isSaved ? 'true' : 'false' }} }">
+            <div x-data="{ saved: @js($isSaved) }">
 
                 <button
                     @click.prevent="
-fetch('{{ route('candidate.jobs.save', $job->id) }}',{
-    method:'POST',
-    headers:{
-        'X-CSRF-TOKEN':'{{ csrf_token() }}',
-        'X-Requested-With':'XMLHttpRequest',
-        'Content-Type':'application/json',
-        'Accept':'application/json'
-    }
-})
-.then(res => res.json())
-.then(data => {
-    if(data.success){
-        saved = data.saved
-    }
-})
-"
-                    class="transition" :class="saved ? 'text-[#16A34A]' : 'text-gray-400 hover:text-[#16A34A]'">
+            fetch('{{ route('candidate.jobs.save', $job->id) }}',{
+                method:'POST',
+                headers:{
+                    'X-CSRF-TOKEN':'{{ csrf_token() }}',
+                    'X-Requested-With':'XMLHttpRequest',
+                    'Content-Type':'application/json',
+                    'Accept':'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    saved = data.saved
+                }
+            })
+        "
+                    class="transition" ::class="saved ? 'text-[#16A34A]' : 'text-gray-400 hover:text-[#16A34A]'">
 
-                    <x-lucide-icon name="bookmark" class="w-5 h-5 transition" :class="saved ? 'fill-[#16A34A]' : ''" />
+                    <x-lucide-icon name="bookmark" class="w-5 h-5 transition" ::class="saved ? 'fill-[#16A34A]' : ''" />
 
                 </button>
 

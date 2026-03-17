@@ -223,33 +223,31 @@
 
         {{-- SAVE --}}
         @auth
-            <div x-data="{ saved: {{ $isSaved ? 'true' : 'false' }} }">
+            <div x-data="{ saved: @js($isSaved) }">
 
                 <button
                     @click.prevent="
-                fetch('{{ route('candidate.jobs.save', $job->id) }}',{
-                    method:'POST',
-                    headers:{
-                        'X-CSRF-TOKEN':'{{ csrf_token() }}',
-                        'X-Requested-With':'XMLHttpRequest',
-                        'Accept':'application/json'
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success){
-                        saved = data.saved
-                    }
-                })
-                "
+            fetch('{{ route('candidate.jobs.save', $job->id) }}',{
+                method:'POST',
+                headers:{
+                    'X-CSRF-TOKEN':'{{ csrf_token() }}',
+                    'X-Requested-With':'XMLHttpRequest',
+                    'Accept':'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    saved = data.saved
+                }
+            })
+        "
                     class="inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition"
-                    :class="saved
-                        ?
-                        'border-emerald-300 bg-emerald-50 text-emerald-700' :
-                        'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'">
+                    ::class="saved
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'">
 
-                    {{-- ICON --}}
-                    <x-lucide-icon name="bookmark" class="w-4 h-4" :class="saved ? 'fill-emerald-600 text-emerald-600' : ''" />
+                    <x-lucide-icon name="bookmark" class="w-4 h-4" ::class="saved ? 'fill-emerald-600 text-emerald-600' : ''" />
 
                     <span x-text="saved ? 'Saved' : 'Save Job'"></span>
 
