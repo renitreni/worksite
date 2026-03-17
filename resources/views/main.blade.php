@@ -1,59 +1,82 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{-- Allow unload so Livewire/Vite/Pusher can use it without Permissions Policy violation --}}
     <meta http-equiv="Permissions-Policy" content="unload=(self)">
 
-    <title>@yield('title', config('app.name', 'Jobabroad'))</title>
+    <title>
+        @yield('title', 'Find Overseas Jobs for Filipinos | Jobabroad')
+    </title>
 
-    <meta name="description" content="@yield('meta_description', 'Worksite connects job seekers with verified overseas employers and agencies.')">
+    <meta name="description" content="@yield('meta_description', 'Find verified overseas jobs for Filipinos. Connect with trusted employers and recruitment agencies abroad. Apply easily and start your global career today.')">
     <meta name="keywords"
-        content="overseas jobs, job abroad, verified employers, work abroad Philippines, overseas employment, jobabroad">
+        content="jobs abroad Philippines, overseas jobs for Filipinos, work abroad, POEA jobs, DWA verified, international jobs, recruitment agencies abroad, jobabroad">
     <meta name="author" content="Jobabroad">
     <meta name="robots" content="@yield('robots', 'index,follow')">
 
-    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <link rel="canonical" href="@yield('canonical', url('/'))">
     <meta name="theme-color" content="#16A34A">
     <link rel="icon" href="/favicon.ico">
     <link rel="icon" type="image/png" href="/images/favicon.png">
 
     <meta name="mobile-web-app-capable" content="yes">
 
-    <meta property="og:title" content="@yield('og_title', trim($__env->yieldContent('title', config('app.name', 'Jobabroad'))))">
-    <meta property="og:description" content="@yield('og_description', trim($__env->yieldContent('meta_description', 'Jobabroad connects job seekers with verified overseas employers and agencies.')))">
+    <meta property="og:title" content="@yield('og_title', 'Find Overseas Jobs for Filipinos | Jobabroad')">
+    <meta property="og:description" content="@yield('og_description', 'Find verified overseas jobs for Filipinos. Connect with trusted employers and recruitment agencies abroad.')">
     <meta property="og:url" content="@yield('og_url', url()->current())">
     <meta property="og:type" content="website">
     <meta property="og:image" content="@yield('og_image', asset('images/og-default.png'))">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('twitter_title', trim($__env->yieldContent('title', config('app.name', 'Jobabroad'))))">
+    <meta name="twitter:title" content="@yield('twitter_title', 'Find Overseas Jobs for Filipinos | Jobabroad')">
     <meta name="twitter:description" content="@yield('twitter_description', trim($__env->yieldContent('meta_description', 'Jobabroad connects job seekers with verified overseas employers and agencies.')))">
     <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-default.png'))">
 
     <meta name="google-site-verification" content="_ey-_rSSXAgZc9T6m9UpWC0GwasM1jjQUaok-YscLI4" />
-
+    <link rel="alternate" hreflang="en-ph" href="https://jobabroad.online" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
         rel="stylesheet">
+
     @verbatim
         <script type="application/ld+json">
-            {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "Jobabroad",
-            "url": "/",
-            "description": "Worksite connects job seekers with verified overseas employers and agencies.",
-            "potentialAction": {
-                "@type": "SearchAction",
-                "target": "/jobs?search={search_term_string}",
-                "query-input": "required name=search_term_string"
-            }
-            }
-        </script>
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Jobabroad",
+  "url": "https://jobabroad.online",
+  "description": "Find verified overseas jobs for Filipinos. Connect with trusted employers and recruitment agencies abroad.",
+  "inLanguage": "en-PH",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Jobabroad",
+    "url": "https://jobabroad.online",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://jobabroad.online/images/favicon.png"
+    }
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://jobabroad.online/jobs?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+    @endverbatim
+    @verbatim
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Jobabroad",
+  "url": "https://jobabroad.online",
+  "logo": "https://jobabroad.online/images/favicon.png"
+}
+</script>
     @endverbatim
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])

@@ -1,7 +1,12 @@
+@php
+    $companyName = $agency->company_name ?? 'Agency';
+@endphp
 <div id="jobs" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h2 class="section-title text-lg font-extrabold text-gray-900">Listed Jobs</h2>
+            <h2 class="section-title text-lg font-extrabold text-gray-900">
+                Overseas Jobs Available from {{ $companyName }}
+            </h2>
             <p class="mt-1 text-sm text-gray-600">All openings posted by this agency.</p>
         </div>
     </div>

@@ -43,22 +43,29 @@
 
         <div class="relative">
 
-            {{-- Progress Line --}}
-            <div class="hidden lg:block absolute top-28 left-0 right-0 h-1 bg-gray-200"></div>
+            {{-- DESKTOP (HORIZONTAL TIMELINE FIXED) --}}
+            <div class="hidden lg:grid grid-cols-4 gap-10 relative items-start">
 
-            {{-- DESKTOP --}}
-            <div class="hidden lg:grid grid-cols-4 gap-10 relative">
+                {{-- CENTER LINE --}}
+                <div class="absolute top-16 left-0 right-0 h-1 bg-gray-200 z-0"></div>
+
                 @foreach ($steps as $step)
-                    <div class="relative group">
+                    <div class="relative text-center z-10">
 
-                        <div
-                            class="relative bg-white rounded-2xl shadow-sm border border-gray-200 pt-12 p-6 text-center
-                            transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-
+                        {{-- NUMBER (CONNECTED TO LINE) --}}
+                        <div class="flex justify-center mb-6">
                             <div
-                                class="absolute -top-6 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center bg-[#16A34A] text-white font-bold text-lg rounded-full shadow-lg ring-4 ring-white">
+                                class="w-14 h-14 flex items-center justify-center
+                    bg-[#16A34A] text-white font-bold text-lg
+                    rounded-full shadow-lg ring-4 ring-white">
                                 {{ $step['num'] }}
                             </div>
+                        </div>
+
+                        {{-- CARD --}}
+                        <div
+                            class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6
+                transition duration-300 hover:-translate-y-1 hover:shadow-lg">
 
                             <img src="{{ asset($step['image']) }}" class="h-32 mx-auto object-contain mb-5 rounded-lg">
 

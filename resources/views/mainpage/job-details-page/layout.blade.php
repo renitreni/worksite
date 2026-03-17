@@ -140,6 +140,85 @@
     <script>
         window.addEventListener('DOMContentLoaded', () => lucide.createIcons());
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+
+            const menuBtn = document.getElementById("mobile-menu-button");
+            const mobileMenu = document.getElementById("mobile-menu");
+            const iconMenu = document.getElementById("icon-menu");
+            const iconClose = document.getElementById("icon-close");
+            const navbar = document.getElementById("navbar");
+            const hero = document.querySelector("#hero-section");
+
+            function setNavbarWhite() {
+
+                navbar.classList.add("navbar-scrolled");
+                navbar.classList.remove("bg-transparent");
+
+                document.querySelectorAll(".nav-link").forEach(el => {
+                    el.classList.remove("text-white");
+                    el.classList.add("text-gray-700");
+                });
+
+                iconMenu?.classList.remove("text-white");
+                iconMenu?.classList.add("text-gray-700");
+
+                iconClose?.classList.remove("text-white");
+                iconClose?.classList.add("text-gray-700");
+
+            }
+
+            function setNavbarTransparent() {
+
+                navbar.classList.remove("navbar-scrolled");
+                navbar.classList.add("bg-transparent");
+
+                document.querySelectorAll(".nav-link").forEach(el => {
+                    el.classList.add("text-white");
+                    el.classList.remove("text-gray-700");
+                });
+
+                iconMenu?.classList.add("text-white");
+                iconMenu?.classList.remove("text-gray-700");
+
+                iconClose?.classList.add("text-gray-700");
+                iconClose?.classList.remove("text-gray-700");
+
+            }
+
+            if (hero) {
+
+                if (hero.getBoundingClientRect().bottom > 80) {
+                    setNavbarTransparent();
+                } else {
+                    setNavbarWhite();
+                }
+
+                const observer = new IntersectionObserver(
+                    ([entry]) => {
+                        if (entry.isIntersecting) {
+                            setNavbarTransparent();
+                        } else {
+                            setNavbarWhite();
+                        }
+                    }, {
+                        threshold: 0.1
+                    }
+                );
+
+                observer.observe(hero);
+
+            } else {
+                setNavbarWhite();
+            }
+
+        });
+    </script>
     @livewireScripts
 </body>
 

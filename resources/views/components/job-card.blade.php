@@ -36,49 +36,33 @@
 hover:shadow-lg hover:-translate-y-1 hover:border-[#16A34A]/40
 transition-all duration-300">
 
-    {{-- HEADER --}}
     <div class="flex items-start justify-between gap-3">
 
-        <div class="min-w-0">
-            <h3
-                class="section-title text-base md:text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-[#16A34A]">
-                {{ $job->title }}
-            </h3>
+        <div class="min-w-0 flex-1">
+            <a href="{{ route('jobs.show', $job->id) }}" class="block group">
+                <h3
+                    class="section-title text-base md:text-lg font-semibold tracking-tight text-gray-900 
+                leading-snug line-clamp-2 group-hover:text-[#16A34A] transition">
+                    {{ $job->title }}
+                </h3>
+            </a>
 
             <p class="text-sm text-gray-500 mt-1 truncate">
-                {{ $company }}
+                {{ $company }} Recruitment Agency
             </p>
         </div>
 
+        {{-- SAVE BUTTON (restore this if needed) --}}
         @auth
             <div x-data="{ saved: @js($isSaved) }">
+                <button @click.prevent="/* your fetch */" class="transition flex-shrink-0"
+                    :class="saved ? 'text-[#16A34A]' : 'text-gray-400 hover:text-[#16A34A]'">
 
-                <button
-                    @click.prevent="
-            fetch('{{ route('candidate.jobs.save', $job->id) }}',{
-                method:'POST',
-                headers:{
-                    'X-CSRF-TOKEN':'{{ csrf_token() }}',
-                    'X-Requested-With':'XMLHttpRequest',
-                    'Content-Type':'application/json',
-                    'Accept':'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success){
-                    saved = data.saved
-                }
-            })
-        "
-                    class="transition" ::class="saved ? 'text-[#16A34A]' : 'text-gray-400 hover:text-[#16A34A]'">
-
-                    <x-lucide-icon name="bookmark" class="w-5 h-5 transition" ::class="saved ? 'fill-[#16A34A]' : ''" />
-
+                    <x-lucide-icon name="bookmark" class="w-5 h-5 transition" :class="saved ? 'fill-[#16A34A]' : ''" />
                 </button>
-
             </div>
         @endauth
+
     </div>
 
 
@@ -118,6 +102,9 @@ transition-all duration-300">
         </div>
 
     </div>
+    <p class="text-xs text-gray-500 mt-3">
+        Apply for this overseas job opportunity and work abroad with verified employers.
+    </p>
 
 
     {{-- BUTTON --}}

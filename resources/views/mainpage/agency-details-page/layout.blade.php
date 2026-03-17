@@ -5,7 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ config('app.name', default: 'Worksite') }}</title>
+    <title>@yield('title', 'Find Overseas Jobs for Filipinos | Jobabroad')</title>
+
+    <meta name="description" content="@yield('meta_description', 'Find verified overseas jobs for Filipinos. Apply with trusted agencies abroad.')">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
 
     <!-- Fonts -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -33,7 +37,7 @@
         }
     </style>
 
-
+    @yield('schema')
 </head>
 
 <body class="font-['Inter',sans-serif] text-gray-900">
@@ -46,7 +50,7 @@
 
     @include('mainpage.components.footer')
 
-    
+
 
     <script>
         window.addEventListener('DOMContentLoaded', () => lucide.createIcons());

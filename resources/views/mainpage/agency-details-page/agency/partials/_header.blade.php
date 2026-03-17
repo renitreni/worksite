@@ -61,7 +61,8 @@
     <div class="relative h-52 sm:h-60 lg:h-64">
 
         <img src="{{ $coverExists ? asset('storage/' . $agency->cover_path) : asset('images/cover.png') }}"
-            alt="Agency Cover" class="w-full h-full object-cover">
+            alt="{{ $companyName }} recruitment agency cover showing overseas job opportunities"
+            class="w-full h-full object-cover">
 
         {{-- Gradient overlay --}}
         <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-black/10 to-black/30"></div>
@@ -80,7 +81,7 @@
 
                 @if ($logoExists)
                     <img src="{{ asset('storage/' . $agency->logo_path) }}" class="w-full h-full object-cover"
-                        alt="Logo">
+                        alt="{{ $companyName }} recruitment agency logo">
                 @else
                     <div class="w-full h-full grid place-items-center ring-1 {{ $bgClasses[$pick] }}">
                         <span class="font-extrabold text-3xl">
@@ -106,6 +107,7 @@
                     <h1 class="section-title text-2xl font-bold text-gray-900 truncate">
                         {{ $companyName }}
                     </h1>
+
 
                     {{-- VERIFIED BADGE --}}
                     @if ($agency->verification && $agency->verification->status === 'approved')
@@ -156,16 +158,21 @@
                     {{-- ADDRESS --}}
                     @if ($agency->company_address)
                         <span class="truncate max-w-[220px]">
-                            • {{ $agency->company_address }}
+                            {{ $agency->company_address }} - Recruitment Agency for Overseas Jobs
                         </span>
                     @endif
 
                 </div>
-
+                <p class="text-sm text-gray-500 mt-2">
+                    Explore {{ $openJobsCount ?? 0 }} available overseas jobs from {{ $companyName }} and apply
+                    directly with verified employers.
+                </p>
 
                 {{-- DESCRIPTION --}}
                 @if ($agency->description)
                     <p class="mt-3 text-gray-600 max-w-3xl line-clamp-2 leading-relaxed">
+                        {{ $companyName }} is a trusted recruitment agency offering overseas job opportunities for
+                        Filipinos.
                         {{ $agency->description }}
                     </p>
                 @endif
