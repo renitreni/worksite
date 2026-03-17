@@ -1,4 +1,4 @@
-<section class="relative py-20 bg-gradient-to-br from-[#0f5f2f] via-[#16A34A] to-[#22c55e] overflow-x-hidden">
+<section class="py-20 bg-gradient-to-br from-[#0f5f2f] via-[#16A34A] to-[#22c55e]">
     <div class="container max-w-7xl mx-auto px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
@@ -78,62 +78,85 @@
                 <!-- Floating Card: Success Rate -->
                 <div
                     class="absolute z-10
-                 left-3 sm:left-4 lg:-left-6
-                 top-3 sm:top-6 lg:top-10
-                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
-                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
-                 flex items-center gap-2 sm:gap-3
-                 w-[165px] sm:w-[200px] lg:w-auto
-                 max-w-[calc(100%-1.5rem)]">
-                    <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]"></i>
-                    </div>
-                    <div class="min-w-0 leading-tight">
-                        <p class="text-sm sm:text-base lg:text-lg font-bold text-[#16A34A]">95%</p>
-                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Success Rate</p>
-                    </div>
-                </div>
+    left-3 sm:left-4 lg:-left-6
+    top-3 sm:top-6 lg:top-10
+    bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
+    px-3 py-2
+    flex items-center gap-2
+    max-w-[150px] sm:max-w-[180px]">
 
+                    <div class="bg-green-100 p-1.5 rounded-lg shrink-0">
+                        <i data-lucide="zap" class="w-4 h-4 text-[#16A34A]"></i>
+                    </div>
+
+                    <div class="leading-tight">
+                        <p class="text-sm font-bold text-[#16A34A]">95%</p>
+                        <p class="text-xs text-gray-600">Success Rate</p>
+                    </div>
+
+                </div>
+                <div
+                    class="absolute z-10
+    left-3 sm:left-4 lg:-left-6
+    top-3 sm:top-6 lg:top-10
+    bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
+    px-3 py-2
+    flex items-center gap-2
+    max-w-[150px] sm:max-w-[180px]">
+
+                    <div class="bg-green-100 p-1.5 rounded-lg shrink-0">
+                        <i data-lucide="zap" class="w-4 h-4 text-[#16A34A]"></i>
+                    </div>
+
+                    <div class="leading-tight">
+                        <p class="text-sm font-bold text-[#16A34A]">95%</p>
+                        <p class="text-xs text-gray-600">Success Rate</p>
+                    </div>
+
+                </div>
                 <!-- Floating Card: Partner Agencies -->
                 <div
                     class="absolute z-10
-                 right-3 sm:right-4 lg:-right-6
-                 top-14 sm:top-20 lg:top-20
-                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
-                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
-                 flex items-center gap-2 sm:gap-3
-                 w-[180px] sm:w-[210px] lg:w-auto
-                 max-w-[calc(100%-1.5rem)]">
-                    <div class="bg-yellow-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <i data-lucide="shield-check" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600"></i>
+    right-3 sm:right-4 lg:-right-6
+    top-14 sm:top-20 lg:top-20
+    bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
+    px-3 py-2
+    flex items-center gap-2
+    max-w-[160px] sm:max-w-[190px]">
+
+                    <div class="bg-yellow-100 p-1.5 rounded-lg shrink-0">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-yellow-600"></i>
                     </div>
-                    <div class="min-w-0 leading-tight">
-                        <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+
+                    <div class="leading-tight">
+                        <p class="text-sm font-bold text-gray-900">
                             {{ number_format($agenciesCount) }}+
                         </p>
-                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Partner Agencies</p>
+                        <p class="text-xs text-gray-600">Partner Agencies</p>
                     </div>
-                </div>
 
+                </div>
                 <!-- Floating Card: Active Jobs -->
                 <div
                     class="absolute z-10
-                 left-3 sm:left-4 lg:left-10
-                 bottom-3 sm:bottom-4 lg:-bottom-6
-                 bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
-                 px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4
-                 flex items-center gap-2 sm:gap-3
-                 w-[190px] sm:w-[220px] lg:w-auto
-                 max-w-[calc(100%-1.5rem)]">
-                    <div class="bg-green-100 p-1.5 sm:p-2 rounded-lg shrink-0">
-                        <i data-lucide="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]"></i>
+    left-3 sm:left-4 lg:left-10
+    bottom-3 sm:bottom-4 lg:-bottom-6
+    bg-white/95 backdrop-blur rounded-xl shadow-lg border border-black/5
+    px-3 py-2
+    flex items-center gap-2
+    max-w-[170px] sm:max-w-[200px]">
+
+                    <div class="bg-green-100 p-1.5 rounded-lg shrink-0">
+                        <i data-lucide="briefcase" class="w-4 h-4 text-[#16A34A]"></i>
                     </div>
-                    <div class="min-w-0 leading-tight">
-                        <p class="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+
+                    <div class="leading-tight">
+                        <p class="text-sm font-bold text-gray-900">
                             {{ number_format($activeJobsCount) }}+
                         </p>
-                        <p class="text-[10px] sm:text-xs lg:text-sm text-gray-600 truncate">Active Jobs</p>
+                        <p class="text-xs text-gray-600">Active Jobs</p>
                     </div>
+
                 </div>
 
             </div>
@@ -146,21 +169,23 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
-        const slider = document.getElementById("heroSlider");
-        const slides = slider.children;
+        const heroSlider = document.getElementById("heroSlider");
+
+        if (!heroSlider) return; // ✅ prevents crash
+
+        const slides = heroSlider.children;
         const totalSlides = slides.length;
 
         let index = 0;
 
         function slideImages() {
-
             index++;
 
             if (index >= totalSlides) {
                 index = 0;
             }
 
-            slider.style.transform = `translateX(-${index * 100}%)`;
+            heroSlider.style.transform = `translateX(-${index * 100}%)`;
         }
 
         setInterval(slideImages, 3500);

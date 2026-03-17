@@ -77,10 +77,31 @@
             </div>
 
             {{-- MOBILE SWIPE (1 CARD ONLY, NO ARROWS) --}}
-            <div class="lg:hidden">
+            <div class="lg:hidden relative group">
+                <button onclick="prevStep()"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 z-20
+    w-10 h-10 flex items-center justify-center
+    rounded-full
+    bg-[#16A34A]/90 text-white text-xl
+    shadow-lg
+    transition duration-300
+    opacity-0 group-hover:opacity-100
+    hover:bg-[#15803D] hover:scale-110 active:scale-95">
+                    ‹
+                </button>
 
-                <div id="stepsSlider" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
-
+                <button onclick="nextStep()"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 z-20
+    w-10 h-10 flex items-center justify-center
+    rounded-full
+    bg-[#16A34A]/90 text-white text-xl
+    shadow-lg
+    transition duration-300
+    opacity-0 group-hover:opacity-100
+    hover:bg-[#15803D] hover:scale-110 active:scale-95">
+                    ›
+                </button>
+                <div id="stepsSlider" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar">
                     @foreach ($steps as $step)
                         <div class="w-full snap-center shrink-0 px-4">
 
@@ -136,170 +157,56 @@
 
 </section>
 
-<section class="py-10 bg-gray-50">
 
-    <div class="max-w-7xl mx-auto px-6">
-
-        {{-- DESKTOP (UNCHANGED) --}}
-        <div class="hidden lg:grid grid-cols-3 gap-8">
-
-            <div class="relative lg:col-span-2 group overflow-hidden rounded-3xl shadow-2xl">
-                <video controls class="w-full h-full object-cover rounded-3xl">
-                    <source src="{{ asset('videos/ads/STORY.mp4') }}">
-                </video>
-            </div>
-
-            <div class="grid grid-rows-2 gap-8">
-
-                <div class="min-w-full snap-center">
-                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
-                        <source src="{{ asset('videos/ads/ADS-1.mp4') }}">
-                    </video>
-                </div>
-
-                <div class="min-w-full snap-center">
-                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
-                        <source src="{{ asset('videos/ads/ADS-2.mp4') }}">
-                    </video>
-                </div>
-
-            </div>
-
-        </div>
-
-        {{-- MOBILE --}}
-        <div class="lg:hidden relative group">
-
-            {{-- ARROWS (HIDDEN UNTIL HOVER) --}}
-            <button onclick="prevSlide()"
-                class="absolute left-3 top-1/2 -translate-y-1/2 z-20
-        w-10 h-10 flex items-center justify-center
-        rounded-full
-        bg-white/20 backdrop-blur-md
-        border border-white/30
-        text-white text-xl
-        shadow-lg
-        transition duration-300
-        opacity-0 group-hover:opacity-100
-        hover:bg-white/30 hover:scale-110 active:scale-95">
-
-                ‹
-            </button>
-
-            <button onclick="nextSlide()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 z-20
-        w-10 h-10 flex items-center justify-center
-        rounded-full
-        bg-white/20 backdrop-blur-md
-        border border-white/30
-        text-white text-xl
-        shadow-lg
-        transition duration-300
-        opacity-0 group-hover:opacity-100
-        hover:bg-white/30 hover:scale-110 active:scale-95">
-
-                ›
-            </button>
-
-            {{-- SLIDER --}}
-            <div id="videoSlider" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
-
-                <div class="min-w-full snap-center">
-                    <video controls class="w-full h-64 object-cover rounded-2xl">
-                        <source src="{{ asset('videos/ads/STORY.mp4') }}">
-                    </video>
-                </div>
-
-                <div class="min-w-full snap-center">
-                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
-                        <source src="{{ asset('videos/ads/ADS-1.mp4') }}">
-                    </video>
-                </div>
-
-                <div class="min-w-full snap-center">
-                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
-                        <source src="{{ asset('videos/ads/ADS-2.mp4') }}">
-                    </video>
-                </div>
-
-            </div>
-
-            {{-- DOTS --}}
-            <div class="flex justify-center mt-4 gap-2" id="dots">
-                <span class="dot w-2.5 h-2.5 bg-gray-300 rounded-full"></span>
-                <span class="dot w-2.5 h-2.5 bg-gray-300 rounded-full"></span>
-                <span class="dot w-2.5 h-2.5 bg-gray-300 rounded-full"></span>
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<script>
-    const slider = document.getElementById('videoSlider');
-    const dots = document.querySelectorAll('#dots .dot');
-
-    let currentIndex = 1; // 👈 START AT VIDEO 2
-
-    function updateDots() {
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('bg-green-600', i === currentIndex);
-            dot.classList.toggle('bg-gray-300', i !== currentIndex);
-        });
-    }
-
-    function nextSlide() {
-        if (currentIndex < dots.length - 1) {
-            currentIndex++;
-            slider.scrollTo({
-                left: slider.clientWidth * currentIndex,
-                behavior: 'smooth'
-            });
-            updateDots();
-        }
-    }
-
-    function prevSlide() {
-        if (currentIndex > 0) {
-            currentIndex--;
-            slider.scrollTo({
-                left: slider.clientWidth * currentIndex,
-                behavior: 'smooth'
-            });
-            updateDots();
-        }
-    }
-
-    slider.addEventListener('scroll', () => {
-        currentIndex = Math.round(slider.scrollLeft / slider.clientWidth);
-        updateDots();
-    });
-
-    // 👇 AUTO SCROLL TO VIDEO 2 ON LOAD
-    window.addEventListener('load', () => {
-        if (slider) {
-            slider.scrollTo({
-                left: slider.clientWidth * 1,
-                behavior: 'auto'
-            });
-            updateDots();
-        }
-    });
-</script>
 <script>
     const stepSlider = document.getElementById('stepsSlider');
     const stepDots = document.querySelectorAll('#stepDots .step-dot');
 
+    let currentIndex = 0;
+
+    function updateDots(index) {
+        stepDots.forEach((dot, i) => {
+            dot.classList.toggle('bg-green-600', i === index);
+            dot.classList.toggle('bg-gray-300', i !== index);
+        });
+    }
+
     if (stepSlider) {
+
+        const slides = stepSlider.children;
+        const totalSlides = slides.length;
+
+        // ✅ initial
+        updateDots(currentIndex);
+
+        // 🔥 BUTTON NAVIGATION (FIXED)
+        window.nextStep = function() {
+            if (currentIndex < totalSlides - 1) {
+                currentIndex++;
+                stepSlider.scrollTo({
+                    left: stepSlider.clientWidth * currentIndex,
+                    behavior: 'smooth'
+                });
+                updateDots(currentIndex); // ✅ FORCE UPDATE
+            }
+        }
+
+        window.prevStep = function() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                stepSlider.scrollTo({
+                    left: stepSlider.clientWidth * currentIndex,
+                    behavior: 'smooth'
+                });
+                updateDots(currentIndex); // ✅ FORCE UPDATE
+            }
+        }
+
+        // 🔥 SWIPE DETECTION (fallback sync)
         stepSlider.addEventListener('scroll', () => {
             const index = Math.round(stepSlider.scrollLeft / stepSlider.clientWidth);
-
-            stepDots.forEach((dot, i) => {
-                dot.classList.toggle('bg-green-600', i === index);
-                dot.classList.toggle('bg-gray-300', i !== index);
-            });
+            currentIndex = index;
+            updateDots(currentIndex);
         });
-    } <
-    />
+    }
+</script>

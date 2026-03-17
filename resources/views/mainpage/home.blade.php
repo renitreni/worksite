@@ -7,5 +7,6 @@
   @include('mainpage.featured-agency')
   @include('mainpage.featured-job')
   @include('mainpage.how-it-works')
+  @include('mainpage.video-ads')
   @include('mainpage.marketing')
 @endsection
