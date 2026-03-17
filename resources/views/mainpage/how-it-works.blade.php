@@ -151,13 +151,17 @@
 
             <div class="grid grid-rows-2 gap-8">
 
-                <video autoplay muted loop class="rounded-3xl w-full h-full object-cover">
-                    <source src="{{ asset('videos/ads/ADS-1.mp4') }}">
-                </video>
+                <div class="min-w-full snap-center">
+                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
+                        <source src="{{ asset('videos/ads/ADS-1.mp4') }}">
+                    </video>
+                </div>
 
-                <video autoplay muted loop class="rounded-3xl w-full h-full object-cover">
-                    <source src="{{ asset('videos/ads/ADS-2.mp4') }}">
-                </video>
+                <div class="min-w-full snap-center">
+                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
+                        <source src="{{ asset('videos/ads/ADS-2.mp4') }}">
+                    </video>
+                </div>
 
             </div>
 
@@ -207,13 +211,13 @@
                 </div>
 
                 <div class="min-w-full snap-center">
-                    <video autoplay muted loop class="w-full h-64 object-cover rounded-2xl">
+                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
                         <source src="{{ asset('videos/ads/ADS-1.mp4') }}">
                     </video>
                 </div>
 
                 <div class="min-w-full snap-center">
-                    <video autoplay muted loop class="w-full h-64 object-cover rounded-2xl">
+                    <video autoplay muted loop playsinline class="w-full h-64 object-cover rounded-2xl">
                         <source src="{{ asset('videos/ads/ADS-2.mp4') }}">
                     </video>
                 </div>
@@ -237,7 +241,7 @@
     const slider = document.getElementById('videoSlider');
     const dots = document.querySelectorAll('#dots .dot');
 
-    let currentIndex = 0;
+    let currentIndex = 1; // 👈 START AT VIDEO 2
 
     function updateDots() {
         dots.forEach((dot, i) => {
@@ -273,9 +277,15 @@
         updateDots();
     });
 
-    // disable right click
-    document.querySelectorAll("video").forEach(video => {
-        video.addEventListener("contextmenu", e => e.preventDefault());
+    // 👇 AUTO SCROLL TO VIDEO 2 ON LOAD
+    window.addEventListener('load', () => {
+        if (slider) {
+            slider.scrollTo({
+                left: slider.clientWidth * 1,
+                behavior: 'auto'
+            });
+            updateDots();
+        }
     });
 </script>
 <script>
@@ -291,5 +301,5 @@
                 dot.classList.toggle('bg-gray-300', i !== index);
             });
         });
-    }
-</script>
+    } <
+    />
