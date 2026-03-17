@@ -166,7 +166,6 @@ class EmployerJobService
 
             'job_description' => 'required|string',
 
-            // ✅ MATCH DATABASE
             'job_qualifications' => 'nullable|string',
             'additional_information' => 'nullable|string',
 
@@ -180,6 +179,8 @@ class EmployerJobService
             'salary_min' => 'nullable|numeric',
             'salary_max' => 'nullable|numeric',
             'salary_currency' => 'nullable|string|max:10',
+
+            'apply_until' => 'nullable|date|after_or_equal:today',
         ]);
     }
 }
