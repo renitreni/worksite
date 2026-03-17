@@ -98,6 +98,22 @@
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+                    <x-lucide-icon name="briefcase" class="w-4 h-4 text-slate-600" />
+                </span>
+
+                <div class="font-semibold text-slate-700">
+                    @if (!is_null($job->min_experience_years))
+                        {{ $job->min_experience_years }}
+                        {{ $job->min_experience_years == 1 ? 'year' : 'years' }} experience
+                    @else
+                        No experience required
+                    @endif
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <span
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
                     <x-lucide-icon name="user" class="w-4 h-4 text-slate-600" />
                 </span>
                 <div class="font-semibold text-slate-700">
@@ -145,6 +161,7 @@
                 </div>
             </div>
 
+
             <div class="flex items-center gap-3">
                 <span
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
@@ -159,6 +176,8 @@
                 </div>
             </div>
         </div>
+
+
     </div>
 
     {{-- Skills --}}
@@ -244,8 +263,8 @@
         "
                     class="inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition"
                     ::class="saved
-                ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'">
+                    ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'">
 
                     <x-lucide-icon name="bookmark" class="w-4 h-4" ::class="saved ? 'fill-emerald-600 text-emerald-600' : ''" />
 
