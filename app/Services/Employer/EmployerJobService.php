@@ -181,6 +181,7 @@ class EmployerJobService
             'salary_currency' => 'nullable|string|max:10',
 
             'apply_until' => 'nullable|date|after_or_equal:today',
+            'min_experience_years' => 'nullable|integer|min:0|max:50',
         ]);
     }
 }
