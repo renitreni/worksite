@@ -158,15 +158,12 @@
                     {{-- ADDRESS --}}
                     @if ($agency->company_address)
                         <span class="truncate max-w-[220px]">
-                            {{ $agency->company_address }} - Recruitment Agency for Overseas Jobs
+                            {{ $agency->company_address }}
                         </span>
                     @endif
 
                 </div>
-                <p class="text-sm text-gray-500 mt-2">
-                    Explore {{ $openJobsCount ?? 0 }} available overseas jobs from {{ $companyName }} and apply
-                    directly with verified employers.
-                </p>
+              
 
                 {{-- DESCRIPTION --}}
                 @if ($agency->description)

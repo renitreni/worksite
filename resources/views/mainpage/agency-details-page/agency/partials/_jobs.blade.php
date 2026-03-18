@@ -5,7 +5,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h2 class="section-title text-lg font-extrabold text-gray-900">
-                Overseas Jobs Available from {{ $companyName }}
+                Overseas Jobs Available
             </h2>
             <p class="mt-1 text-sm text-gray-600">All openings posted by this agency.</p>
         </div>

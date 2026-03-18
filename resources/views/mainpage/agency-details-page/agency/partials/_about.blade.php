@@ -1,6 +1,6 @@
 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
     <h2 class="section-title text-base font-bold text-gray-900">
-        About {{ $agency->company_name }}
+        About
     </h2>
     <p class="mt-3 text-gray-600 leading-relaxed">
         {{ $agency->description ?? 'No description provided.' }}
