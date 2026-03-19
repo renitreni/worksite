@@ -141,7 +141,7 @@
                                 </span>
                                 <input type="text" name="company_name" placeholder="Worksite Recruitment Inc."
                                     required
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -153,7 +153,7 @@
                                     <x-lucide-icon name="mail" class="w-5 h-5" />
                                 </span>
                                 <input type="email" name="email" placeholder="hr@company.com" required
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -180,7 +180,7 @@
                                 </span>
                                 <input type="text" name="company_address" placeholder="Barangay, City, Province"
                                     required
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -190,7 +190,7 @@
 
                             <!-- ✅ intl-tel-input will convert this into flag dropdown + dial code -->
                             <input id="employer_phone" type="tel" name="company_contact"
-                                class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm
+                                class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-base
   focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]"
                                 placeholder="Enter your number" required>
 
@@ -220,7 +220,7 @@
                                     <x-lucide-icon name="user" class="w-5 h-5" />
                                 </span>
                                 <input type="text" name="representative_name" placeholder="Maria Santos" required
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -232,7 +232,7 @@
                                     <x-lucide-icon name="briefcase" class="w-5 h-5" />
                                 </span>
                                 <input type="text" name="position" placeholder="HR Manager / Recruiter" required
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
                         </div>
@@ -260,7 +260,7 @@
 
                                 <input x-model="password" :type="showPass ? 'text' : 'password'" name="password"
                                     placeholder="Create a strong password" required
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-base
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
 
                                 <button type="button" @click="showPass=!showPass; refreshIcons()"
@@ -315,7 +315,7 @@
                                 </span>
                                 <input x-model="confirmPassword" :type="showPass ? 'text' : 'password'"
                                     name="password_confirmation" placeholder="Re-type your password" required
-                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                    class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                     focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                             </div>
 
