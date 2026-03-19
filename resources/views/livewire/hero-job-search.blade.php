@@ -12,7 +12,7 @@
                 <x-lucide-icon name="briefcase" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
 
                 <input wire:model.live="keyword" type="text" placeholder="Job title or keyword"
-                    class="w-full outline-none bg-transparent text-gray-800 placeholder-gray-400 text-xs sm:text-sm md:text-base" />
+                    class="w-full outline-none bg-transparent text-gray-800 placeholder-gray-400 text-base" />
 
             </div>
 
