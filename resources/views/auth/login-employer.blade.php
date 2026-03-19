@@ -79,7 +79,7 @@
                             </span>
                             <input type="email" name="email" value="{{ old('email') }}"
                                 placeholder="hr@company.com"
-                                class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                        focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]"
                                 required autofocus>
                         </div>
@@ -100,7 +100,7 @@
                             </span>
 
                             <input :type="showPass ? 'text' : 'password'" name="password" placeholder="••••••••"
-                                class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
+                                class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-base
                                        focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]"
                                 required>
 

@@ -62,7 +62,7 @@
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                 <x-lucide-icon name="user" class="w-5 h-5" />
                             </span>
-                            <input type="text" name="first_name" placeholder="Juan" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                            <input type="text" name="first_name" placeholder="Juan" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                 <x-lucide-icon name="user" class="w-5 h-5" />
                             </span>
-                            <input type="text" name="last_name" placeholder="Dela Cruz" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                            <input type="text" name="last_name" placeholder="Dela Cruz" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                         </div>
                     </div>
@@ -100,7 +100,7 @@
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
                                 <x-lucide-icon name="mail" class="w-5 h-5" />
                             </span>
-                            <input type="email" name="email" placeholder="you@example.com" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                            <input type="email" name="email" placeholder="you@example.com" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                         </div>
                     </div>
@@ -110,7 +110,7 @@
 
                         <input id="phone" type="tel" name="contact_number" required inputmode="numeric"
                             autocomplete="tel" pattern="[0-9]*"
-                            @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')" class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm
+                            @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')" class="mt-2 w-full rounded-xl border border-gray-200 px-4 py-2.5 text-base
         focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]"
                             placeholder="Enter your number">
 
@@ -142,7 +142,7 @@
                             </span>
 
                             <input x-model="password" :type="showPass ? 'text' : 'password'" name="password"
-                                placeholder="Create a strong password" required class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-sm
+                                placeholder="Create a strong password" required class="w-full rounded-xl border border-gray-200 pl-11 pr-12 py-2.5 text-base
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
 
                             <button type="button" @click="showPass=!showPass; refreshIcons()"
@@ -196,7 +196,7 @@
                             </span>
 
                             <input x-model="confirmPassword" :type="showPass ? 'text' : 'password'"
-                                name="password_confirmation" placeholder="Re-type your password" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-sm
+                                name="password_confirmation" placeholder="Re-type your password" required class="w-full rounded-xl border border-gray-200 pl-11 pr-4 py-2.5 text-base
                                 focus:outline-none focus:ring-2 focus:ring-[#16A34A]/30 focus:border-[#16A34A]">
                         </div>
 
