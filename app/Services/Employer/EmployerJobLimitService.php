@@ -32,17 +32,27 @@ class EmployerJobLimitService
             return 1;
         }
 
-        $raw = $activeSub->plan->feature('job_limit_active', 1);
-
-        if ($raw === null || $raw === '') {
-            return null;
-        }
+        $raw = $activeSub->plan->feature('job_limit_active');
 
         if (is_array($raw)) {
             $raw = $raw['value'] ?? $raw[0] ?? null;
         }
 
-        return is_numeric($raw) ? (int) $raw : 1;
+        $rawString = strtolower(trim((string) $raw));
+
+        if ($raw === null || $rawString === '' || $rawString === 'unlimited') {
+            return null;
+        }
+
+        if ($rawString === '0') {
+            return null;
+        }
+
+        if (is_numeric($raw)) {
+            return (int) $raw;
+        }
+
+        return 1;
     }
 
     public function openJobsCountForProfile($profile)
