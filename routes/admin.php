@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\System\BackupController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MessageController;
+use App\Http\Controllers\Admin\ResumeController;
 
 
 
@@ -67,7 +68,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::patch('/users/{user}/subscription', [UserController::class, 'updateSubscription'])->name('users.subscription');
-Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
         // Job posts moderation
         Route::prefix('job-posts')->name('job-posts.')->group(function () {
             Route::get('/', [JobPostAdminController::class, 'index'])->name('index');
@@ -88,6 +89,9 @@ Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.
         Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
         Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
         Route::patch('/users/{user}/unsuspend', [UserController::class, 'unsuspend'])->name('users.unsuspend');
+
+        Route::get('/resumes', [ResumeController::class, 'index'])
+            ->name('resumes.index');
 
         // Static
         Route::view('/jobs', 'adminpage.contents.jobs')->name('jobs');

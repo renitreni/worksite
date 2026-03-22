@@ -8,7 +8,10 @@ class CandidateResume extends Model
 {
     protected $fillable = [
         'user_id',
-        'resume_path','resume_original_name','resume_mime','resume_size',
+        'resume_path',
+        'resume_original_name',
+        'resume_mime',
+        'resume_size',
     ];
 
     public function experiences()
@@ -25,5 +28,10 @@ class CandidateResume extends Model
     {
         return $this->hasMany(ResumeAttachment::class, 'resume_id')->latest();
     }
-    
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

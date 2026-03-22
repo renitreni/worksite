@@ -34,4 +34,9 @@ class JobApplication extends Model
     {
         return $this->hasMany(\App\Models\Chat::class);
     }
+
+    public function employerProfile()
+    {
+        return $this->belongsTo(EmployerProfile::class);
+    }
 }

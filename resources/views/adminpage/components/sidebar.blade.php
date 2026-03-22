@@ -14,25 +14,51 @@
         : asset('images/logo.png');
 
     $items = [
+        // 🔹 DASHBOARD
         [
             'label' => 'Dashboard',
             'route' => 'admin.dashboard',
             'icon' => 'layout-dashboard',
             'active' => 'admin.dashboard*',
         ],
+
+        // 🔹 USER MANAGEMENT
         [
-            'label' => 'Users',
-            'route' => 'admin.users.index',
+            'label' => 'User Management',
             'icon' => 'users',
-            'active' => 'admin.users.*',
-        ],
-        [
-            'label' => 'Job Postings',
-            'route' => 'admin.job-posts.index',
-            'icon' => 'briefcase',
-            'active' => 'admin.job-posts.*',
+            'active' => 'admin.users.*|admin.resumes.*|admin.admins.*',
+            'children' => [
+                [
+                    'label' => 'Users',
+                    'route' => 'admin.users.index',
+                    'icon' => 'users',
+                    'active' => 'admin.users.*',
+                ],
+                [
+                    'label' => 'Candidate CVs',
+                    'route' => 'admin.resumes.index',
+                    'icon' => 'file-text',
+                    'active' => 'admin.resumes.*',
+                ],
+            ],
         ],
 
+        // 🔹 JOB MANAGEMENT
+        [
+            'label' => 'Job Management',
+            'icon' => 'briefcase',
+            'active' => 'admin.job-posts.*',
+            'children' => [
+                [
+                    'label' => 'Job Postings',
+                    'route' => 'admin.job-posts.index',
+                    'icon' => 'briefcase',
+                    'active' => 'admin.job-posts.*',
+                ],
+            ],
+        ],
+
+        // 🔹 SYSTEM DATA
         [
             'label' => 'Manage Lists',
             'icon' => 'list',
@@ -65,6 +91,7 @@
             ],
         ],
 
+        // 🔹 SUBSCRIPTIONS
         [
             'label' => 'Subscriptions & Payments',
             'icon' => 'credit-card',
@@ -97,12 +124,15 @@
             ],
         ],
 
+        // 🔹 REPORTS
         [
             'label' => 'Reports',
             'route' => 'admin.reports',
             'icon' => 'bar-chart',
             'active' => 'admin.reports*',
         ],
+
+        // 🔹 MESSAGES
         [
             'label' => 'Messages',
             'route' => 'admin.messages.index',
@@ -113,17 +143,19 @@
     ];
 
     if ($adminUser && ($adminUser->role ?? null) === 'superadmin') {
-        // Admin Accounts
-        array_splice($items, 2, 0, [
-            [
-                'label' => 'Admin Accounts',
-                'route' => 'admin.admins.index',
-                'icon' => 'shield-check',
-                'active' => 'admin.admins.*',
-            ],
-        ]);
+        // Add Admin Accounts inside User Management
+        foreach ($items as &$item) {
+            if ($item['label'] === 'User Management') {
+                $item['children'][] = [
+                    'label' => 'Admin Accounts',
+                    'route' => 'admin.admins.index',
+                    'icon' => 'shield-check',
+                    'active' => 'admin.admins.*',
+                ];
+            }
+        }
 
-        // System Settings
+        // Add System Settings at bottom
         $items[] = [
             'label' => 'System Settings',
             'icon' => 'settings',
@@ -150,7 +182,6 @@
             ],
         ];
     }
-
     $isActive = function (array $it): bool {
         $pattern = $it['active'] ?? ($it['route'] ?? '') . '*';
         foreach (explode('|', $pattern) as $p) {
