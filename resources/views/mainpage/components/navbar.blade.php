@@ -1,6 +1,18 @@
 @php
-    $user = auth()->user();
-    $candidateProfile = $user?->candidateProfile;
+    $candidate = auth()->user();
+    $adminUser = auth('admin')->user();
+
+    $user = $candidate ?? $adminUser;
+
+    $role = null;
+
+    if ($candidate) {
+        $role = 'candidate';
+    } elseif ($adminUser) {
+        $role = $adminUser->role;
+    }
+
+    $candidateProfile = $candidate?->candidateProfile;
 
     $firstName = $user ? explode(' ', $user->name)[0] : '';
 
@@ -70,62 +82,52 @@
             <!-- AUTH -->
             <div class="hidden md:flex items-center gap-3">
 
-                @guest
-
+                @if (!$user)
                     <button id="loginBtnDesktop"
-                        class="px-4 py-2 rounded-lg font-medium nav-link text-white font-medium transition hover:text-white transition">
+                        class="px-4 py-2 rounded-lg font-medium nav-link text-white transition hover:text-white">
                         Login
                     </button>
 
                     <button id="registerBtnDesktop"
-                        class="px-5 py-2 rounded-xl font-semibold bg-[#16A34A] text-white
-                    hover:bg-green-600 transition shadow-md">
+                        class="px-5 py-2 rounded-xl font-semibold bg-[#16A34A] text-white hover:bg-green-600 transition shadow-md">
                         Register
                     </button>
+                @endif
 
-                @endguest
 
+                @if ($user)
 
-                @auth
-                    @if (auth()->user()->role === 'candidate')
+                    {{-- CANDIDATE --}}
+                    @if ($role === 'candidate')
                         <div x-data="{ open: false }" class="relative">
 
                             <button @click="open = !open"
                                 class="flex items-center gap-3 backdrop-blur-md
-    border border-white/30 rounded-xl px-3 py-2 shadow-sm hover:shadow-md transition">
+                border border-white/30 rounded-xl px-3 py-2 shadow-sm hover:shadow-md transition">
 
-                                {{-- PROFILE PHOTO --}}
                                 <div
                                     class="h-9 w-9 rounded-full overflow-hidden bg-green-100 flex items-center justify-center">
-
                                     @if ($photo)
                                         <img src="{{ $photo }}" class="w-full h-full object-cover">
                                     @else
                                         <x-lucide-icon name="user" class="h-4 w-4 text-green-700" />
                                     @endif
-
                                 </div>
 
-                                {{-- FIRST NAME ONLY --}}
                                 <span class="nav-link text-sm font-medium text-white">
                                     {{ $firstName }}
                                 </span>
 
                                 <x-lucide-icon name="chevron-down" class="nav-link h-4 w-4 text-white" />
-
                             </button>
-
-                            <!-- DROPDOWN -->
 
                             <div x-cloak x-show="open" x-transition @click.outside="open=false"
                                 class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100">
 
                                 <a href="{{ route('candidate.dashboard') }}"
                                     class="flex items-center gap-2 text-gray-700 px-4 py-3 hover:bg-gray-50 rounded-lg transition">
-
                                     <x-lucide-icon name="layout-dashboard" class="w-4 h-4" />
                                     Dashboard
-
                                 </a>
 
                                 <div class="border-t"></div>
@@ -134,18 +136,26 @@
                                     @csrf
                                     <button type="submit"
                                         class="w-full flex items-center gap-2 px-4 py-3 text-red-600 hover:bg-gray-50 rounded-lg transition">
-
                                         <x-lucide-icon name="log-out" class="w-4 h-4" />
                                         Log Out
-
                                     </button>
                                 </form>
 
                             </div>
-
                         </div>
                     @endif
-                @endauth
+
+                    {{-- ADMIN + SUPERADMIN --}}
+                    @if ($role === 'admin' || $role === 'superadmin')
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="px-5 py-2 rounded-xl font-semibold
+    bg-[#16A34A] text-white
+    hover:bg-green-600 transition shadow-md">
+                            Admin Dashboard
+                        </a>
+                    @endif
+
+                @endif
 
             </div>
 
@@ -210,8 +220,7 @@
 
             <div class="border-t"></div>
 
-            @guest
-
+            @if (!$user)
                 <button id="loginBtnMobile" class="mx-6 mt-4 py-2 border border-green-600 text-green-600 rounded-lg">
                     Login
                 </button>
@@ -219,28 +228,30 @@
                 <button id="registerBtnMobile" class="mx-6 my-4 py-2 bg-green-600 text-white rounded-lg">
                     Register
                 </button>
+            @endif
 
-            @endguest
+            @if ($user)
 
+                @if ($role === 'candidate')
+                    <a href="{{ route('candidate.dashboard') }}"
+                        class="mx-6 mt-4 py-2 text-center border border-gray-200 rounded-lg">
+                        Dashboard
+                    </a>
 
-            @auth
+                    <form method="POST" action="{{ route('candidate.logout') }}" class="mx-6 my-4">
+                        @csrf
+                        <button type="submit" class="w-full py-2 bg-red-600 text-white rounded-lg">
+                            Logout
+                        </button>
+                    </form>
+                @elseif ($role === 'admin' || $role === 'superadmin')
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="mx-6 mt-4 py-2 text-center bg-[#16A34A] hover:bg-green-600 text-white rounded-lg">
+                        Admin Dashboard
+                    </a>
+                @endif
 
-                <a href="{{ route('candidate.dashboard') }}"
-                    class="mx-6 mt-4 py-2 text-center border border-gray-200 rounded-lg">
-                    Dashboard
-                </a>
-
-                <form method="POST" action="{{ route('candidate.logout') }}" class="mx-6 my-4">
-                    @csrf
-
-                    <button type="submit" class="w-full py-2 bg-red-600 text-white rounded-lg">
-                        Logout
-                    </button>
-
-                </form>
-
-            @endauth
-
+            @endif
         </div>
 
     </div>

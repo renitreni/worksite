@@ -35,6 +35,14 @@
             {{-- Notification Bell --}}
             <x-notification-bell />
 
+            <a href="{{ route('home') }}" target="_blank"
+                class="hidden lg:inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 transition">
+
+                <x-lucide-icon name="external-link" class="w-4 h-4" />
+
+                View Site
+            </a>
+
             {{-- Logout (desktop only) --}}
             <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                 @csrf
