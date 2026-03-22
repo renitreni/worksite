@@ -18,8 +18,11 @@ class ResumeController extends Controller
 
     public function index()
     {
-        $resumes = $this->service->getAll();
+        $data = $this->service->getAll();
 
-        return view('adminpage.contents.cv-table', compact('resumes'));
+        $resumes = $data['resumes'];
+        $stats = $data['stats'];
+
+        return view('adminpage.contents.cv-table', compact('resumes', 'stats'));
     }
 }

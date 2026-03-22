@@ -5,26 +5,80 @@
 @section('content')
 
     <div class="space-y-6" x-data="cvUI()" x-cloak>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-        {{-- HEADER --}}
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div class="flex justify-between items-center">
-                <div class="text-sm text-slate-500">
-                    Total CVs:
-                    <span class="font-semibold text-slate-900">
-                        {{ $resumes->total() }}
-                    </span>
+            {{-- TOTAL CV --}}
+            <div class="rounded-2xl bg-white p-5 shadow-sm hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+
+                    <div>
+                        <div class="text-xs text-slate-500">Total CV Uploaded</div>
+                        <div class="text-2xl font-bold text-slate-900 mt-1">
+                            {{ $stats['total_cv'] }}
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-slate-100 p-3">
+                        <x-lucide-icon name="file-text" class="h-5 w-5 text-slate-600" />
+                    </div>
+
                 </div>
             </div>
+
+            {{-- APPLIED WITH CV --}}
+            <div class="rounded-2xl bg-white p-5 shadow-sm hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+
+                    <div>
+                        <div class="text-xs text-slate-500">Applied (With CV)</div>
+                        <div class="text-2xl font-bold text-emerald-600 mt-1">
+                            {{ $stats['applied_with_cv'] }}
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-emerald-50 p-3">
+                        <x-lucide-icon name="check-circle" class="h-5 w-5 text-emerald-600" />
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- APPLIED BUT REMOVED --}}
+            <div class="rounded-2xl bg-white p-5 shadow-sm hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+
+                    <div>
+                        <div class="text-xs text-slate-500">Applied (CV Removed)</div>
+                        <div class="text-2xl font-bold text-rose-500 mt-1">
+                            {{ $stats['applied_removed_cv'] }}
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl bg-rose-50 p-3">
+                        <x-lucide-icon name="alert-circle" class="h-5 w-5 text-rose-500" />
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
-        {{-- TABLE --}}
+        {{-- 🔥 TABLE --}}
         <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div class="border-b border-slate-200 p-5">
                 <div class="text-sm font-semibold">Candidate Resumes</div>
                 <div class="text-xs text-slate-500">Unified CV + Applications view</div>
             </div>
+
+            @php
+                // ✅ FILTER OUT useless rows
+                $filtered = $resumes->filter(function ($resume) {
+                    $hasCv = $resume->resume_path && Storage::disk('public')->exists($resume->resume_path);
+                    $hasApplication = $resume->user?->jobApplications?->count() > 0;
+                    return $hasCv || $hasApplication;
+                });
+            @endphp
 
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left">
@@ -40,34 +94,55 @@
 
                     <tbody class="divide-y divide-slate-200">
 
-                        @forelse ($resumes as $resume)
+                        @forelse ($filtered as $resume)
 
                             @php
                                 $user = $resume->user;
                                 $applications = $user?->jobApplications ?? collect();
+
                                 $hasCv = $resume->resume_path && Storage::disk('public')->exists($resume->resume_path);
                             @endphp
 
                             <tr class="hover:bg-slate-50 align-top">
 
-                                {{-- USER --}}
+                                {{-- ✅ USER --}}
                                 <td class="px-5 py-4">
-                                    <div class="font-semibold text-slate-900">
-                                        {{ $user->name ?? '—' }}
+                                    <div class="flex items-center gap-2">
+
+                                        <div class="font-semibold text-slate-900">
+                                            {{ $user->name ?? '—' }}
+                                        </div>
+
+                                        {{-- STATUS BADGE --}}
+                                        @if ($hasCv && $applications->count())
+                                            <span class="text-xs bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full">
+                                                Applied
+                                            </span>
+                                        @elseif ($hasCv)
+                                            <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">
+                                                CV Only
+                                            </span>
+                                        @elseif ($applications->count())
+                                            <span class="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full">
+                                                CV Removed
+                                            </span>
+                                        @endif
+
                                     </div>
+
                                     <div class="text-xs text-slate-500">
                                         {{ $user->email ?? '—' }}
                                     </div>
                                 </td>
 
-                                {{-- APPLICATIONS --}}
+                                {{-- ✅ APPLICATIONS --}}
                                 <td class="px-5 py-4">
 
                                     @if ($applications->count())
                                         <div class="flex flex-col gap-1">
 
                                             @foreach ($applications as $app)
-                                                <div class="text-sm text-slate-900 font-semibold">
+                                                <div class="text-sm font-semibold text-slate-900">
                                                     {{ $app->jobPost->title ?? 'No job title' }}
                                                 </div>
 
@@ -87,7 +162,7 @@
 
                                 </td>
 
-                                {{-- DATE --}}
+                                {{-- ✅ DATE --}}
                                 <td class="px-5 py-4">
                                     @if ($hasCv)
                                         {{ $resume->created_at->format('Y-m-d') }}
@@ -98,7 +173,7 @@
                                     @endif
                                 </td>
 
-                                {{-- CV --}}
+                                {{-- ✅ CV --}}
                                 <td class="px-5 py-4">
                                     @if ($hasCv)
                                         <a href="{{ asset('storage/' . $resume->resume_path) }}" target="_blank"
@@ -124,6 +199,7 @@
                         @endforelse
 
                     </tbody>
+
                 </table>
             </div>
 
@@ -156,6 +232,7 @@
                 </div>
 
             </div>
+
         </div>
 
     </div>
