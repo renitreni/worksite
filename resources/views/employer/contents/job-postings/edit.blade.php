@@ -62,6 +62,28 @@
                         }
                     }
                 }
+
+                // Extract custom skills (those NOT in predefined skills)
+                $customSkillsText = '';
+
+                if ($rawSkills !== '') {
+                    $allParts = collect(explode(',', $rawSkills))->map(fn($s) => trim($s))->filter();
+
+                    if (!empty($currentIndustryId)) {
+                        $existingSkillNames = \App\Models\Skill::where('industry_id', $currentIndustryId)
+                            ->pluck('name')
+                            ->map(fn($n) => strtolower($n));
+
+                        $customSkills = $allParts->filter(function ($skill) use ($existingSkillNames) {
+                            return !$existingSkillNames->contains(strtolower($skill));
+                        });
+
+                        $customSkillsText = $customSkills->implode(', ');
+                    } else {
+                        // fallback: assume all are custom
+                        $customSkillsText = $allParts->implode(', ');
+                    }
+                }
             @endphp
 
             <form action="{{ route('employer.job-postings.update', $job->id) }}" method="POST"
@@ -70,30 +92,41 @@
                 @method('PUT')
 
                 {{-- Job Details --}}
-                <div class="space-y-6">
-                    <h2 class="text-base font-semibold text-slate-900">Job Details</h2>
+                <div class="space-y-8">
+
+                    <h2 class="text-lg font-semibold text-slate-900">Job Details</h2>
 
                     {{-- Title --}}
-                    <div>
-                        <label for="title" class="block text-sm font-medium text-slate-700">
-                            Job Title <span class="text-red-500">*</span>
+                    <div class="space-y-1">
+                        <label for="title" class="block text-sm font-medium text-slate-800">
+                            Job Title <span class="text-red-500">(Required)</span>
                         </label>
+
                         <input type="text" name="title" id="title" value="{{ old('title', $job->title) }}"
-                            class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                            placeholder="e.g. Welder, Caregiver"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
+                        <p class="text-xs text-slate-500">
+                            Enter the main job position you are hiring for.
+                        </p>
+
                         @error('title')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    {{-- Industry (ID) --}}
-                    <div>
-                        <label for="industry_id" class="block text-sm font-medium text-slate-700">
-                            Industry <span class="text-red-500">*</span>
+                    {{-- Industry --}}
+                    <div class="space-y-1">
+                        <label for="industry_id" class="block text-sm font-medium text-slate-800">
+                            Industry <span class="text-red-500">(Required)</span>
                         </label>
-                        <div class="mt-2 relative">
+
+                        <div class="relative">
                             <select name="industry_id" id="industry_id"
-                                class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                <option value="">Select Industry</option>
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+
+                                <option value="">Select industry</option>
+
                                 @foreach ($industries ?? [] as $ind)
                                     <option value="{{ $ind->id }}"
                                         {{ (string) $oldIndustryId === (string) $ind->id ? 'selected' : '' }}>
@@ -101,52 +134,82 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+
+
                         </div>
+
+                        <p class="text-xs text-slate-500">
+                            Selecting an industry will load relevant skills below.
+                        </p>
+
                         @error('industry_id')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    {{-- Skills (AJAX by Industry) --}}
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">
-                            Skills <span class="text-red-500">*</span>
+                    {{-- Skills --}}
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-slate-800">
+                            Skills <span class="text-red-500">(Required)</span>
                         </label>
-                        <div id="skillsHint" class="mt-2 text-xs text-slate-500">
-                            Select an industry to load skills.
+
+                        <p class="text-xs text-slate-500">
+                            Select all applicable skills for this job.
+                        </p>
+
+                        <div id="skillsHint" class="text-xs text-slate-500">
+                            Skills will load automatically after selecting an industry.
                         </div>
 
-                        <div id="skillsGrid" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                        <div id="skillsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        </div>
 
                         @error('skills')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                         @error('skills.*')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    {{-- Custom Skills --}}
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-800">
+                            Custom Skills <span class="text-slate-400">(Optional)</span>
+                        </label>
+
+                        <input type="text" name="custom_skills" value="{{ old('custom_skills', $customSkillsText) }}"
+                            placeholder="e.g. Welding, Machine Operation"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
+                        <p class="text-xs text-slate-500">
+                            Separate multiple skills using commas.
+                        </p>
+                    </div>
+
                 </div>
 
-                <div class="h-px bg-slate-200"></div>
+                <div class="h-px bg-slate-700"></div>
 
                 {{-- Location & Compensation --}}
-                <div class="space-y-6">
-                    <h2 class="text-base font-semibold text-slate-900">Location & Compensation</h2>
+                <div class="space-y-8">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <h2 class="text-lg font-semibold text-slate-900">Location & Compensation</h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
                         {{-- Country --}}
-                        <div>
-                            <label for="country" class="block text-sm font-medium text-slate-700">
-                                Country <span class="text-red-500">*</span>
+                        <div class="space-y-1">
+                            <label for="country" class="block text-sm font-medium text-slate-800">
+                                Country <span class="text-red-500">(Required)</span>
                             </label>
-                            <div class="mt-2 relative">
+
+                            <div class="relative">
                                 <select name="country" id="country"
-                                    class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="">Select Country</option>
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+
+                                    <option value="">Select country</option>
+
                                     @foreach ($countries ?? [] as $country)
                                         <option value="{{ $country }}"
                                             {{ old('country', $job->country) == $country ? 'selected' : '' }}>
@@ -154,394 +217,469 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
+
                             </div>
+
+                            <p class="text-xs text-slate-500">
+                                Select where the job is located.
+                            </p>
+
                             @error('country')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         {{-- City --}}
-                        <div x-data="{ useCustomCity: {{ old('city_custom') ? 'true' : 'false' }} }">
-                            <label for="city" class="block text-sm font-medium text-slate-700">City</label>
-                            <div class="mt-2 relative">
+                        <div x-data="{ useCustomCity: {{ old('city_custom') ? 'true' : 'false' }} }" class="space-y-1">
+                            <label for="city" class="block text-sm font-medium text-slate-800">
+                                City <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <div class="relative">
                                 <select name="city" id="city"
                                     @change="useCustomCity = ($event.target.value === '__custom__')"
-                                    class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="">Select City</option>
-                                    <option value="__custom__" :selected="useCustomCity">Other (type manually)</option>
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+
+                                    <option value="">Select city</option>
+                                    <option value="__custom__" :selected="useCustomCity">
+                                        Other (type manually)
+                                    </option>
                                 </select>
-                                <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
+
+
                             </div>
 
-                            <div x-show="useCustomCity" x-cloak class="mt-3">
-                                <label for="city_custom" class="block text-xs font-semibold text-slate-600">
-                                    Enter City (will be sent for admin approval)
-                                </label>
+                            <p class="text-xs text-slate-500">
+                                Choose a city or enter manually.
+                            </p>
+
+                            {{-- Custom City --}}
+                            <div x-show="useCustomCity" x-cloak class="space-y-1">
                                 <input type="text" name="city_custom" id="city_custom" value="{{ old('city_custom') }}"
-                                    placeholder="Type city..."
-                                    class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                    placeholder="Enter city"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
+                                <p class="text-xs text-slate-500">
+                                    Custom entries will be reviewed.
+                                </p>
+
                                 @error('city_custom')
-                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             @error('city')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs">{{ $message }}</p>
                             @enderror
                         </div>
 
                         {{-- Area --}}
-                        <div x-data="{ useCustomArea: {{ old('area_custom') ? 'true' : 'false' }} }">
-                            <label for="area" class="block text-sm font-medium text-slate-700">Area</label>
-                            <div class="mt-2 relative">
+                        <div x-data="{ useCustomArea: {{ old('area_custom') ? 'true' : 'false' }} }" class="space-y-1">
+                            <label for="area" class="block text-sm font-medium text-slate-800">
+                                Area <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <div class="relative">
                                 <select name="area" id="area"
                                     @change="useCustomArea = ($event.target.value === '__custom__')"
-                                    class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="">Select Area</option>
-                                    <option value="__custom__" :selected="useCustomArea">Other (type manually)</option>
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+
+                                    <option value="">Select area</option>
+                                    <option value="__custom__" :selected="useCustomArea">
+                                        Other (type manually)
+                                    </option>
                                 </select>
-                                <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
+
                             </div>
 
-                            <div x-show="useCustomArea" x-cloak class="mt-3">
-                                <label for="area_custom" class="block text-xs font-semibold text-slate-600">
-                                    Enter Area (will be sent for admin approval)
-                                </label>
+                            <p class="text-xs text-slate-500">
+                                Optional: specify a more detailed location.
+                            </p>
+
+                            {{-- Custom Area --}}
+                            <div x-show="useCustomArea" x-cloak class="space-y-1">
                                 <input type="text" name="area_custom" id="area_custom"
-                                    value="{{ old('area_custom') }}" placeholder="Type area..."
-                                    class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                    value="{{ old('area_custom') }}" placeholder="Enter area"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
+                                <p class="text-xs text-slate-500">
+                                    Custom entries will be reviewed.
+                                </p>
+
                                 @error('area_custom')
-                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             @error('area')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs">{{ $message }}</p>
                             @enderror
                         </div>
+
                     </div>
 
-                    {{-- Experience + Salary --}}
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div>
-                            <label for="min_experience_years" class="block text-sm font-medium text-slate-700">
-                                Min. Experience (Years)
-                            </label>
-                            <input type="number" min="0" name="min_experience_years" id="min_experience_years"
-                                value="{{ old('min_experience_years', $job->min_experience_years) }}"
-                                class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            @error('min_experience_years')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700">Salary Range (optional)</label>
-                            <div class="mt-2 grid grid-cols-2 gap-3">
-                                <div class="relative">
-                                    <span
-                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold"
-                                        id="salarySymbol">₱</span>
-                                    <input type="number" step="0.01" min="0" name="salary_min"
-                                        id="salary_min" value="{{ old('salary_min', $job->salary_min) }}"
-                                        placeholder="Minimum"
-                                        class="pl-10 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                </div>
-
-                                <div class="relative">
-                                    <span
-                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold">—</span>
-                                    <input type="number" step="0.01" min="0" name="salary_max"
-                                        id="salary_max" value="{{ old('salary_max', $job->salary_max) }}"
-                                        placeholder="Maximum"
-                                        class="pl-10 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                </div>
-                            </div>
-                            @error('salary_min')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                            @enderror
-                            @error('salary_max')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="salary_currency" class="block text-sm font-medium text-slate-700">Currency</label>
-                            <div class="mt-2 relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M19 9h2m-2 0a2 2 0 00-2 2v2a2 2 0 002 2h2m-4-6h2m0 0V7m0 10v-2" />
-                                    </svg>
-                                </span>
-                                <select name="salary_currency" id="salary_currency"
-                                    class="pl-10 block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    @foreach ($currencies ?? [] as $code => $name)
-                                        <option value="{{ $code }}"
-                                            {{ old('salary_currency', $job->salary_currency ?? 'PHP') == $code ? 'selected' : '' }}>
-                                            {{ $code }} — {{ $name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                            @error('salary_currency')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
                 </div>
 
-                <div class="h-px bg-slate-200"></div>
+                {{-- Experience + Salary --}}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {{-- Content + Fees --}}
-                <div class="space-y-6">
-                    <h2 class="text-base font-semibold text-slate-900">Descriptions & Fees</h2>
-
-                    {{-- Required Education --}}
-                    <div>
-                        <label for="education_level" class="block text-sm font-medium text-slate-700">
-                            Required Education
+                    {{-- Experience --}}
+                    <div class="space-y-1">
+                        <label for="min_experience_years" class="block text-sm font-medium text-slate-800">
+                            Minimum Experience <span class="text-slate-400">(Optional)</span>
                         </label>
 
-                        <div class="mt-2 relative">
-                            <select name="education_level" id="education_level"
-                                class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                <option value=""
-                                    {{ old('education_level', $job->education_level) === null || old('education_level', $job->education_level) === '' ? 'selected' : '' }}>
-                                    Any / Not required
-                                </option>
+                        <input type="number" min="0" name="min_experience_years" id="min_experience_years"
+                            value="{{ old('min_experience_years', $job->min_experience_years) }}" placeholder="e.g. 2"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
 
+                        <p class="text-xs text-slate-500">
+                            Years of experience required for this role.
+                        </p>
+
+                        @error('min_experience_years')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Salary Range --}}
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-800">
+                            Salary Range <span class="text-slate-400">(Optional)</span>
+                        </label>
+
+                        <div class="grid grid-cols-2 gap-3">
+
+                            {{-- Min --}}
+                            <input type="number" step="0.01" min="0" name="salary_min" id="salary_min"
+                                value="{{ old('salary_min', $job->salary_min) }}" placeholder="Minimum"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
+                            {{-- Max --}}
+                            <input type="number" step="0.01" min="0" name="salary_max" id="salary_max"
+                                value="{{ old('salary_max', $job->salary_max) }}" placeholder="Maximum"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+                        </div>
+
+                        <p class="text-xs text-slate-500">
+                            Example: 20000 (min) and 40000 (max)
+                        </p>
+
+                        @error('salary_min')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                        @error('salary_max')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Currency --}}
+                    <div class="space-y-1">
+                        <label for="salary_currency" class="block text-sm font-medium text-slate-800">
+                            Currency <span class="text-slate-400">(Optional)</span>
+                        </label>
+
+                        <div class="relative">
+                            <select name="salary_currency" id="salary_currency"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+
+                                @foreach ($currencies ?? [] as $code => $name)
+                                    <option value="{{ $code }}"
+                                        {{ old('salary_currency', $job->salary_currency ?? 'PHP') == $code ? 'selected' : '' }}>
+                                        {{ $code }} — {{ $name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <p class="text-xs text-slate-500">
+                            Select the currency for the salary range.
+                        </p>
+
+                        @error('salary_currency')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                </div>
+
+                <div class="h-px bg-slate-700"></div>
+
+                {{-- Content + Fees --}}
+                <div class="space-y-8">
+
+                    <h2 class="text-lg font-semibold text-slate-900">Descriptions & Fees</h2>
+
+                    {{-- Education --}}
+                    <div class="space-y-1">
+                        <label for="education_level" class="block text-sm font-medium text-slate-800">
+                            Required Education <span class="text-slate-400">(Optional)</span>
+                        </label>
+
+                        <div class="relative">
+                            <select name="education_level" id="education_level"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+
+                                <option value="">Any / Not required</option>
                                 <option value="high_school"
                                     {{ old('education_level', $job->education_level) === 'high_school' ? 'selected' : '' }}>
-                                    High school diploma
-                                </option>
-
+                                    High school diploma</option>
                                 <option value="college"
                                     {{ old('education_level', $job->education_level) === 'college' ? 'selected' : '' }}>
-                                    College graduate
-                                </option>
-
+                                    College graduate</option>
                                 <option value="masteral"
                                     {{ old('education_level', $job->education_level) === 'masteral' ? 'selected' : '' }}>
-                                    Masteral degree
-                                </option>
-
+                                    Masteral degree</option>
                                 <option value="phd"
-                                    {{ old('education_level', $job->education_level) === 'phd' ? 'selected' : '' }}>
-                                    PhD / Doctorate
-                                </option>
+                                    {{ old('education_level', $job->education_level) === 'phd' ? 'selected' : '' }}>PhD /
+                                    Doctorate</option>
                             </select>
 
-                            <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
-                            </svg>
+
                         </div>
+
+                        <p class="text-xs text-slate-500">
+                            Leave as “Any” if no specific education is required.
+                        </p>
 
                         @error('education_level')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label for="gender" class="block text-sm font-medium text-slate-700">Gender <span
-                                    class="text-red-500">*</span></label>
-                            <div class="mt-2 relative">
-                                <select name="gender" id="gender"
-                                    class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="both" {{ old('gender', $job->gender) == 'both' ? 'selected' : '' }}>
-                                        Both</option>
-                                    <option value="male" {{ old('gender', $job->gender) == 'male' ? 'selected' : '' }}>
-                                        Male</option>
-                                    <option value="female"
-                                        {{ old('gender', $job->gender) == 'female' ? 'selected' : '' }}>Female</option>
-                                </select>
-                                <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
+
+                    {{-- Gender + Age --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+                        {{-- Gender --}}
+                        <div class="space-y-1">
+                            <label for="gender" class="block text-sm font-medium text-slate-800">
+                                Gender <span class="text-red-500">(Required)</span>
+                            </label>
+
+                            <select name="gender" id="gender"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">
+
+                                <option value="both" {{ old('gender', $job->gender) == 'both' ? 'selected' : '' }}>Both
+                                </option>
+                                <option value="male" {{ old('gender', $job->gender) == 'male' ? 'selected' : '' }}>Male
+                                </option>
+                                <option value="female" {{ old('gender', $job->gender) == 'female' ? 'selected' : '' }}>
+                                    Female</option>
+                            </select>
+
                             @error('gender')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="age_min" class="block text-sm font-medium text-slate-700">Age Min</label>
-                            <input type="number" min="0" name="age_min" id="age_min"
-                                value="{{ old('age_min', $job->age_min) }}"
-                                class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                        {{-- Age Min --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                Minimum Age <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <input type="number" name="age_min" value="{{ old('age_min', $job->age_min) }}"
+                                placeholder="e.g. 21"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">
+
                             @error('age_min')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="age_max" class="block text-sm font-medium text-slate-700">Age Max</label>
-                            <input type="number" min="0" name="age_max" id="age_max"
-                                value="{{ old('age_max', $job->age_max) }}"
-                                class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                        {{-- Age Max --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                Maximum Age <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <input type="number" name="age_max" value="{{ old('age_max', $job->age_max) }}"
+                                placeholder="e.g. 45"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">
+
                             @error('age_max')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="apply_until" class="block text-sm font-medium text-slate-700">Apply Until</label>
-                            <input type="date" name="apply_until" id="apply_until"
+                    {{-- Dates --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                        {{-- Apply Until --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                Application Deadline <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <input type="date" name="apply_until"
                                 value="{{ old('apply_until', optional($job->apply_until)->format('Y-m-d')) }}"
-                                class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">
+
                             @error('apply_until')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="status" class="block text-sm font-medium text-slate-700">Status</label>
-                            <div class="mt-2 relative">
-                                <select name="status" id="status"
-                                    class="block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                                    <option value="open" {{ old('status', $job->status) == 'open' ? 'selected' : '' }}>
-                                        Open</option>
-                                    <option value="closed"
-                                        {{ old('status', $job->status) == 'closed' ? 'selected' : '' }}>Closed</option>
-                                </select>
-                                <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
+                        {{-- Status --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                Status
+                            </label>
+
+                            <select name="status" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">
+
+                                <option value="open" {{ old('status', $job->status) == 'open' ? 'selected' : '' }}>Open
+                                </option>
+                                <option value="closed" {{ old('status', $job->status) == 'closed' ? 'selected' : '' }}>
+                                    Closed</option>
+                            </select>
+
                             @error('status')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
                     </div>
 
-                    <div>
-                        <label for="job_description" class="block text-sm font-medium text-slate-700">Job Description
-                            <span class="text-red-500">*</span></label>
-                        <textarea name="job_description" id="job_description" rows="6"
-                            class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('job_description', $job->job_description) }}</textarea>
-                        @error('job_description')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                        @enderror
+                    {{-- Text Areas --}}
+                    <div class="space-y-6">
+
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-800">
+                                Job Description <span class="text-red-500">(Required)</span>
+                            </label>
+
+                            <textarea name="job_description" rows="6" placeholder="Describe responsibilities, tasks, and expectations..."
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">{{ old('job_description', $job->job_description) }}</textarea>
+
+                            @error('job_description')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-800">
+                                Job Qualifications <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <textarea name="job_qualifications" rows="4" placeholder="Required skills, certifications, or experience..."
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">{{ old('job_qualifications', $job->job_qualifications) }}</textarea>
+
+                            @error('job_qualifications')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-800">
+                                Additional Information <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <textarea name="additional_information" rows="4" placeholder="Benefits, schedule, or additional notes..."
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm">{{ old('additional_information', $job->additional_information) }}</textarea>
+
+                            @error('additional_information')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                     </div>
 
-                    <div>
-                        <label for="job_qualifications" class="block text-sm font-medium text-slate-700">Job
-                            Qualifications</label>
-                        <textarea name="job_qualifications" id="job_qualifications" rows="4"
-                            class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('job_qualifications', $job->job_qualifications) }}</textarea>
-                        @error('job_qualifications')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                        @enderror
-                    </div>
+                </div>
 
-                    <div>
-                        <label for="additional_information" class="block text-sm font-medium text-slate-700">Additional
-                            Information</label>
-                        <textarea name="additional_information" id="additional_information" rows="4"
-                            class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">{{ old('additional_information', $job->additional_information) }}</textarea>
-                        @error('additional_information')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <div class="space-y-8">
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="principal_employer" class="block text-sm font-medium text-slate-700">Principal /
-                                Employer</label>
-                            <input type="text" name="principal_employer" id="principal_employer"
+                    {{-- Employer Info --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                        {{-- Employer --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                Principal / Employer <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <input type="text" name="principal_employer"
                                 value="{{ old('principal_employer', $job->principal_employer) }}"
-                                class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                placeholder="Company name"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
                             @error('principal_employer')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="dmw_registration_no" class="block text-sm font-medium text-slate-700">DMW
-                                Reg/Accreditation No.</label>
-                            <input type="text" name="dmw_registration_no" id="dmw_registration_no"
+                        {{-- DMW --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                DMW Accreditation No. <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <input type="text" name="dmw_registration_no"
                                 value="{{ old('dmw_registration_no', $job->dmw_registration_no) }}"
-                                class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                                placeholder="e.g. DMW-123456"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
+                            <p class="text-xs text-slate-500">
+                                Required for overseas job postings.
+                            </p>
+
                             @error('dmw_registration_no')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
                     </div>
 
-                    <div>
-                        <label for="principal_employer_address" class="block text-sm font-medium text-slate-700">Principal
-                            / Employer Address</label>
-                        <input type="text" name="principal_employer_address" id="principal_employer_address"
+                    {{-- Address --}}
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-slate-800">
+                            Employer Address <span class="text-slate-400">(Optional)</span>
+                        </label>
+
+                        <input type="text" name="principal_employer_address"
                             value="{{ old('principal_employer_address', $job->principal_employer_address) }}"
-                            class="mt-2 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                            placeholder="Full address of employer"
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
                         @error('principal_employer_address')
-                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div>
-                            <label for="placement_fee" class="block text-sm font-medium text-slate-700">Placement Fee
-                                (optional)</label>
-                            <div class="mt-2 relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-semibold"
-                                    id="feeSymbol">₱</span>
-                                <input type="number" step="0.01" name="placement_fee" id="placement_fee"
-                                    value="{{ old('placement_fee', $job->placement_fee) }}"
-                                    class="pl-10 block w-full rounded-2xl border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
-                            </div>
+                    {{-- Placement Fee --}}
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        {{-- Fee --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                Placement Fee <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <input type="number" step="0.01" name="placement_fee"
+                                value="{{ old('placement_fee', $job->placement_fee) }}" placeholder="e.g. 15000"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none">
+
+                            <p class="text-xs text-slate-500">
+                                Enter amount only (no symbols).
+                            </p>
+
                             @error('placement_fee')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="placement_fee_currency" class="block text-sm font-medium text-slate-700">Placement
-                                Fee Currency</label>
-                            <div class="mt-2 relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M19 9h2m-2 0a2 2 0 00-2 2v2a2 2 0 002 2h2m-4-6h2m0 0V7m0 10v-2" />
-                                    </svg>
-                                </span>
-                                <select name="placement_fee_currency" id="placement_fee_currency"
-                                    class="pl-10 block w-full appearance-none rounded-2xl border-slate-300 bg-white px-4 py-3 pr-10 text-slate-900 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
+                        {{-- Currency --}}
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-slate-800">
+                                Fee Currency <span class="text-slate-400">(Optional)</span>
+                            </label>
+
+                            <div class="relative">
+                                <select name="placement_fee_currency"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm bg-white focus:border-emerald-500 focus:outline-none">
+
                                     @foreach ($currencies ?? [] as $code => $name)
                                         <option value="{{ $code }}"
                                             {{ old('placement_fee_currency', $job->placement_fee_currency ?? 'PHP') == $code ? 'selected' : '' }}>
@@ -549,19 +687,19 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <svg class="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
+
+
                             </div>
+
                             @error('placement_fee_currency')
-                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
                     </div>
+
                 </div>
+
 
                 @php $backUrl = url()->previous(); @endphp
                 <div class="pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">

@@ -82,14 +82,41 @@ class EmployerJobService
         $validated['area'] = $area;
 
         $industry = Industry::findOrFail($validated['industry_id']);
-
-        $skills = Skill::where('industry_id', $industry->id)
-            ->whereIn('id', $validated['skills'])
-            ->pluck('name');
-
         $validated['industry'] = $industry->name;
-        $validated['skills'] = $skills->implode(',');
 
+        $selectedSkills = collect();
+
+        if (!empty($validated['skills'])) {
+            $selectedSkills = Skill::where('industry_id', $industry->id)
+                ->whereIn('id', $validated['skills'])
+                ->pluck('name');
+        }
+
+        // Handle custom skills
+        $customSkills = collect();
+
+        if (!empty($request->custom_skills)) {
+            $customSkills = collect(explode(',', $request->custom_skills))
+                ->map(fn($s) => trim($s))
+                ->filter();
+        }
+
+        // OPTIONAL 🔥 (recommended): save new skills into DB
+        foreach ($customSkills as $skillName) {
+            Skill::firstOrCreate([
+                'name' => $skillName,
+                'industry_id' => $industry->id
+            ]);
+        }
+
+        // Merge all
+        $allSkills = $selectedSkills
+            ->merge($customSkills)
+            ->unique()
+            ->values();
+
+        $validated['skills'] = $allSkills->implode(',');
+        
         unset($validated['city_custom'], $validated['area_custom']);
 
         $job->update($validated);
@@ -109,13 +136,40 @@ class EmployerJobService
         $validated['area'] = $area;
 
         $industry = Industry::findOrFail($validated['industry_id']);
-
-        $skills = Skill::where('industry_id', $industry->id)
-            ->whereIn('id', $validated['skills'])
-            ->pluck('name');
-
         $validated['industry'] = $industry->name;
-        $validated['skills'] = $skills->implode(',');
+
+        $selectedSkills = collect();
+
+        if (!empty($validated['skills'])) {
+            $selectedSkills = Skill::where('industry_id', $industry->id)
+                ->whereIn('id', $validated['skills'])
+                ->pluck('name');
+        }
+
+        // Handle custom skills
+        $customSkills = collect();
+
+        if (!empty($request->custom_skills)) {
+            $customSkills = collect(explode(',', $request->custom_skills))
+                ->map(fn($s) => trim($s))
+                ->filter();
+        }
+
+        // OPTIONAL 🔥 (recommended): save new skills into DB
+        foreach ($customSkills as $skillName) {
+            Skill::firstOrCreate([
+                'name' => $skillName,
+                'industry_id' => $industry->id
+            ]);
+        }
+
+        // Merge all
+        $allSkills = $selectedSkills
+            ->merge($customSkills)
+            ->unique()
+            ->values();
+
+        $validated['skills'] = $allSkills->implode(',');
 
         $validated['posted_at'] = now();
         $validated['status'] = 'open';
@@ -157,8 +211,9 @@ class EmployerJobService
         return $request->validate([
             'title' => 'required|string|max:255',
             'industry_id' => 'required|exists:industries,id',
-            'skills' => 'required|array|min:1',
+            'skills' => 'nullable|array',
             'skills.*' => 'integer|exists:skills,id',
+            'custom_skills' => 'nullable|string',
 
             'country' => 'required|string|max:255',
             'city' => 'nullable|string|max:255',
