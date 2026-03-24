@@ -45,11 +45,12 @@
                 <div class="bg-white border border-gray-200 rounded-xl p-10 text-center">
 
                     <h3 class="text-lg font-semibold text-gray-900">
-                        No jobs available
+                        No openings in this field yet
                     </h3>
 
                     <p class="text-gray-500 mt-2">
-                        There are currently no job listings in this industry.
+                        We don’t have available positions for this industry at the moment. Upload your CV to stay ahead—our
+                        partner employers may reach out as soon as a suitable opportunity becomes available.
                     </p>
 
                 </div>

@@ -1,12 +1,15 @@
 @php
+    use Illuminate\Support\Facades\Storage;
+
     $u = auth()->user();
     $resume = $u?->candidateResume;
+
+    $resumeExists = $resume && $resume->resume_path && Storage::disk('public')->exists($resume->resume_path);
 
     $fullNameDefault = $u ? (trim(($u->first_name ?? '') . ' ' . ($u->last_name ?? '')) ?: $u->name ?? '') : '';
     $emailDefault = $u?->email ?? '';
     $phoneDefault = $u?->phone ?? '';
 @endphp
-
 <div x-cloak x-show="modal === 'apply'" x-transition.opacity
     class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6">
 
@@ -20,24 +23,47 @@
         email: @js(old('email', $emailDefault)),
         phone: @js(old('phone', $phoneDefault)),
     
+        // Resume state
         resumeName: '',
+        resumeFile: null,
+        resumePreview: '',
     
         next() {
             if (this.step === 1) {
-                if (!this.full_name || !this.email) return
+                if (!this.full_name || !this.email) return;
             }
-            this.step = Math.min(3, this.step + 1)
+            this.step = Math.min(3, this.step + 1);
         },
     
         back() {
-            this.step = Math.max(1, this.step - 1)
+            this.step = Math.max(1, this.step - 1);
         },
     
         canGoNext() {
             if (this.step === 1) {
-                return !!this.full_name && !!this.email
+                return !!this.full_name && !!this.email;
             }
-            return true
+            return true;
+        },
+    
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+    
+            // Clean old preview
+            if (this.resumePreview) {
+                URL.revokeObjectURL(this.resumePreview);
+            }
+    
+            if (!file) {
+                this.resumeFile = null;
+                this.resumeName = '';
+                this.resumePreview = '';
+                return;
+            }
+    
+            this.resumeFile = file;
+            this.resumeName = file.name;
+            this.resumePreview = URL.createObjectURL(file);
         }
     }" x-trap.noscroll="modal === 'apply'"
         class="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl ring-1 ring-black/5 overflow-hidden max-h-[92vh] flex flex-col">
@@ -148,49 +174,71 @@
 
                         <div class="flex justify-between items-start">
 
+                            {{-- LEFT SIDE --}}
                             <div>
                                 <div class="font-semibold text-slate-900">Resume</div>
-                                <div class="text-xs text-slate-500">PDF / DOC / DOCX • max 5MB</div>
+                                <div class="text-xs text-slate-500">
+                                    PDF / DOC / DOCX • max 5MB
+                                </div>
                             </div>
 
-                            @if ($resume)
-                                <div class="text-right">
+                            {{-- RIGHT SIDE STATUS (🔥 FIXED REACTIVE UI) --}}
+                            <div class="text-right">
 
-                                    <div class="text-xs font-semibold text-emerald-700">
-                                        Resume on file
+                                {{-- ✅ PRIORITY: NEWLY SELECTED FILE --}}
+                                <template x-if="resumeName">
+                                    <div>
+                                        <div class="text-xs font-semibold text-emerald-700">
+                                            New resume selected
+                                        </div>
+
+                                        <div class="text-xs text-slate-500" x-text="resumeName"></div>
                                     </div>
+                                </template>
 
-                                    <a href="{{ asset('storage/' . $resume->resume_path) }}" target="_blank"
-                                        class="text-blue-600 text-sm hover:underline">
-                                        View
-                                    </a>
+                                {{-- ✅ FALLBACK: EXISTING / NONE --}}
+                                <template x-if="!resumeName">
+                                    <div>
+                                        @if ($resumeExists)
+                                            <div class="text-xs font-semibold text-emerald-700">
+                                                Uploaded
+                                            </div>
 
-                                    <div class="text-xs text-slate-500">
-                                        {{ $resume->original_name ?? 'resume' }}
+                                            <a href="{{ asset('storage/' . $resume->resume_path) }}" target="_blank"
+                                                class="text-blue-600 text-sm hover:underline">
+                                                Preview
+                                            </a>
+
+                                            <div class="text-xs text-slate-500">
+                                                {{ $resume->original_name }}
+                                            </div>
+                                        @else
+                                            <div class="text-xs text-rose-600 font-semibold">
+                                                Not uploaded yet
+                                            </div>
+                                        @endif
                                     </div>
+                                </template>
 
-                                </div>
-                            @else
-                                <div class="text-xs text-rose-600 font-semibold">
-                                    No resume uploaded
-                                </div>
-                            @endif
+                            </div>
 
                         </div>
 
+                        {{-- UPLOAD FIELD --}}
                         <label class="block text-sm mt-4 font-medium">
                             Upload / Replace Resume
                         </label>
 
-                        <input type="file" name="resume" @change="resumeName = $event.target.files?.[0]?.name || ''"
+                        <input type="file" name="resume" @change="handleFileUpload($event)"
                             class="mt-2 block w-full text-sm rounded-xl border border-slate-300
 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900
 file:px-4 file:py-2 file:text-white hover:file:bg-slate-800">
 
+                        {{-- SELECTED FILE FEEDBACK --}}
                         <template x-if="resumeName">
-                            <p class="text-xs mt-2 text-slate-600">
+                            <div class="mt-2 text-sm text-emerald-700">
                                 Selected: <span x-text="resumeName"></span>
-                            </p>
+                            </div>
                         </template>
 
                     </div>
@@ -233,16 +281,41 @@ file:px-4 file:py-2 file:text-white hover:file:bg-slate-800">
 
                         <div class="font-semibold mb-2">Resume</div>
 
-                        @if ($resume)
-                            <p class="text-sm text-slate-600">
-                                Using uploaded resume:
-                                <span class="font-semibold">{{ $resume->original_name }}</span>
-                            </p>
-                        @else
-                            <p class="text-sm text-rose-600">
-                                No resume uploaded
-                            </p>
-                        @endif
+                        {{-- ✅ PRIORITY: NEW FILE --}}
+                        <template x-if="resumeName">
+                            <div class="text-sm">
+                                <div class="text-emerald-700 font-semibold">
+                                    Ready to upload
+                                </div>
+
+                                <div x-text="resumeName"></div>
+
+                                <a :href="resumePreview" target="_blank" class="text-blue-600 hover:underline">
+                                    Preview
+                                </a>
+                            </div>
+                        </template>
+
+                        {{-- ✅ EXISTING FILE --}}
+                        <template x-if="!resumeName">
+                            <div>
+                                @if ($resumeExists)
+                                    <p class="text-sm text-slate-600">
+                                        Using uploaded resume:
+                                        <span class="font-semibold">{{ $resume->original_name }}</span>
+                                    </p>
+
+                                    <a href="{{ asset('storage/' . $resume->resume_path) }}" target="_blank"
+                                        class="text-blue-600 hover:underline">
+                                        Preview
+                                    </a>
+                                @else
+                                    <p class="text-sm text-rose-600">
+                                        Not uploaded yet
+                                    </p>
+                                @endif
+                            </div>
+                        </template>
 
                     </div>
 
@@ -351,7 +424,8 @@ file:px-4 file:py-2 file:text-white hover:file:bg-slate-800">
                         </button>
 
                         <button type="submit" x-show="step===3"
-                            class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700">
+                            :disabled="!resumeName && {{ $resumeExists ? 'false' : 'true' }}"
+                            class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold disabled:opacity-50">
                             Submit Application
                         </button>
 

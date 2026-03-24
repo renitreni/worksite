@@ -192,7 +192,7 @@ hover:bg-emerald-700 transition shadow-sm">
                             <p class="text-gray-600 text-sm">
                                 (+63) 9617-190-588
                             </p>
-                             <p class="text-gray-600 text-sm">
+                            <p class="text-gray-600 text-sm">
                                 (+966) 508-624-264
                             </p>
 
@@ -216,7 +216,7 @@ hover:bg-emerald-700 transition shadow-sm">
                             </p>
 
                             <p class="text-gray-600 text-sm">
-                                inquiry@jobabroad.ph
+                                info@smartinboxtech.site
                             </p>
 
                         </div>
@@ -231,18 +231,15 @@ hover:bg-emerald-700 transition shadow-sm">
                         <div class="bg-emerald-100 p-3 rounded-lg">
                             <x-lucide-icon name="clock" class="w-5 h-5 text-emerald-600" />
                         </div>
-
                         <div>
-
                             <p class="font-semibold text-gray-900">
-                                Office Hours
+                                Technical Support
                             </p>
 
                             <p class="text-gray-600 text-sm">
-                                Monday – Friday<br>
-                                9:00 AM – 6:00 PM
+                                We're available 24/7<br>
+                                Monday to Sunday
                             </p>
-
                         </div>
 
                     </div>
