@@ -300,7 +300,7 @@
                         opportunities waiting for Filipino professionals worldwide.
                     </p>
 
-                    <a href="/jobs"
+                    <a href="{{ route('search-jobs') }}"
                         class="bg-white text-green-600 px-7 py-3 rounded-lg font-semibold shadow hover:bg-gray-100 inline-flex items-center gap-2">
 
                         <x-lucide-icon name="search" />
