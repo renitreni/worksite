@@ -8,8 +8,9 @@ use App\Http\Controllers\Employer\JobController;
 use App\Http\Controllers\Employer\ApplicantController;
 use App\Http\Controllers\Employer\SubscriptionController as EmployerSubscriptionController;
 use App\Http\Controllers\Employer\ApplicantFileController;
-use app\Http\Controllers\Employer\EmployerChatController;
+use App\Http\Controllers\Employer\EmployerChatController;
 use App\Http\Controllers\Employer\AnalyticsController;
+use App\Http\Controllers\Employer\AdminManagementRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +29,6 @@ Route::post('/employer/logout', [EmployerAuthController::class, 'logout'])
     ->middleware('auth')
     ->name('employer.logout');
 
-
 /*
 |--------------------------------------------------------------------------
 | EMPLOYER PAGES (AUTH + ROLE)
@@ -46,8 +46,11 @@ Route::middleware(['auth', 'role:employer', 'check.user.status'])
         Route::post('/company-profile', [EmployerProfileController::class, 'update'])->name('company-profile.update');
         Route::delete('/delete-account', [EmployerProfileController::class, 'deleteAccount'])->name('delete-account');
 
-        Route::get('/analytics', [\App\Http\Controllers\Employer\AnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
+
+        Route::post('/admin-request', [AdminManagementRequestController::class, 'store'])
+            ->name('admin-request');
         // Job postings
         Route::get('/job-postings', [JobController::class, 'index'])->name('job-postings.index');
         Route::get('/job-postings/create', [JobController::class, 'create'])->name('job-postings.create');
@@ -60,15 +63,10 @@ Route::middleware(['auth', 'role:employer', 'check.user.status'])
         Route::delete('/job-postings/{job}', [JobController::class, 'destroy'])->name('job-postings.destroy');
 
         // Combined chat interface
-        Route::get('/chat/{application?}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'index'])->name('chat.index');
+        Route::get('/chat/{application?}', [EmployerChatController::class, 'index'])->name('chat.index');
 
         // Store message
-        Route::post('/chat/{application}', [\App\Http\Controllers\Employer\EmployerChatController::class, 'store'])->name('chat.store');
-
-        // Geo + skills helpers
-        Route::get('/geo/cities', [JobController::class, 'citiesByCountry'])->name('geo.cities');
-        Route::get('/geo/areas', [JobController::class, 'areasByCity'])->name('geo.areas');
-        Route::get('/industries/{industry}/skills', [JobController::class, 'skillsByIndustry'])->name('industries.skills');
+        Route::post('/chat/{application}', [EmployerChatController::class, 'store'])->name('chat.store');
 
         // Applicants
         // Applicants pages

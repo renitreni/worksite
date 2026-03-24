@@ -4,8 +4,41 @@
     $accessService = app(\App\Services\Employer\EmployerAccessService::class);
 
     $canUseMessaging = $profile ? $accessService->canUseDirectMessaging($profile) : false;
+
+    $hasPendingRequest = $profile?->adminRequests()->where('status', 'pending')->exists();
 @endphp
 
+{{-- 🟡 SHOW REQUEST BUTTON --}}
+@if ($profile && !$profile->allow_admin_management && !$hasPendingRequest)
+    <div class="bg-yellow-50 border-b border-yellow-200 px-4 py-3 flex items-center justify-between">
+
+        <div class="text-sm text-yellow-800">
+            Need help posting jobs? Request admin assistance to manage your account.
+        </div>
+
+        <button @click="window.dispatchEvent(new CustomEvent('open-admin-request-modal'))"
+            class="text-xs px-4 py-1.5 rounded-lg bg-emerald-600 text-white">
+            Request Assistance
+        </button>
+
+    </div>
+@endif
+
+{{-- 🔵 SHOW WAITING STATUS --}}
+@if ($profile && !$profile->allow_admin_management && $hasPendingRequest)
+    <div class="bg-blue-50 border-b border-blue-200 px-4 py-3 flex items-start justify-between gap-3">
+
+        <div class="text-sm text-blue-800 leading-relaxed">
+            Your request for <span class="font-semibold">admin account management</span> has been submitted.
+            Once approved, our admin will be able to post and manage job listings on your behalf.
+        </div>
+
+        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full whitespace-nowrap">
+            Pending
+        </span>
+
+    </div>
+@endif
 <header wire:ignore.self class="sticky top-0 z-30 bg-white border-b border-gray-200">
     <div class="h-16 min-h-[64px] px-3 sm:px-6 lg:px-8 flex items-center">
         {{-- Mobile hamburger --}}
@@ -104,13 +137,8 @@
         </div>
     </div>
 </header>
-<div 
-    x-data="{ open:false }"
-    x-on:open-upgrade-modal.window="open=true"
-    x-show="open"
-    x-transition
-    class="fixed inset-0 flex items-center justify-center bg-black/40 z-50"
->
+<div x-data="{ open: false }" x-on:open-upgrade-modal.window="open=true" x-show="open" x-transition
+    class="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
 
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
 
@@ -119,16 +147,14 @@
         </h2>
 
         <p class="mt-2 text-sm text-gray-600 leading-relaxed">
-            Direct messaging is available only for the 
+            Direct messaging is available only for the
             <span class="font-semibold text-emerald-600">Platinum Plan</span>.
             Upgrade your subscription to contact candidates directly.
         </p>
 
         <div class="mt-6 flex justify-end gap-3">
 
-            <button
-                @click="open=false"
-                class="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50">
+            <button @click="open=false" class="px-4 py-2 text-sm rounded-lg border border-gray-200 hover:bg-gray-50">
                 Cancel
             </button>
 
@@ -141,4 +167,55 @@
 
     </div>
 
+</div>
+<div x-data="{ open: false }" x-cloak x-on:open-admin-request-modal.window="open=true" x-show="open" x-transition
+    class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+
+    <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
+
+        {{-- Header --}}
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Request Admin Assistance
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">
+                    Let our admin help manage your job postings.
+                </p>
+            </div>
+
+            <button @click="open=false" class="text-gray-400 hover:text-gray-600">
+                ✕
+            </button>
+        </div>
+
+        {{-- Form --}}
+        <form method="POST" action="{{ route('employer.admin-request') }}" class="mt-5">
+            @csrf
+
+            <label class="text-xs font-medium text-gray-600">
+                Message (optional)
+            </label>
+
+            <textarea name="message" rows="4"
+                class="w-full mt-2 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                placeholder="Tell admin what you need help with..."></textarea>
+
+            {{-- Actions --}}
+            <div class="mt-6 flex justify-end gap-3">
+
+                <button type="button" @click="open=false"
+                    class="px-4 py-2 text-sm rounded-xl border border-gray-200 hover:bg-gray-50">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                    class="px-5 py-2 text-sm rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow">
+                    Send Request
+                </button>
+
+            </div>
+        </form>
+
+    </div>
 </div>

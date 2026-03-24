@@ -57,6 +57,9 @@ class JobPost extends Model
 
         'admin_notes',
         'notes_updated_at',
+
+        'posted_by_admin_id',
+
     ];
 
     protected $casts = [
@@ -70,9 +73,9 @@ class JobPost extends Model
 
         'notes_updated_at' => 'datetime',
 
-        'posted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+
     ];
 
 
@@ -136,5 +139,15 @@ class JobPost extends Model
     public function logs()
     {
         return $this->hasMany(JobPostLog::class)->latest();
+    }
+
+    public function postedByAdmin()
+    {
+        return $this->belongsTo(User::class, 'posted_by_admin_id');
+    }
+
+    public function adminRequests()
+    {
+        return $this->hasMany(AdminManagementRequest::class);
     }
 }

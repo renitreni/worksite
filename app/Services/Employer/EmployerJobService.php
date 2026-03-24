@@ -116,7 +116,7 @@ class EmployerJobService
             ->values();
 
         $validated['skills'] = $allSkills->implode(',');
-        
+
         unset($validated['city_custom'], $validated['area_custom']);
 
         $job->update($validated);
@@ -177,6 +177,119 @@ class EmployerJobService
         unset($validated['city_custom'], $validated['area_custom']);
 
         $profile->jobPosts()->create($validated);
+    }
+
+    public function adminStoreJob($request)
+    {
+        $validated = $this->validateJob($request);
+
+        [$city, $area] = $this->locationService->normalizeCityArea($request);
+
+        $validated['city'] = $city;
+        $validated['area'] = $area;
+
+        $industry = Industry::findOrFail($validated['industry_id']);
+        $validated['industry'] = $industry->name;
+
+        $selectedSkills = collect();
+
+        if (!empty($validated['skills'])) {
+            $selectedSkills = Skill::where('industry_id', $industry->id)
+                ->whereIn('id', $validated['skills'])
+                ->pluck('name');
+        }
+
+        $customSkills = collect();
+
+        if (!empty($request->custom_skills)) {
+            $customSkills = collect(explode(',', $request->custom_skills))
+                ->map(fn($s) => trim($s))
+                ->filter();
+        }
+
+        foreach ($customSkills as $skillName) {
+            Skill::firstOrCreate([
+                'name' => $skillName,
+                'industry_id' => $industry->id
+            ]);
+        }
+
+        $allSkills = $selectedSkills
+            ->merge($customSkills)
+            ->unique()
+            ->values();
+
+        $validated['skills'] = $allSkills->implode(',');
+
+        $validated['posted_at'] = now();
+        $validated['status'] = 'open';
+
+        unset($validated['city_custom'], $validated['area_custom']);
+
+        return JobPost::create([
+            ...$validated,
+            'employer_profile_id' => $request->employer_profile_id,
+            'posted_by_admin_id' => auth()->id(),
+        ]);
+    }
+
+    public function getAdminCreatePageData(): array
+    {
+        return [
+            'limitReached' => false,
+            ...$this->taxonomyService->taxonomies()
+        ];
+    }
+
+    public function adminUpdateJob($request, JobPost $job)
+    {
+        $validated = $this->validateJob($request);
+
+        [$city, $area] = $this->locationService->normalizeCityArea($request);
+
+        $validated['city'] = $city;
+        $validated['area'] = $area;
+
+        $industry = Industry::findOrFail($validated['industry_id']);
+        $validated['industry'] = $industry->name;
+
+        // ✅ SAME AS EMPLOYER (IMPORTANT)
+        $selectedSkills = collect();
+
+        if (!empty($validated['skills'])) {
+            $selectedSkills = Skill::where('industry_id', $industry->id)
+                ->whereIn('id', $validated['skills'])
+                ->pluck('name');
+        }
+
+        $customSkills = collect();
+
+        if (!empty($request->custom_skills)) {
+            $customSkills = collect(explode(',', $request->custom_skills))
+                ->map(fn($s) => trim($s))
+                ->filter();
+        }
+
+        foreach ($customSkills as $skillName) {
+            Skill::firstOrCreate([
+                'name' => $skillName,
+                'industry_id' => $industry->id
+            ]);
+        }
+
+        $allSkills = $selectedSkills
+            ->merge($customSkills)
+            ->unique()
+            ->values();
+
+        $validated['skills'] = $allSkills->implode(',');
+
+        unset($validated['city_custom'], $validated['area_custom']);
+
+        $job->update([
+            ...$validated,
+            'employer_profile_id' => $request->employer_profile_id
+        ]);
     }
 
     public function authorizeOwner(JobPost $job)

@@ -42,6 +42,25 @@
                 ],
             ],
         ],
+        [
+            'label' => 'Employer Management',
+            'icon' => 'building', 
+            'active' => 'admin.employer-requests.*|admin.admin-job-posts.*',
+            'children' => [
+                [
+                    'label' => 'Requests',
+                    'route' => 'admin.employer-requests.index',
+                    'icon' => 'file-text', 
+                    'active' => 'admin.employer-requests.*',
+                ],
+                [
+                    'label' => 'Posted Jobs',
+                    'route' => 'admin.admin-job-posts.index',
+                    'icon' => 'list', 
+                    'active' => 'admin.admin-job-posts.*',
+                ],
+            ],
+        ],
 
         // 🔹 JOB MANAGEMENT
         [

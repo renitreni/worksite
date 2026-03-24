@@ -8,6 +8,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Candidate\AgencyFollowController;
+use App\Http\Controllers\Employer\JobController;
 
 
 
@@ -51,7 +52,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/all-notifications', [NotificationController::class, 'all'])
         ->name('notifications.all');
 });
+Route::get('/shared/industries/{industry}/skills', [JobController::class, 'skillsByIndustry'])
+    ->name('shared.industries.skills');
 
+Route::get('/shared/geo/cities', [JobController::class, 'citiesByCountry'])
+    ->name('shared.geo.cities');
+
+Route::get('/shared/geo/areas', [JobController::class, 'areasByCity'])
+    ->name('shared.geo.areas');
 
 Route::middleware('auth')->group(function () {
 

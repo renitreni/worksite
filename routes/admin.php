@@ -21,6 +21,8 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\ResumeController;
+use App\Http\Controllers\Admin\EmployerManagementController;
+use App\Http\Controllers\Admin\AdminJobPostController;
 
 
 
@@ -68,6 +70,34 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::patch('/users/{user}/subscription', [UserController::class, 'updateSubscription'])->name('users.subscription');
+
+        Route::get('/employer-requests', [EmployerManagementController::class, 'index'])
+            ->name('employer-requests.index');
+        Route::post('/employer-requests/{id}/approve', [EmployerManagementController::class, 'approve'])
+            ->name('employer-requests.approve');
+        Route::post('/employer-requests/{id}/decline', [EmployerManagementController::class, 'decline'])
+            ->name('employer-requests.decline');
+            
+        Route::get('/admin-job-posts/search', [AdminJobPostController::class, 'search'])
+            ->name('admin-job-posts.search');
+        Route::get('/admin-job-posts/create', [AdminJobPostController::class, 'create'])
+            ->name('admin-job-posts.create');
+        Route::post('/admin-job-posts', [AdminJobPostController::class, 'store'])
+            ->name('admin-job-posts.store');
+
+        Route::get('/admin-job-posts', [AdminJobPostController::class, 'index'])
+            ->name('admin-job-posts.index');
+        Route::get('/admin-job-posts/{job}/edit', [AdminJobPostController::class, 'edit'])
+            ->name('admin-job-posts.edit');
+        Route::put('/admin-job-posts/{job}', [AdminJobPostController::class, 'update'])
+            ->name('admin-job-posts.update');
+        Route::get('/admin-job-posts/{job}', [AdminJobPostController::class, 'show'])
+            ->name('admin-job-posts.show');
+        Route::put('/admin-job-posts/{job}/close', [AdminJobPostController::class, 'close'])
+            ->name('admin-job-posts.close');
+        Route::put('/admin-job-posts/{job}/reopen', [AdminJobPostController::class, 'reopen'])
+            ->name('admin-job-posts.reopen');
+
 
         // Job posts moderation
         Route::prefix('job-posts')->name('job-posts.')->group(function () {

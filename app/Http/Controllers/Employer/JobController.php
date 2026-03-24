@@ -102,9 +102,12 @@ class JobController extends Controller
             ->route('employer.job-postings.index')
             ->with('success', 'Job reopened successfully.');
     }
-
-    public function skillsByIndustry(Industry $industry)
+    public function skillsByIndustry($industry)
     {
-        return $this->taxonomyService->skillsByIndustry($industry);
+        $skills = \App\Models\Skill::where('industry_id', $industry)
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json($skills); // ✅ MUST BE THIS
     }
 }

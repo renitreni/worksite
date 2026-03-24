@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class EmployerProfile extends Model
 {
 
@@ -21,6 +22,7 @@ class EmployerProfile extends Model
         'total_profile_views',
         'representative_name',
         'position',
+        'allow_admin_management',
     ];
 
     public function user()
@@ -77,5 +79,9 @@ class EmployerProfile extends Model
         return asset('images/default-company.png');
     }
 
+    public function adminRequests()
+    {
+        return $this->hasMany(AdminManagementRequest::class, 'employer_profile_id');
+    }
 
 }
