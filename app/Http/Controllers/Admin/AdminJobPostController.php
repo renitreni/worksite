@@ -78,8 +78,8 @@ class AdminJobPostController extends Controller
     }
     public function edit(JobPost $job)
     {
-        if (!$job->posted_by_admin_id) {
-            abort(403);
+        if (!$job->employerProfile || !$job->employerProfile->allow_admin_management) {
+            abort(403, 'This employer did not allow admin management.');
         }
 
         $employers = EmployerProfile::where('allow_admin_management', true)->get();
@@ -94,8 +94,8 @@ class AdminJobPostController extends Controller
 
     public function update(Request $request, JobPost $job)
     {
-        if (!$job->posted_by_admin_id) {
-            abort(403);
+        if (!$job->employerProfile || !$job->employerProfile->allow_admin_management) {
+            abort(403, 'This employer did not allow admin management.');
         }
 
         $this->jobService->adminUpdateJob($request, $job);
@@ -104,7 +104,6 @@ class AdminJobPostController extends Controller
             ->route('admin.admin-job-posts.index')
             ->with('success', 'Job updated successfully.');
     }
-
     public function show(JobPost $job)
     {
         $job->load('employerProfile.user');
